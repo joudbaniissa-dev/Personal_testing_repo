@@ -4159,40 +4159,59 @@ RESPOND ONLY WITH VALID JSON. NO OTHER TEXT.`;
                 // Official Saudi Government Twitter Accounts (via Nitter RSS)
                 'https://nitter.net/HRSD_SA/rss',
                 'https://nitter.net/SaudiVision2030/rss',
-                'https://nitter.net/SaudiMOC/rss',
-                // Additional Saudi news sources
-                'https://www.alarabiya.net/rss'
+                'https://nitter.net/SaudiMOC/rss'
+                // Removed Al Arabiya - causing HTTP/2 protocol errors
             ];
             
-            // CORS proxy service (free, no API key needed)
-            const corsProxy = 'https://api.allorigins.win/get?url=';
+            // CORS proxy services (multiple fallback options, free, no API key needed)
+            const corsProxies = [
+                'https://api.allorigins.win/get?url=',
+                'https://corsproxy.io/?',
+                'https://api.codetabs.com/v1/proxy?quest='
+            ];
             
             // Parse RSS XML to extract articles
             function parseRSS(xmlText) {
                 try {
+                    // Additional validation
+                    if (!xmlText || typeof xmlText !== 'string') {
+                        return [];
+                    }
+                    
                     const parser = new DOMParser();
                     const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
                     
                     // Check for parsing errors
                     const parseError = xmlDoc.querySelector('parsererror');
                     if (parseError) {
-                        console.warn('RSS parsing error:', parseError.textContent);
-                        return [];
+                        // Try to extract some info even if there are minor errors
+                        const errorText = parseError.textContent || '';
+                        if (errorText.includes('async')) {
+                            // This is likely HTML, not XML - skip it
+                            return [];
+                        }
+                        console.warn('RSS parsing warning:', errorText.substring(0, 100));
                     }
                     
-                    const items = xmlDoc.querySelectorAll('item');
+                    // Try both 'item' (RSS 2.0) and 'entry' (Atom) formats
+                    const items = xmlDoc.querySelectorAll('item, entry');
                     const articles = [];
                     
                     items.forEach(item => {
                         const title = item.querySelector('title')?.textContent || '';
                         const link = item.querySelector('link')?.textContent || 
+                                    item.querySelector('link')?.getAttribute('href') ||
                                     item.querySelector('guid')?.textContent || '';
                         const description = item.querySelector('description')?.textContent || 
+                                          item.querySelector('content')?.textContent ||
+                                          item.querySelector('summary')?.textContent ||
                                           item.querySelector('content\\:encoded')?.textContent || '';
                         const pubDate = item.querySelector('pubDate')?.textContent || 
-                                      item.querySelector('published')?.textContent || '';
+                                      item.querySelector('published')?.textContent ||
+                                      item.querySelector('updated')?.textContent || '';
                         const source = item.querySelector('source')?.textContent || 
-                                     xmlDoc.querySelector('channel > title')?.textContent || 
+                                     xmlDoc.querySelector('channel > title')?.textContent ||
+                                     xmlDoc.querySelector('feed > title')?.textContent ||
                                      'News Source';
                         
                         // Clean HTML tags from description
@@ -4216,24 +4235,65 @@ RESPOND ONLY WITH VALID JSON. NO OTHER TEXT.`;
                 }
             }
             
-            // Fetch RSS feed using CORS proxy
+            // Fetch RSS feed using CORS proxy with fallback options
             async function fetchRSSFeed(feedUrl) {
-                try {
-                    const proxyUrl = corsProxy + encodeURIComponent(feedUrl);
-                    const response = await fetch(proxyUrl);
-                    
-                    if (!response.ok) {
-                        throw new Error(`Failed to fetch RSS: ${response.status}`);
+                // Try each CORS proxy in order
+                for (const proxy of corsProxies) {
+                    try {
+                        const proxyUrl = proxy + encodeURIComponent(feedUrl);
+                        const response = await fetch(proxyUrl, {
+                            method: 'GET',
+                            headers: {
+                                'Accept': 'application/xml, text/xml, */*'
+                            }
+                        });
+                        
+                        if (!response.ok) {
+                            continue; // Try next proxy
+                        }
+                        
+                        let xmlText;
+                        
+                        // Handle different proxy response formats
+                        if (proxy.includes('allorigins.win')) {
+                            const data = await response.json();
+                            xmlText = data.contents || '';
+                        } else if (proxy.includes('codetabs.com')) {
+                            xmlText = await response.text();
+                        } else {
+                            xmlText = await response.text();
+                        }
+                        
+                        // Validate that we got XML, not HTML
+                        if (!xmlText || xmlText.trim().length === 0) {
+                            continue; // Try next proxy
+                        }
+                        
+                        // Check if response is actually XML (not HTML)
+                        if (xmlText.includes('<!DOCTYPE html') || xmlText.includes('<html')) {
+                            console.warn('Received HTML instead of XML for:', feedUrl);
+                            continue; // Try next proxy
+                        }
+                        
+                        // Check if it looks like RSS/XML
+                        if (!xmlText.includes('<?xml') && !xmlText.includes('<rss') && !xmlText.includes('<feed')) {
+                            console.warn('Response does not appear to be RSS/XML for:', feedUrl);
+                            continue; // Try next proxy
+                        }
+                        
+                        const articles = parseRSS(xmlText);
+                        if (articles.length > 0) {
+                            return articles; // Success!
+                        }
+                    } catch (error) {
+                        // Try next proxy
+                        continue;
                     }
-                    
-                    const data = await response.json();
-                    const xmlText = data.contents || data;
-                    
-                    return parseRSS(xmlText);
-                } catch (error) {
-                    console.error('Error fetching RSS feed:', feedUrl, error);
-                    return [];
                 }
+                
+                // All proxies failed
+                console.warn('All CORS proxies failed for RSS feed:', feedUrl);
+                return [];
             }
             
             // Fetch all RSS feeds and combine articles
