@@ -4150,17 +4150,15 @@ RESPOND ONLY WITH VALID JSON. NO OTHER TEXT.`;
             };
             
             // RSS Feed sources for Saudi Arabia news (Saudi sources only)
+            // Using only the most reliable feeds to avoid rate limiting
             const rssFeeds = [
-                // Saudi News Websites
-                'https://www.arabnews.com/rss.xml',
-                'https://saudigazette.com.sa/rss',
-                // Saudi Press Agency (Official)
-                'https://www.spa.gov.sa/rss.xml',
-                // Official Saudi Government Twitter Accounts (via Nitter RSS)
-                'https://nitter.net/HRSD_SA/rss',
-                'https://nitter.net/SaudiVision2030/rss',
-                'https://nitter.net/SaudiMOC/rss'
-                // Removed Al Arabiya - causing HTTP/2 protocol errors
+                // Saudi News Websites (most reliable)
+                'https://www.arabnews.com/rss.xml'
+                // Removed other feeds due to:
+                // - Nitter feeds: All failing with CORS/rate limit errors
+                // - Saudi Gazette: Returning HTML instead of XML
+                // - SPA: HTTP/2 protocol errors
+                // Can add more reliable feeds later
             ];
             
             // CORS proxy services (multiple fallback options, free, no API key needed)
@@ -4235,11 +4233,18 @@ RESPOND ONLY WITH VALID JSON. NO OTHER TEXT.`;
                 }
             }
             
-            // Fetch RSS feed using CORS proxy with fallback options
-            async function fetchRSSFeed(feedUrl) {
+            // Fetch RSS feed using CORS proxy with fallback options and rate limit handling
+            async function fetchRSSFeed(feedUrl, retryCount = 0) {
+                const maxRetries = 2;
+                
                 // Try each CORS proxy in order
                 for (const proxy of corsProxies) {
                     try {
+                        // Add delay to avoid rate limiting (especially for retries)
+                        if (retryCount > 0) {
+                            await new Promise(resolve => setTimeout(resolve, 2000 * retryCount));
+                        }
+                        
                         const proxyUrl = proxy + encodeURIComponent(feedUrl);
                         const response = await fetch(proxyUrl, {
                             method: 'GET',
@@ -4247,6 +4252,15 @@ RESPOND ONLY WITH VALID JSON. NO OTHER TEXT.`;
                                 'Accept': 'application/xml, text/xml, */*'
                             }
                         });
+                        
+                        // Handle rate limiting
+                        if (response.status === 429) {
+                            if (retryCount < maxRetries) {
+                                await new Promise(resolve => setTimeout(resolve, 5000)); // Wait 5 seconds
+                                return fetchRSSFeed(feedUrl, retryCount + 1);
+                            }
+                            continue; // Try next proxy
+                        }
                         
                         if (!response.ok) {
                             continue; // Try next proxy
@@ -4292,25 +4306,36 @@ RESPOND ONLY WITH VALID JSON. NO OTHER TEXT.`;
                 }
                 
                 // All proxies failed
+                if (retryCount < maxRetries) {
+                    await new Promise(resolve => setTimeout(resolve, 3000));
+                    return fetchRSSFeed(feedUrl, retryCount + 1);
+                }
+                
                 console.warn('All CORS proxies failed for RSS feed:', feedUrl);
                 return [];
             }
             
-            // Fetch all RSS feeds and combine articles
+            // Fetch all RSS feeds and combine articles (sequential to avoid rate limits)
             async function fetchAllRSSArticles() {
                 const allArticles = [];
                 
-                // Fetch from all RSS feeds in parallel
-                const feedPromises = rssFeeds.map(feed => fetchRSSFeed(feed));
-                const feedResults = await Promise.allSettled(feedPromises);
-                
-                feedResults.forEach((result, index) => {
-                    if (result.status === 'fulfilled' && result.value) {
-                        allArticles.push(...result.value);
-                    } else {
-                        console.warn(`Failed to fetch RSS feed ${index}:`, result.reason);
+                // Fetch sequentially with delays to avoid rate limiting
+                for (let i = 0; i < rssFeeds.length; i++) {
+                    const feed = rssFeeds[i];
+                    try {
+                        const articles = await fetchRSSFeed(feed);
+                        if (articles && articles.length > 0) {
+                            allArticles.push(...articles);
+                        }
+                        
+                        // Add delay between requests to avoid rate limiting (except for last feed)
+                        if (i < rssFeeds.length - 1) {
+                            await new Promise(resolve => setTimeout(resolve, 1000)); // 1 second delay
+                        }
+                    } catch (error) {
+                        console.warn(`Failed to fetch RSS feed ${i}:`, feed, error);
                     }
-                });
+                }
                 
                 // Remove duplicates based on URL
                 const uniqueArticles = [];
@@ -4329,7 +4354,7 @@ RESPOND ONLY WITH VALID JSON. NO OTHER TEXT.`;
             // Cache for RSS articles to avoid refetching
             let cachedRSSArticles = [];
             let rssCacheTime = 0;
-            const RSS_CACHE_DURATION = 15 * 60 * 1000; // 15 minutes
+            const RSS_CACHE_DURATION = 30 * 60 * 1000; // 30 minutes (increased to reduce API calls)
             
             async function fetchNewsForTopic(topicId) {
                 const geminiApiKey = "AIzaSyCRFXs-Ysnoy2swH1yjqZYoRMNC4HTpv_c";
@@ -4347,100 +4372,110 @@ RESPOND ONLY WITH VALID JSON. NO OTHER TEXT.`;
                         return []; // No articles available
                     }
                     
-                    // Step 2: Use Gemini to find the most relevant article for this topic
-                    const geminiApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${geminiApiKey}`;
-                    
-                    // Prepare article list for Gemini to analyze
-                    const articlesForAnalysis = cachedRSSArticles.slice(0, 20); // Limit to 20 for efficiency
-                    const articlesList = articlesForAnalysis.map((article, index) => 
-                        `${index}: "${article.title}" - ${article.description?.substring(0, 150) || 'No description'}`
-                    ).join('\n');
-                    
-                    const relevancePrompt = `You are Layla Al-Farsi, a Data Analytics Agent for HRSD in Saudi Arabia. 
-
-Your Highness needs news relevant to: "${topicName}"
-
-From these recent news articles, select the ONE most relevant article (return only the index number 0-${articlesForAnalysis.length - 1}):
-
-${articlesList}
-
-Focus on articles about:
-- ${topicName === 'Strengthening Labor Market' ? 'labor market, employment, Saudization, workforce development in Saudi Arabia' : ''}
-- ${topicName === 'Empowering Society & Individuals' ? 'social development, community empowerment, individual support programs in Saudi Arabia' : ''}
-- ${topicName === 'Enabling the Non-Profit Sector' ? 'non-profit organizations, charities, third sector, NGOs in Saudi Arabia' : ''}
-- ${topicName === 'Strategic Partnerships' ? 'partnerships, collaborations, MoUs, public-private partnerships in Saudi Arabia' : ''}
-
-Return ONLY the number (0-${articlesForAnalysis.length - 1}), nothing else.`;
-
-                    const relevancePayload = {
-                        contents: [{ role: 'user', parts: [{ text: relevancePrompt }] }],
-                        systemInstruction: {
-                            parts: [{ text: 'You are a relevance filter. Return ONLY a number between 0 and ' + (articlesForAnalysis.length - 1) + '. No explanations, no text, just the number.' }]
-                        },
-                        generationConfig: {
-                            maxOutputTokens: 10,
-                            temperature: 0.3,
-                        },
-                        safetySettings: [
-                            { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
-                            { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
-                            { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
-                            { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
-                        ]
-                    };
-                    
+                    // Step 2: Select article (skip AI relevance if we have few articles to avoid rate limits)
+                    const articlesForAnalysis = cachedRSSArticles.slice(0, 10); // Reduced to 10 to avoid rate limits
                     let selectedArticle = articlesForAnalysis[0]; // Default to first article
                     
-                    try {
-                        const relevanceResponse = await fetch(geminiApiUrl, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(relevancePayload)
+                    // Only use AI relevance filtering if we have multiple articles and haven't hit rate limits
+                    if (articlesForAnalysis.length > 1) {
+                        const geminiApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${geminiApiKey}`;
+                        
+                        // Simple keyword-based selection first (faster, no API call)
+                        const topicKeywords = {
+                            'labor-market': ['labor', 'employment', 'job', 'workforce', 'saudization', 'worker'],
+                            'empowerment': ['empowerment', 'society', 'social', 'community', 'individual', 'support'],
+                            'non-profit': ['non-profit', 'charity', 'ngo', 'organization', 'sector'],
+                            'strategic-partnerships': ['partnership', 'mou', 'agreement', 'collaboration', 'cooperation']
+                        };
+                        
+                        const keywords = topicKeywords[topicId] || [];
+                        const keywordMatch = articlesForAnalysis.find(article => {
+                            const text = (article.title + ' ' + article.description).toLowerCase();
+                            return keywords.some(keyword => text.includes(keyword));
                         });
                         
-                        if (relevanceResponse.ok) {
-                            const relevanceResult = await relevanceResponse.json();
-                            const indexText = relevanceResult.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
-                            const selectedIndex = parseInt(indexText);
-                            
-                            if (!isNaN(selectedIndex) && selectedIndex >= 0 && selectedIndex < articlesForAnalysis.length) {
-                                selectedArticle = articlesForAnalysis[selectedIndex];
+                        if (keywordMatch) {
+                            selectedArticle = keywordMatch;
+                        } else {
+                            // Fallback to AI selection only if keyword matching fails
+                            try {
+                                const articlesList = articlesForAnalysis.map((article, index) => 
+                                    `${index}: "${article.title}"`
+                                ).join('\n');
+                                
+                                const relevancePrompt = `Select the most relevant article index (0-${articlesForAnalysis.length - 1}) for "${topicName}" in Saudi Arabia. Return ONLY the number. Articles:\n${articlesList}`;
+
+                                const relevancePayload = {
+                                    contents: [{ role: 'user', parts: [{ text: relevancePrompt }] }],
+                                    systemInstruction: {
+                                        parts: [{ text: 'Return ONLY a number between 0 and ' + (articlesForAnalysis.length - 1) + '.' }]
+                                    },
+                                    generationConfig: {
+                                        maxOutputTokens: 5,
+                                        temperature: 0.3,
+                                    },
+                                    safetySettings: [
+                                        { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
+                                        { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
+                                        { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
+                                        { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
+                                    ]
+                                };
+                                
+                                const relevanceResponse = await fetch(geminiApiUrl, {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify(relevancePayload)
+                                });
+                                
+                                if (relevanceResponse.ok) {
+                                    const relevanceResult = await relevanceResponse.json();
+                                    const indexText = relevanceResult.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+                                    const selectedIndex = parseInt(indexText);
+                                    
+                                    if (!isNaN(selectedIndex) && selectedIndex >= 0 && selectedIndex < articlesForAnalysis.length) {
+                                        selectedArticle = articlesForAnalysis[selectedIndex];
+                                    }
+                                }
+                            } catch (relevanceError) {
+                                // Silently fail - use default article
                             }
                         }
-                    } catch (relevanceError) {
-                        console.warn('Relevance filtering failed, using first article:', relevanceError);
                     }
                     
-                    // Step 3: Use Gemini to summarize the selected article
-                    const summaryPrompt = `You are Layla Al-Farsi, a Data Analytics Agent for HRSD in Saudi Arabia. 
-
-Please provide a concise 2-3 sentence summary of this news article for Your Highness, focusing on relevance to "${topicName}":
-
-Title: ${selectedArticle.title || 'No title'}
-Description: ${selectedArticle.description?.substring(0, 500) || 'No description available'}
-
-Focus on the key points and relevance to HRSD initiatives. Keep it brief and executive-level.`;
-
-                    const summaryPayload = {
-                        contents: [{ role: 'user', parts: [{ text: summaryPrompt }] }],
-                        systemInstruction: {
-                            parts: [{ text: 'You are Layla Al-Farsi, a Data Analytics Agent. Provide concise, executive-level summaries. Be brief and focused.' }]
-                        },
-                        generationConfig: {
-                            maxOutputTokens: 256,
-                            temperature: 0.7,
-                        },
-                        safetySettings: [
-                            { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
-                            { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
-                            { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
-                            { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
-                        ]
-                    };
-                    
+                    // Step 3: Use Gemini to summarize the selected article (with rate limit handling)
                     let aiSummary = selectedArticle.description || 'No summary available.';
                     
+                    // Add delay before Gemini API call to avoid rate limits
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                    
                     try {
+                        const geminiApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${geminiApiKey}`;
+                        
+                        const summaryPrompt = `Provide a 2-3 sentence summary of this news article for HRSD executive, focusing on "${topicName}":
+
+Title: ${selectedArticle.title || 'No title'}
+Description: ${selectedArticle.description?.substring(0, 400) || 'No description available'}
+
+Keep it brief and executive-level.`;
+
+                        const summaryPayload = {
+                            contents: [{ role: 'user', parts: [{ text: summaryPrompt }] }],
+                            systemInstruction: {
+                                parts: [{ text: 'You are Layla Al-Farsi. Provide concise executive summaries. Be brief.' }]
+                            },
+                            generationConfig: {
+                                maxOutputTokens: 200,
+                                temperature: 0.7,
+                            },
+                            safetySettings: [
+                                { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
+                                { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
+                                { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
+                                { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
+                            ]
+                        };
+                        
                         const summaryResponse = await fetch(geminiApiUrl, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
@@ -4453,9 +4488,12 @@ Focus on the key points and relevance to HRSD initiatives. Keep it brief and exe
                             if (summaryText) {
                                 aiSummary = summaryText.trim();
                             }
+                        } else if (summaryResponse.status === 429) {
+                            // Rate limited - use description as fallback
+                            console.warn('Gemini API rate limited, using article description');
                         }
                     } catch (summaryError) {
-                        console.warn('Gemini summarization failed, using article description:', summaryError);
+                        // Silently fail - use description
                     }
                     
                     // Step 4: Format and return the news item
@@ -4491,12 +4529,22 @@ Focus on the key points and relevance to HRSD initiatives. Keep it brief and exe
                 newsLoading.style.display = 'block';
                 
                 try {
-                    // Fetch news for all topics
+                    // Fetch news for all topics sequentially to avoid rate limits
                     const allTopics = ['labor-market', 'empowerment', 'non-profit', 'strategic-partnerships'];
-                    const allNewsPromises = allTopics.map(topicId => fetchNewsForTopic(topicId));
+                    newsData = [];
                     
-                    const newsArrays = await Promise.all(allNewsPromises);
-                    newsData = newsArrays.flat();
+                    for (let i = 0; i < allTopics.length; i++) {
+                        const topicId = allTopics[i];
+                        const topicNews = await fetchNewsForTopic(topicId);
+                        if (topicNews && topicNews.length > 0) {
+                            newsData.push(...topicNews);
+                        }
+                        
+                        // Add delay between topics to avoid rate limiting (except for last topic)
+                        if (i < allTopics.length - 1) {
+                            await new Promise(resolve => setTimeout(resolve, 2000)); // 2 second delay
+                        }
+                    }
                     
                     // Filter out any empty results (topics with no news found)
                     newsData = newsData.filter(item => item && item.title);
