@@ -4140,6 +4140,7 @@ RESPOND ONLY WITH VALID JSON. NO OTHER TEXT.`;
             // --- News Page Functions ---
             let newsData = [];
             let currentNewsFilter = 'all';
+            const NEWSAPI_KEY = "aaf1300376aa4444b6f5aa61f428cd7e";
             
             // Topic mapping for news queries
             const topicMapping = {
@@ -4150,83 +4151,109 @@ RESPOND ONLY WITH VALID JSON. NO OTHER TEXT.`;
             };
             
             async function fetchNewsForTopic(topicId) {
-                const apiKey = "AIzaSyCRFXs-Ysnoy2swH1yjqZYoRMNC4HTpv_c";
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+                const newsApiKey = NEWSAPI_KEY;
+                const geminiApiKey = "AIzaSyCRFXs-Ysnoy2swH1yjqZYoRMNC4HTpv_c";
                 
                 const topicName = topicMapping[topicId] || 'HRSD initiatives';
-                const prompt = `You are Layla Al-Farsi, a Data Analytics Agent for HRSD in Saudi Arabia. Your Highness needs to stay informed about the latest news and media coverage related to "${topicName}" in Saudi Arabia.
-
-Please provide a summary of the latest news, social media discussions, and media coverage about "${topicName}" and related HRSD initiatives. Focus on recent developments, public sentiment, and key updates.
-
-Format your response as a JSON array of news items. Each item should have:
-- title: A concise headline
-- summary: A brief 2-3 sentence summary
-- source: The type of source (e.g., "Social Media", "News Article", "Official Statement")
-- relevance: A brief note on why this is relevant to HRSD
-
-Return ONLY a valid JSON array with 3-5 news items. Example format:
-[
-  {
-    "title": "News headline here",
-    "summary": "Brief summary of the news item...",
-    "source": "Social Media",
-    "relevance": "Relevant because..."
-  }
-]
-
-Current date: ${new Date().toLocaleDateString('en-US', { timeZone: 'Asia/Riyadh' })}`;
-
-                const payload = {
-                    contents: [{ role: 'user', parts: [{ text: prompt }] }],
-                    systemInstruction: {
-                        parts: [{ text: 'You are Layla Al-Farsi, a Data Analytics Agent. Always respond with valid JSON arrays only. No markdown, no explanations, just JSON.' }]
-                    },
-                    generationConfig: {
-                        maxOutputTokens: 2048,
-                        temperature: 0.7,
-                    },
-                    safetySettings: [
-                        { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
-                        { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
-                        { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
-                        { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
-                    ]
+                
+                // Search query mapping for NewsAPI
+                const searchQueries = {
+                    'labor-market': 'labor market Saudi Arabia HRSD employment',
+                    'empowerment': 'empowerment society individuals Saudi Arabia HRSD',
+                    'non-profit': 'non-profit sector Saudi Arabia HRSD',
+                    'strategic-partnerships': 'strategic partnerships Saudi Arabia HRSD'
                 };
-
+                
+                const searchQuery = searchQueries[topicId] || topicName;
+                
                 try {
-                    const response = await fetch(apiUrl, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
-
-                    if (!response.ok) {
-                        throw new Error(`API error: ${response.status}`);
+                    // Step 1: Fetch 1 real news article from NewsAPI.org
+                    const newsApiUrl = `https://newsapi.org/v2/everything?q=${encodeURIComponent(searchQuery)}&language=en&sortBy=publishedAt&pageSize=1&apiKey=${newsApiKey}`;
+                    
+                    const newsResponse = await fetch(newsApiUrl);
+                    
+                    if (!newsResponse.ok) {
+                        if (newsResponse.status === 429) {
+                            throw new Error('NewsAPI rate limit reached. Please try again later.');
+                        }
+                        throw new Error(`NewsAPI error: ${newsResponse.status}`);
                     }
-
-                    const result = await response.json();
-                    const responseText = result.candidates?.[0]?.content?.parts?.[0]?.text;
                     
-                    if (!responseText) {
-                        return [];
+                    const newsData = await newsResponse.json();
+                    
+                    // Check if we got any articles
+                    if (!newsData.articles || newsData.articles.length === 0) {
+                        return []; // No news found for this topic
                     }
+                    
+                    const article = newsData.articles[0];
+                    
+                    // Step 2: Use Gemini to summarize the article
+                    const geminiApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${geminiApiKey}`;
+                    
+                    const summaryPrompt = `You are Layla Al-Farsi, a Data Analytics Agent for HRSD in Saudi Arabia. 
 
-                    // Parse JSON response (remove markdown code blocks if present)
-                    let jsonText = responseText.trim();
-                    jsonText = jsonText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+Please provide a concise 2-3 sentence summary of this news article for Your Highness:
+
+Title: ${article.title || 'No title'}
+Description: ${article.description || article.content?.substring(0, 500) || 'No description available'}
+
+Focus on the key points and relevance to HRSD initiatives. Keep it brief and executive-level.`;
+
+                    const geminiPayload = {
+                        contents: [{ role: 'user', parts: [{ text: summaryPrompt }] }],
+                        systemInstruction: {
+                            parts: [{ text: 'You are Layla Al-Farsi, a Data Analytics Agent. Provide concise, executive-level summaries. Be brief and focused.' }]
+                        },
+                        generationConfig: {
+                            maxOutputTokens: 256,
+                            temperature: 0.7,
+                        },
+                        safetySettings: [
+                            { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
+                            { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
+                            { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
+                            { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
+                        ]
+                    };
                     
-                    const newsItems = JSON.parse(jsonText);
+                    let aiSummary = article.description || 'No summary available.';
                     
-                    // Add topic and timestamp to each item
-                    return Array.isArray(newsItems) ? newsItems.map(item => ({
-                        ...item,
+                    try {
+                        const geminiResponse = await fetch(geminiApiUrl, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(geminiPayload)
+                        });
+                        
+                        if (geminiResponse.ok) {
+                            const geminiResult = await geminiResponse.json();
+                            const summaryText = geminiResult.candidates?.[0]?.content?.parts?.[0]?.text;
+                            if (summaryText) {
+                                aiSummary = summaryText.trim();
+                            }
+                        }
+                    } catch (geminiError) {
+                        console.warn('Gemini summarization failed, using article description:', geminiError);
+                        // Fallback to article description if Gemini fails
+                    }
+                    
+                    // Step 3: Format and return the news item
+                    const newsItem = {
+                        id: `news-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+                        title: article.title || 'News Update',
+                        summary: aiSummary,
+                        source: article.source?.name || 'Unknown Source',
+                        url: article.url || '#',
+                        publishedAt: article.publishedAt || new Date().toISOString(),
                         topic: topicId,
-                        timestamp: new Date().toISOString(),
-                        id: `news-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
-                    })) : [];
+                        timestamp: new Date().toISOString()
+                    };
+                    
+                    return [newsItem];
                     
                 } catch (error) {
-                    console.error('Error fetching news:', error);
+                    console.error('Error fetching news for topic:', topicId, error);
                     return [];
                 }
             }
@@ -4251,8 +4278,8 @@ Current date: ${new Date().toLocaleDateString('en-US', { timeZone: 'Asia/Riyadh'
                     const newsArrays = await Promise.all(allNewsPromises);
                     newsData = newsArrays.flat();
                     
-                    // Shuffle and limit to reasonable number
-                    newsData = newsData.sort(() => Math.random() - 0.5).slice(0, 20);
+                    // Filter out any empty results (topics with no news found)
+                    newsData = newsData.filter(item => item && item.title);
                     
                     // Render news
                     renderNews();
@@ -4314,7 +4341,17 @@ Current date: ${new Date().toLocaleDateString('en-US', { timeZone: 'Asia/Riyadh'
                         <h3 class="tool-title" style="text-align: left; width: 100%; margin-bottom: 12px;">${newsItem.title || 'News Update'}</h3>
                         <p class="tool-description" style="text-align: left; width: 100%; margin-bottom: 12px;">${newsItem.summary || 'No summary available.'}</p>
                         <div style="width: 100%; text-align: left; margin-bottom: 15px; font-size: 0.75rem; opacity: 0.7;">
-                            <i class="fas fa-info-circle"></i> Source: ${newsItem.source || 'Media'}
+                            <div style="margin-bottom: 5px;">
+                                <i class="fas fa-newspaper"></i> Source: <strong>${newsItem.source || 'Media'}</strong>
+                            </div>
+                            ${newsItem.publishedAt ? `<div style="margin-bottom: 5px; opacity: 0.6;">
+                                <i class="fas fa-calendar"></i> ${new Date(newsItem.publishedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+                            </div>` : ''}
+                            ${newsItem.url && newsItem.url !== '#' ? `<div>
+                                <a href="${newsItem.url}" target="_blank" rel="noopener noreferrer" style="color: var(--primary-blue); text-decoration: none; display: inline-flex; align-items: center; gap: 5px;">
+                                    <i class="fas fa-external-link-alt"></i> View Original Article
+                                </a>
+                            </div>` : ''}
                         </div>
                         <button class="tool-action-btn news-ask-agent-btn" data-news-id="${newsItem.id}" style="width: 100%;">
                             <i class="fas fa-comment-dots"></i> Ask Agent About This
