@@ -4140,7 +4140,6 @@ RESPOND ONLY WITH VALID JSON. NO OTHER TEXT.`;
             // --- News Page Functions ---
             let newsData = [];
             let currentNewsFilter = 'all';
-            const NEWSAPI_KEY = "aaf1300376aa4444b6f5aa61f428cd7e";
             
             // Topic mapping for news queries
             const topicMapping = {
@@ -4150,57 +4149,219 @@ RESPOND ONLY WITH VALID JSON. NO OTHER TEXT.`;
                 'strategic-partnerships': 'Strategic Partnerships'
             };
             
-            async function fetchNewsForTopic(topicId) {
-                const newsApiKey = NEWSAPI_KEY;
-                const geminiApiKey = "AIzaSyCRFXs-Ysnoy2swH1yjqZYoRMNC4HTpv_c";
+            // RSS Feed sources for Saudi Arabia news (Saudi sources only)
+            const rssFeeds = [
+                // Saudi News Websites
+                'https://www.arabnews.com/rss.xml',
+                'https://saudigazette.com.sa/rss',
+                // Saudi Press Agency (Official)
+                'https://www.spa.gov.sa/rss.xml',
+                // Official Saudi Government Twitter Accounts (via Nitter RSS)
+                'https://nitter.net/HRSD_SA/rss',
+                'https://nitter.net/SaudiVision2030/rss',
+                'https://nitter.net/SaudiMOC/rss',
+                // Additional Saudi news sources
+                'https://www.alarabiya.net/rss'
+            ];
+            
+            // CORS proxy service (free, no API key needed)
+            const corsProxy = 'https://api.allorigins.win/get?url=';
+            
+            // Parse RSS XML to extract articles
+            function parseRSS(xmlText) {
+                try {
+                    const parser = new DOMParser();
+                    const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
+                    
+                    // Check for parsing errors
+                    const parseError = xmlDoc.querySelector('parsererror');
+                    if (parseError) {
+                        console.warn('RSS parsing error:', parseError.textContent);
+                        return [];
+                    }
+                    
+                    const items = xmlDoc.querySelectorAll('item');
+                    const articles = [];
+                    
+                    items.forEach(item => {
+                        const title = item.querySelector('title')?.textContent || '';
+                        const link = item.querySelector('link')?.textContent || 
+                                    item.querySelector('guid')?.textContent || '';
+                        const description = item.querySelector('description')?.textContent || 
+                                          item.querySelector('content\\:encoded')?.textContent || '';
+                        const pubDate = item.querySelector('pubDate')?.textContent || 
+                                      item.querySelector('published')?.textContent || '';
+                        const source = item.querySelector('source')?.textContent || 
+                                     xmlDoc.querySelector('channel > title')?.textContent || 
+                                     'News Source';
+                        
+                        // Clean HTML tags from description
+                        const cleanDescription = description.replace(/<[^>]*>/g, '').trim();
+                        
+                        if (title && link) {
+                            articles.push({
+                                title: title.trim(),
+                                url: link.trim(),
+                                description: cleanDescription,
+                                publishedAt: pubDate,
+                                source: source.trim()
+                            });
+                        }
+                    });
+                    
+                    return articles;
+                } catch (error) {
+                    console.error('Error parsing RSS:', error);
+                    return [];
+                }
+            }
+            
+            // Fetch RSS feed using CORS proxy
+            async function fetchRSSFeed(feedUrl) {
+                try {
+                    const proxyUrl = corsProxy + encodeURIComponent(feedUrl);
+                    const response = await fetch(proxyUrl);
+                    
+                    if (!response.ok) {
+                        throw new Error(`Failed to fetch RSS: ${response.status}`);
+                    }
+                    
+                    const data = await response.json();
+                    const xmlText = data.contents || data;
+                    
+                    return parseRSS(xmlText);
+                } catch (error) {
+                    console.error('Error fetching RSS feed:', feedUrl, error);
+                    return [];
+                }
+            }
+            
+            // Fetch all RSS feeds and combine articles
+            async function fetchAllRSSArticles() {
+                const allArticles = [];
                 
+                // Fetch from all RSS feeds in parallel
+                const feedPromises = rssFeeds.map(feed => fetchRSSFeed(feed));
+                const feedResults = await Promise.allSettled(feedPromises);
+                
+                feedResults.forEach((result, index) => {
+                    if (result.status === 'fulfilled' && result.value) {
+                        allArticles.push(...result.value);
+                    } else {
+                        console.warn(`Failed to fetch RSS feed ${index}:`, result.reason);
+                    }
+                });
+                
+                // Remove duplicates based on URL
+                const uniqueArticles = [];
+                const seenUrls = new Set();
+                
+                allArticles.forEach(article => {
+                    if (article.url && !seenUrls.has(article.url)) {
+                        seenUrls.add(article.url);
+                        uniqueArticles.push(article);
+                    }
+                });
+                
+                return uniqueArticles;
+            }
+            
+            // Cache for RSS articles to avoid refetching
+            let cachedRSSArticles = [];
+            let rssCacheTime = 0;
+            const RSS_CACHE_DURATION = 15 * 60 * 1000; // 15 minutes
+            
+            async function fetchNewsForTopic(topicId) {
+                const geminiApiKey = "AIzaSyCRFXs-Ysnoy2swH1yjqZYoRMNC4HTpv_c";
                 const topicName = topicMapping[topicId] || 'HRSD initiatives';
                 
-                // Search query mapping for NewsAPI
-                const searchQueries = {
-                    'labor-market': 'labor market Saudi Arabia HRSD employment',
-                    'empowerment': 'empowerment society individuals Saudi Arabia HRSD',
-                    'non-profit': 'non-profit sector Saudi Arabia HRSD',
-                    'strategic-partnerships': 'strategic partnerships Saudi Arabia HRSD'
-                };
-                
-                const searchQuery = searchQueries[topicId] || topicName;
-                
                 try {
-                    // Step 1: Fetch 1 real news article from NewsAPI.org
-                    const newsApiUrl = `https://newsapi.org/v2/everything?q=${encodeURIComponent(searchQuery)}&language=en&sortBy=publishedAt&pageSize=1&apiKey=${newsApiKey}`;
-                    
-                    const newsResponse = await fetch(newsApiUrl);
-                    
-                    if (!newsResponse.ok) {
-                        if (newsResponse.status === 429) {
-                            throw new Error('NewsAPI rate limit reached. Please try again later.');
-                        }
-                        throw new Error(`NewsAPI error: ${newsResponse.status}`);
+                    // Step 1: Fetch RSS articles (use cache if available)
+                    const now = Date.now();
+                    if (cachedRSSArticles.length === 0 || (now - rssCacheTime) > RSS_CACHE_DURATION) {
+                        cachedRSSArticles = await fetchAllRSSArticles();
+                        rssCacheTime = now;
                     }
                     
-                    const newsData = await newsResponse.json();
-                    
-                    // Check if we got any articles
-                    if (!newsData.articles || newsData.articles.length === 0) {
-                        return []; // No news found for this topic
+                    if (cachedRSSArticles.length === 0) {
+                        return []; // No articles available
                     }
                     
-                    const article = newsData.articles[0];
-                    
-                    // Step 2: Use Gemini to summarize the article
+                    // Step 2: Use Gemini to find the most relevant article for this topic
                     const geminiApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${geminiApiKey}`;
                     
+                    // Prepare article list for Gemini to analyze
+                    const articlesForAnalysis = cachedRSSArticles.slice(0, 20); // Limit to 20 for efficiency
+                    const articlesList = articlesForAnalysis.map((article, index) => 
+                        `${index}: "${article.title}" - ${article.description?.substring(0, 150) || 'No description'}`
+                    ).join('\n');
+                    
+                    const relevancePrompt = `You are Layla Al-Farsi, a Data Analytics Agent for HRSD in Saudi Arabia. 
+
+Your Highness needs news relevant to: "${topicName}"
+
+From these recent news articles, select the ONE most relevant article (return only the index number 0-${articlesForAnalysis.length - 1}):
+
+${articlesList}
+
+Focus on articles about:
+- ${topicName === 'Strengthening Labor Market' ? 'labor market, employment, Saudization, workforce development in Saudi Arabia' : ''}
+- ${topicName === 'Empowering Society & Individuals' ? 'social development, community empowerment, individual support programs in Saudi Arabia' : ''}
+- ${topicName === 'Enabling the Non-Profit Sector' ? 'non-profit organizations, charities, third sector, NGOs in Saudi Arabia' : ''}
+- ${topicName === 'Strategic Partnerships' ? 'partnerships, collaborations, MoUs, public-private partnerships in Saudi Arabia' : ''}
+
+Return ONLY the number (0-${articlesForAnalysis.length - 1}), nothing else.`;
+
+                    const relevancePayload = {
+                        contents: [{ role: 'user', parts: [{ text: relevancePrompt }] }],
+                        systemInstruction: {
+                            parts: [{ text: 'You are a relevance filter. Return ONLY a number between 0 and ' + (articlesForAnalysis.length - 1) + '. No explanations, no text, just the number.' }]
+                        },
+                        generationConfig: {
+                            maxOutputTokens: 10,
+                            temperature: 0.3,
+                        },
+                        safetySettings: [
+                            { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
+                            { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
+                            { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
+                            { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
+                        ]
+                    };
+                    
+                    let selectedArticle = articlesForAnalysis[0]; // Default to first article
+                    
+                    try {
+                        const relevanceResponse = await fetch(geminiApiUrl, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(relevancePayload)
+                        });
+                        
+                        if (relevanceResponse.ok) {
+                            const relevanceResult = await relevanceResponse.json();
+                            const indexText = relevanceResult.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+                            const selectedIndex = parseInt(indexText);
+                            
+                            if (!isNaN(selectedIndex) && selectedIndex >= 0 && selectedIndex < articlesForAnalysis.length) {
+                                selectedArticle = articlesForAnalysis[selectedIndex];
+                            }
+                        }
+                    } catch (relevanceError) {
+                        console.warn('Relevance filtering failed, using first article:', relevanceError);
+                    }
+                    
+                    // Step 3: Use Gemini to summarize the selected article
                     const summaryPrompt = `You are Layla Al-Farsi, a Data Analytics Agent for HRSD in Saudi Arabia. 
 
-Please provide a concise 2-3 sentence summary of this news article for Your Highness:
+Please provide a concise 2-3 sentence summary of this news article for Your Highness, focusing on relevance to "${topicName}":
 
-Title: ${article.title || 'No title'}
-Description: ${article.description || article.content?.substring(0, 500) || 'No description available'}
+Title: ${selectedArticle.title || 'No title'}
+Description: ${selectedArticle.description?.substring(0, 500) || 'No description available'}
 
 Focus on the key points and relevance to HRSD initiatives. Keep it brief and executive-level.`;
 
-                    const geminiPayload = {
+                    const summaryPayload = {
                         contents: [{ role: 'user', parts: [{ text: summaryPrompt }] }],
                         systemInstruction: {
                             parts: [{ text: 'You are Layla Al-Farsi, a Data Analytics Agent. Provide concise, executive-level summaries. Be brief and focused.' }]
@@ -4217,35 +4378,34 @@ Focus on the key points and relevance to HRSD initiatives. Keep it brief and exe
                         ]
                     };
                     
-                    let aiSummary = article.description || 'No summary available.';
+                    let aiSummary = selectedArticle.description || 'No summary available.';
                     
                     try {
-                        const geminiResponse = await fetch(geminiApiUrl, {
+                        const summaryResponse = await fetch(geminiApiUrl, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(geminiPayload)
+                            body: JSON.stringify(summaryPayload)
                         });
                         
-                        if (geminiResponse.ok) {
-                            const geminiResult = await geminiResponse.json();
-                            const summaryText = geminiResult.candidates?.[0]?.content?.parts?.[0]?.text;
+                        if (summaryResponse.ok) {
+                            const summaryResult = await summaryResponse.json();
+                            const summaryText = summaryResult.candidates?.[0]?.content?.parts?.[0]?.text;
                             if (summaryText) {
                                 aiSummary = summaryText.trim();
                             }
                         }
-                    } catch (geminiError) {
-                        console.warn('Gemini summarization failed, using article description:', geminiError);
-                        // Fallback to article description if Gemini fails
+                    } catch (summaryError) {
+                        console.warn('Gemini summarization failed, using article description:', summaryError);
                     }
                     
-                    // Step 3: Format and return the news item
+                    // Step 4: Format and return the news item
                     const newsItem = {
                         id: `news-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-                        title: article.title || 'News Update',
+                        title: selectedArticle.title || 'News Update',
                         summary: aiSummary,
-                        source: article.source?.name || 'Unknown Source',
-                        url: article.url || '#',
-                        publishedAt: article.publishedAt || new Date().toISOString(),
+                        source: selectedArticle.source || 'News Source',
+                        url: selectedArticle.url || '#',
+                        publishedAt: selectedArticle.publishedAt || new Date().toISOString(),
                         topic: topicId,
                         timestamp: new Date().toISOString()
                     };
