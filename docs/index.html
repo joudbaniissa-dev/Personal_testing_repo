@@ -2555,9 +2555,9 @@
                     <div class="chat-messages" id="chatMessages">
                         <div class="message-bubble agent">
                             <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Hakim" alt="Agent Avatar" class="avatar" data-persona-avatar="">
-                            <div class="content">Welcome your Highness. As-salāmu 'alaykum. I am Hakim, your AI Executive Office Agent. How may I assist you today?</div>
+                            <div class="content">Welcome Your Excellency. As-salāmu 'alaykum. I am Hakim, your AI Executive Office Agent. How may I assist you today?</div>
                         </div>
-                    <div class="message-bubble user"><img src="https://ui-avatars.com/api/?name=Ahmad&background=00A99D&color=fff&size=128" alt="user Avatar" class="avatar"><div class="content">Can you dig deeper into the topic of "Empowering Society &amp; Individuals" for me? Provide key details and current status.</div></div><div class="message-bubble agent"><img src="https://api.dicebear.com/7.x/bottts/svg?seed=Hakim" alt="agent Avatar" class="avatar" data-persona-avatar=""><div class="content"><span class="agent-name-tag">Hakim Nüruddin</span><div><p><strong>To Your Highness,</strong></p>
+                    <div class="message-bubble user"><img src="https://ui-avatars.com/api/?name=Ahmad&background=00A99D&color=fff&size=128" alt="user Avatar" class="avatar"><div class="content">Can you dig deeper into the topic of "Empowering Society &amp; Individuals" for me? Provide key details and current status.</div></div><div class="message-bubble agent"><img src="https://api.dicebear.com/7.x/bottts/svg?seed=Hakim" alt="agent Avatar" class="avatar" data-persona-avatar=""><div class="content"><span class="agent-name-tag">Hakim Nüruddin</span><div><p><strong>To Your Excellency,</strong></p>
 <p>The topic of "Empowering Society &amp; Individuals" is a central axis of the National Transformation Program and HRSD’s mandate. It moves beyond mere provision of services toward <em>sustainable enablement</em> and the cultivation of a productive, self-reliant citizenry.</p>
 <p>Here is a strategic summary detailing the key focus areas and current status as of Q4 2025.</p>
 <hr>
@@ -2654,6 +2654,7 @@
                         <button class="topic-action-btn" data-action="meetings"><i class="fas fa-calendar-days"></i> Related Meetings</button>
                         <button class="topic-action-btn" data-action="deeper"><i class="fas fa-magnifying-glass"></i> Dig Deeper</button>
                         <button class="topic-action-btn" data-action="references"><i class="fas fa-file-alt"></i> View References</button>
+                        <button class="topic-action-btn" data-action="news"><i class="fas fa-newspaper"></i> View Related News</button>
                     </div>
                 </div>
                 <!-- Topic Card 2 -->
@@ -2677,6 +2678,7 @@
                         <button class="topic-action-btn" data-action="meetings"><i class="fas fa-calendar-days"></i> Related Meetings</button>
                         <button class="topic-action-btn" data-action="deeper"><i class="fas fa-magnifying-glass"></i> Dig Deeper</button>
                         <button class="topic-action-btn" data-action="references"><i class="fas fa-file-alt"></i> View References</button>
+                        <button class="topic-action-btn" data-action="news"><i class="fas fa-newspaper"></i> View Related News</button>
                     </div>
                 </div>
                 <!-- Topic Card 3 -->
@@ -2700,6 +2702,7 @@
                         <button class="topic-action-btn" data-action="meetings"><i class="fas fa-calendar-days"></i> Related Meetings</button>
                         <button class="topic-action-btn" data-action="deeper"><i class="fas fa-magnifying-glass"></i> Dig Deeper</button>
                         <button class="topic-action-btn" data-action="references"><i class="fas fa-file-alt"></i> View References</button>
+                        <button class="topic-action-btn" data-action="news"><i class="fas fa-newspaper"></i> View Related News</button>
                     </div>
                 </div>
                 <!-- Topic Card 4 -->
@@ -2723,6 +2726,7 @@
                         <button class="topic-action-btn" data-action="meetings"><i class="fas fa-calendar-days"></i> Related Meetings</button>
                         <button class="topic-action-btn" data-action="deeper"><i class="fas fa-magnifying-glass"></i> Dig Deeper</button>
                         <button class="topic-action-btn" data-action="references"><i class="fas fa-file-alt"></i> View References</button>
+                        <button class="topic-action-btn" data-action="news"><i class="fas fa-newspaper"></i> View Related News</button>
                     </div>
                 </div>
             </div>
@@ -2870,6 +2874,7 @@
                     <button class="news-filter-btn" data-topic-filter="non-profit" style="background: var(--container-bg-light); border: 1px solid var(--border-color); color: var(--text-light); padding: 8px 16px; border-radius: 20px; font-size: 0.9rem; cursor: pointer; transition: all 0.3s;">Non-Profit</button>
                     <button class="news-filter-btn" data-topic-filter="strategic-partnerships" style="background: var(--container-bg-light); border: 1px solid var(--border-color); color: var(--text-light); padding: 8px 16px; border-radius: 20px; font-size: 0.9rem; cursor: pointer; transition: all 0.3s;">Partnerships</button>
                 </div>
+                <div id="news-filter-label" style="margin: -15px 10px 20px; color: var(--primary-blue); font-weight: 500; display: none;"></div>
                 
                 <!-- Loading State -->
                 <div id="news-loading" style="text-align: center; padding: 40px; display: none;">
@@ -2956,11 +2961,11 @@
         document.addEventListener('DOMContentLoaded', () => {
             // --- DATA ---
             const personaData = [
-                { id: 'hakim', name: 'Hakim Nüruddin', title: 'AI Executive Office Agent', largeImg: 'https://hams.ai/images/ai-voice-agent.png', smallImg: 'https://hams.ai/images/ai-voice-agent.png', description: 'As your strategic partner, I provide high-level summaries, executive advice, and focus on strategic alignment for your key decisions.', systemPrompt: 'You are Hakim Nüruddin, an AI Executive Office Agent for HRSD in Saudi Arabia. You coordinate a team of specialized AI agents to support Your Highness.\n\nAvailable Team Members:\n- Hakim Nüruddin (yourself): AI Executive Office Agent - Strategic insights, executive summaries, high-level decisions, leadership advice, policy alignment with Vision 2030\n- Layla Al-Farsi: Data Analytics Agent - Data analysis, charts, statistics, metrics, trends, quantitative insights, KPI monitoring\n- Omar Mansour: AI Coordinator - Operational coordination, task management, scheduling, workflow optimization, resource allocation\n- Nouf Al-Jafali: AI Strategy Consultant - In-depth analysis and consulting on specific strategic focus areas (labor market, empowerment, non-profit sector, strategic partnerships)\n\nWhen asked about agents, team members, or their roles, provide accurate information about all four agents listed above. Do not invent or mention agents that do not exist. Be concise, professional, and insightful. Provide strategic advice and summaries.' },
+                { id: 'hakim', name: 'Hakim Nüruddin', title: 'AI Executive Office Agent', largeImg: 'https://hams.ai/images/ai-voice-agent.png', smallImg: 'https://hams.ai/images/ai-voice-agent.png', description: 'As your strategic partner, I provide high-level summaries, executive advice, and focus on strategic alignment for your key decisions.', systemPrompt: 'You are Hakim Nüruddin, an AI Executive Office Agent for HRSD in Saudi Arabia. You coordinate a team of specialized AI agents to support Your Excellency.\n\nAvailable Team Members:\n- Hakim Nüruddin (yourself): AI Executive Office Agent - Strategic insights, executive summaries, high-level decisions, leadership advice, policy alignment with Vision 2030\n- Layla Al-Farsi: Data Analytics Agent - Data analysis, charts, statistics, metrics, trends, quantitative insights, KPI monitoring\n- Omar Mansour: AI Coordinator - Operational coordination, task management, scheduling, workflow optimization, resource allocation\n- Nouf Al-Jafali: AI Strategy Consultant - In-depth analysis and consulting on specific strategic focus areas (labor market, empowerment, non-profit sector, strategic partnerships)\n\nWhen asked about agents, team members, or their roles, provide accurate information about all four agents listed above. Do not invent or mention agents that do not exist. Be concise, professional, and insightful. Provide strategic advice and summaries.' },
                 // Update Layla's systemPrompt for insights/charts
-                { id: 'layla', name: 'Layla Al-Farsi', title: 'Data Analytics Agent', largeImg: 'https://easy-peasy.ai/cdn-cgi/image/quality=80,format=auto,width=700/https://media.easy-peasy.ai/27feb2bb-aeb4-4a83-9fb6-8f3f2a15885e/3f6fb035-158b-47f1-8c69-5fe9a407d4f2.png', smallImg: 'https://easy-peasy.ai/cdn-cgi/image/quality=80,format=auto,width=700/https://media.easy-peasy.ai/27feb2bb-aeb4-4a83-9fb6-8f3f2a15885e/3f6fb035-158b-47f1-8c69-5fe9a407d4f2.png', description: 'As your data expert, I provide your Highness with key insights from around HRSD, identify trends, and offer detailed analytical support for your objectives.', systemPrompt: 'You are Layla Al-Farsi, a Data Analytics Agent for HRSD in Saudi Arabia. Your Highness requires data-driven insights. ALWAYS respond with concise analysis, key findings, and data points. When a visualization is appropriate (e.g., trends, comparisons), provide the necessary data in a Chart.js-compatible JSON format strictly enclosed within `[CHART_DATA:{...}]`. The JSON MUST be complete and valid. It MUST contain "type" (e.g., "bar", "line", "pie"), "labels" (array of strings), and "datasets" (array of objects, each with "label" and "data" properties). Example: `[CHART_DATA:{"type": "bar", "labels": ["Q1", "Q2"], "datasets": [{"label": "Metric A", "data": [10, 15]}]}]` Always include a brief textual explanation of the chart\'s insights immediately following the chart data marker. Focus strictly on providing analytical insights derived from data. Avoid conversational filler unless specifically asked.' }, // Added "MUST be complete and valid"
+                { id: 'layla', name: 'Layla Al-Farsi', title: 'Data Analytics Agent', largeImg: 'https://easy-peasy.ai/cdn-cgi/image/quality=80,format=auto,width=700/https://media.easy-peasy.ai/27feb2bb-aeb4-4a83-9fb6-8f3f2a15885e/3f6fb035-158b-47f1-8c69-5fe9a407d4f2.png', smallImg: 'https://easy-peasy.ai/cdn-cgi/image/quality=80,format=auto,width=700/https://media.easy-peasy.ai/27feb2bb-aeb4-4a83-9fb6-8f3f2a15885e/3f6fb035-158b-47f1-8c69-5fe9a407d4f2.png', description: 'As your data expert, I provide Your Excellency with key insights from around HRSD, identify trends, and offer detailed analytical support for your objectives.', systemPrompt: 'You are Layla Al-Farsi, a Data Analytics Agent for HRSD in Saudi Arabia. Your Excellency requires data-driven insights. ALWAYS respond with concise analysis, key findings, and data points. When a visualization is appropriate (e.g., trends, comparisons), provide the necessary data in a Chart.js-compatible JSON format strictly enclosed within `[CHART_DATA:{...}]`. The JSON MUST be complete and valid. It MUST contain "type" (e.g., "bar", "line", "pie"), "labels" (array of strings), and "datasets" (array of objects, each with "label" and "data" properties). Example: `[CHART_DATA:{"type": "bar", "labels": ["Q1", "Q2"], "datasets": [{"label": "Metric A", "data": [10, 15]}]}]` Always include a brief textual explanation of the chart\'s insights immediately following the chart data marker. Focus strictly on providing analytical insights derived from data. Avoid conversational filler unless specifically asked.' }, // Added "MUST be complete and valid"
                 { id: 'omar', name: 'Omar Mansour', title: 'AI Coordinator', largeImg: 'https://easy-peasy.ai/cdn-cgi/image/quality=80,format=auto,width=700/https://media.easy-peasy.ai/2f8cd8b2-88d5-4865-b07e-cafd6403b72b/bd99faca-67c4-4cc3-895e-06bed59a08d2.png', smallImg: 'https://easy-peasy.ai/cdn-cgi/image/quality=80,format=auto,width=700/https://media.easy-peasy.ai/2f8cd8b2-88d5-4865-b07e-cafd6403b72b/bd99faca-67c4-4cc3-895e-06bed59a08d2.png', description: 'As your operational specialist, I manage schedules, coordinate between departments, and provide logistical support to ensure operational smoothness.', systemPrompt: 'You are Omar Mansour, an AI Coordinator for HRSD... Focus on logistics, scheduling, action items, and ensuring operational smoothness.' },
-                { id: 'nouf', name: 'Nouf Al-Jafali',  title: 'AI strategic consultant', largeImg: 'https://drive.google.com/file/d/1McZwWOxV99zHQwU2jInWwR5ahfFSclfa/view?usp=sharing', smallImg: 'https://drive.google.com/file/d/1McZwWOxV99zHQwU2jInWwR5ahfFSclfa/view?usp=sharing', description: 'As your dedicated consultant for strategic focus areas, I provide in-depth analysis, policy recommendations, and detailed briefings on the key topics you are exploring.', systemPrompt: 'You are Nouf Al-Jafali, an AI Strategy Consultant for HRSD in Saudi Arabia. Your Highness will ask you to provide deep dives into specific strategic topics like "Strengthening Labor Market" or "Empowering Society & Individuals" or "Enabling the Non-Profit Sector" or "Strategic Partnerships". Your responses should be comprehensive, insightful, and structured, providing detailed analysis, current status, and strategic recommendations related to the specific topic at hand.'}			];
+                { id: 'nouf', name: 'Nouf Al-Jafali',  title: 'AI strategic consultant', largeImg: 'https://drive.google.com/file/d/1McZwWOxV99zHQwU2jInWwR5ahfFSclfa/view?usp=sharing', smallImg: 'https://drive.google.com/file/d/1McZwWOxV99zHQwU2jInWwR5ahfFSclfa/view?usp=sharing', description: 'As your dedicated consultant for strategic focus areas, I provide in-depth analysis, policy recommendations, and detailed briefings on the key topics you are exploring.', systemPrompt: 'You are Nouf Al-Jafali, an AI Strategy Consultant for HRSD in Saudi Arabia. Your Excellency will ask you to provide deep dives into specific strategic topics like "Strengthening Labor Market" or "Empowering Society & Individuals" or "Enabling the Non-Profit Sector" or "Strategic Partnerships". Your responses should be comprehensive, insightful, and structured, providing detailed analysis, current status, and strategic recommendations related to the specific topic at hand.'}			];
             let currentPersonaId = 'hakim';
             let selectedAgents = ['hakim']; // Multi-agent: Array of selected agent IDs
             let isMultiAgentMode = false; // Mode: false = single agent, true = multi-agent
@@ -3019,7 +3024,7 @@
             }
 
             function displayNewPersonaGreeting(persona) {
-                 let greeting = `Welcome your Highness. As-salāmu 'alaykum. I am ${persona.name}. ${persona.description} How may I be of service to your Highness today?`;
+                 let greeting = `Welcome Your Excellency. As-salāmu 'alaykum. I am ${persona.name}. ${persona.description} How may I be of service to Your Excellency today?`;
                  displayMessage('agent', greeting);
                  // Add greeting to history for context
                  // Check if history is empty or last message wasn't this greeting to avoid duplicates on quick switches
@@ -3988,7 +3993,7 @@ RESPOND ONLY WITH VALID JSON. NO OTHER TEXT.`;
                 const payload = {
                     contents: chatHistory,
                     systemInstruction: {
-                        parts: [{ text: `${systemPromptText} Your user is a high-level executive ("Your Highness"). The current date and time is ${new Date().toLocaleString('en-US', { timeZone: 'Asia/Riyadh' })}.` }]
+                        parts: [{ text: `${systemPromptText} Your user is a high-level executive ("Your Excellency"). The current date and time is ${new Date().toLocaleString('en-US', { timeZone: 'Asia/Riyadh' })}.` }]
                     },
                     generationConfig: {
                         maxOutputTokens: 8192,
@@ -4080,7 +4085,7 @@ RESPOND ONLY WITH VALID JSON. NO OTHER TEXT.`;
                 
                 // Create discussion-specific history
                 const discussionHistory = [];
-                const discussionContext = `Your Highness has requested a collaborative discussion among the AI agents about today's priorities and key insights. Please share your perspective based on your area of expertise.`;
+                const discussionContext = `Your Excellency has requested a collaborative discussion among the AI agents about today's priorities and key insights. Please share your perspective based on your area of expertise.`;
                 
                 // Each agent responds with their own context
                 for (let i = 0; i < agents.length; i++) {
@@ -4158,7 +4163,7 @@ RESPOND ONLY WITH VALID JSON. NO OTHER TEXT.`;
                 const payload = {
                     contents: conversationHistory,
                     systemInstruction: {
-                        parts: [{ text: `${systemPromptText} Your user is a high-level executive ("Your Highness"). The current date and time is ${new Date().toLocaleString('en-US', { timeZone: 'Asia/Riyadh' })}.` }]
+                        parts: [{ text: `${systemPromptText} Your user is a high-level executive ("Your Excellency"). The current date and time is ${new Date().toLocaleString('en-US', { timeZone: 'Asia/Riyadh' })}.` }]
                     },
                     generationConfig: {
                         maxOutputTokens: 1024, // Shorter for discussions
@@ -5165,6 +5170,49 @@ Keep it brief and executive-level.`;
                 });
                 
                 renderNews();
+
+                const label = document.getElementById('news-filter-label');
+                if (label && topicId === 'all') {
+                    label.textContent = '';
+                    label.style.display = 'none';
+                }
+            }
+            
+            function viewRelatedNews(topicId, topicTitle) {
+                const desiredFilter = topicId || 'all';
+                const newsButton = document.querySelector('.nav-button[data-target="news-page"]');
+                if (newsButton) {
+                    newsButton.click();
+                }
+                
+                const updateLabel = () => {
+                    const label = document.getElementById('news-filter-label');
+                    if (label) {
+                        if (topicTitle && desiredFilter !== 'all') {
+                            label.textContent = `Showing news related to: ${topicTitle}`;
+                            label.style.display = 'block';
+                        } else {
+                            label.textContent = '';
+                            label.style.display = 'none';
+                        }
+                    }
+                };
+                
+                const applyFilter = () => {
+                    applyNewsFilter(desiredFilter);
+                    updateLabel();
+                    const newsSection = document.getElementById('news-page');
+                    if (newsSection) {
+                        newsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                };
+                
+                if (newsData.length === 0) {
+                    loadAllNews().then(applyFilter).catch(applyFilter);
+                } else {
+                    // Slight delay ensures the news tab has switched before filtering
+                    setTimeout(applyFilter, 150);
+                }
             }
             
             // Auto-load news when news page is opened
@@ -5206,7 +5254,7 @@ Keep it brief and executive-level.`;
             if (sendBtn) { sendBtn.addEventListener('click', handleSendMessage); }
             if (chatInput) { chatInput.addEventListener('keydown', (event) => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); handleSendMessage(); } }); }
             // Topic card actions
-            document.querySelectorAll('.topic-action-btn').forEach(button => { button.addEventListener('click', () => { const action = button.dataset.action; const card = button.closest('.topic-card'); if (!card) return; const topicId = card.dataset.topicId; const topicTitleEl = card.querySelector('.topic-title'); if (!topicTitleEl) return; const topicTitle = topicTitleEl.textContent; if (action === 'meetings') { openMeetingsModal(topicId, topicTitle); } else if (action === 'deeper') { const prompt = `Please provide a detailed briefing on the focus area: "${topicTitle}". Include key details, current status, and strategic recommendations.`; switchToAgentAndSendPrompt(prompt, 'nouf');} else if (action === 'references') { const prompt = `Please pull up the latest references and documents from my team regarding "${topicTitle}".`; takeActionFromTopic(prompt); } }); });
+            document.querySelectorAll('.topic-action-btn').forEach(button => { button.addEventListener('click', () => { const action = button.dataset.action; const card = button.closest('.topic-card'); if (!card) return; const topicId = card.dataset.topicId; const topicTitleEl = card.querySelector('.topic-title'); if (!topicTitleEl) return; const topicTitle = topicTitleEl.textContent; if (action === 'meetings') { openMeetingsModal(topicId, topicTitle); } else if (action === 'deeper') { const prompt = `Please provide a detailed briefing on the focus area: "${topicTitle}". Include key details, current status, and strategic recommendations.`; switchToAgentAndSendPrompt(prompt, 'nouf');} else if (action === 'references') { const prompt = `Please pull up the latest references and documents from my team regarding "${topicTitle}".`; takeActionFromTopic(prompt); } else if (action === 'news') { viewRelatedNews(topicId, topicTitle); } }); });
             // "Ask Agent" on text selection
              document.addEventListener('mouseup', (e) => { if (!askAgentBtn) return; const targetElement = e.target; if (targetElement.tagName === 'INPUT' || targetElement.tagName === 'TEXTAREA' || targetElement.closest('.modal') || targetElement.closest('#ask-agent-btn')) { askAgentBtn.style.display = 'none'; return; } setTimeout(() => { const text = window.getSelection().toString().trim(); if (text.length > 1) { selectedText = text; const rect = window.getSelection().getRangeAt(0).getBoundingClientRect(); askAgentBtn.style.left = `${rect.right + window.scrollX + 5}px`; askAgentBtn.style.top = `${rect.bottom + window.scrollY + 5}px`; askAgentBtn.style.display = 'block'; } else { askAgentBtn.style.display = 'none'; } }, 10); });
             document.addEventListener('mousedown', (e) => { if (askAgentBtn && e.target.id !== 'ask-agent-btn') { askAgentBtn.style.display = 'none'; } });
