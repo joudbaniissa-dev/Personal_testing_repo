@@ -4254,14 +4254,79 @@ RESPOND ONLY WITH VALID JSON. NO OTHER TEXT.`;
                         const view = button.dataset.view;
                         const calendarContainer = button.closest('.desktop-calendar, .mobile-calendar');
                         if (!calendarContainer) return;
+                        
+                        // Get the previous active view before removing it
+                        const previousActiveButton = calendarContainer.querySelector('[data-view].active');
+                        const previousView = previousActiveButton ? previousActiveButton.dataset.view : null;
+                        
                         calendarContainer.querySelectorAll('[data-view]').forEach(btn => btn.classList.remove('active'));
                         button.classList.add('active');
                         if (calendarContainer.classList.contains('desktop-calendar')) {
                             calendarContainer.querySelectorAll('.agenda-view').forEach(v => v.classList.remove('active'));
                             const targetView = calendarContainer.querySelector(`#${view}-view`);
                             if (targetView) targetView.classList.add('active');
-                            if (view === 'month') { renderDesktopMonthCalendar(); }
-                            if (view === 'today') { renderTodayView(); }
+                            if (view === 'month') { 
+                                // When switching to month view from week view, sync month to current week's month
+                                if (previousView === 'week') {
+                                    // Set month to the month of the current week
+                                    currentMonth = new Date(currentWeekStart.getFullYear(), currentWeekStart.getMonth(), 1);
+                                }
+                                renderDesktopMonthCalendar(); 
+                            }
+                            if (view === 'today') { renderTodayView(); updateWeekHeader(); }
+                            if (view === 'week') { 
+                                // When switching to week view from month view, sync week to current month
+                                if (previousView === 'month') {
+                                    // Set week start to the first Sunday of the current month (or first day if month starts on Sunday)
+                                    const firstDayOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
+                                    const dayOfWeek = firstDayOfMonth.getDay();
+                                    
+                                    // If month doesn't start on Sunday, go to the previous Sunday
+                                    if (dayOfWeek !== 0) {
+                                        const daysToSubtract = dayOfWeek;
+                                        firstDayOfMonth.setDate(firstDayOfMonth.getDate() - daysToSubtract);
+                                    }
+                                    
+                                    currentWeekStart = new Date(firstDayOfMonth);
+                                    currentWeekStart.setHours(0, 0, 0, 0);
+                                }
+                                renderWeekView(); 
+                            }
+                        } else {
+                            // Mobile calendar view toggle
+                            if (view === 'week') { 
+                                // When switching to week view from month view, sync week to current month
+                                if (previousView === 'month') {
+                                    // Set week start to the first Sunday of the current month (or first day if month starts on Sunday)
+                                    const firstDayOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
+                                    const dayOfWeek = firstDayOfMonth.getDay();
+                                    
+                                    // If month doesn't start on Sunday, go to the previous Sunday
+                                    if (dayOfWeek !== 0) {
+                                        const daysToSubtract = dayOfWeek;
+                                        firstDayOfMonth.setDate(firstDayOfMonth.getDate() - daysToSubtract);
+                                    }
+                                    
+                                    currentWeekStart = new Date(firstDayOfMonth);
+                                    currentWeekStart.setHours(0, 0, 0, 0);
+                                }
+                                initMobileCalendar(); 
+                            }
+                            if (view === 'today') { renderTodayView(); updateWeekHeader(); }
+                            if (view === 'month') { 
+                                // When switching to month view from week view, sync month to current week's month
+                                if (previousView === 'week') {
+                                    // Set month to the month of the current week
+                                    currentMonth = new Date(currentWeekStart.getFullYear(), currentWeekStart.getMonth(), 1);
+                                }
+                                renderDesktopMonthCalendar(); 
+                            }
+                        }
+                        updateWeekHeader();
+                        
+                        // Update button states after view change
+                        if (window.updateButtonStates) {
+                            setTimeout(window.updateButtonStates, 50);
                         }
                     });
                 });
@@ -4315,8 +4380,35 @@ RESPOND ONLY WITH VALID JSON. NO OTHER TEXT.`;
 
             // Desktop Today View Rendering
             function renderTodayView() {
-                 const todayList = document.getElementById('today-events-list'); const todayDateEl = document.querySelector('#today-view .today-date'); if (!todayList || !todayDateEl) return;
-                const todayStr = today.toISOString().split('T')[0]; todayDateEl.textContent = today.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }); const todaysEvents = Array.from(document.querySelectorAll(`.event[data-date="${todayStr}"]`)); todayList.innerHTML = ''; if (todaysEvents.length > 0) { todaysEvents.forEach(eventEl => { const eventClone = eventEl.cloneNode(true); eventClone.addEventListener('click', () => { openEventModal(eventClone.dataset.eventTitle, eventClone.dataset.eventTime, eventClone.dataset.eventDetails, todayStr, eventEl); }); todayList.appendChild(eventClone); }); } else { todayList.innerHTML = '<p style="opacity: 0.7; text-align: center; padding: 20px;">No events scheduled for today.</p>'; }
+                 const todayList = document.getElementById('today-events-list'); 
+                 const todayDateEl = document.querySelector('#today-view .today-date'); 
+                 if (!todayList || !todayDateEl) return;
+                 
+                 // Format date string for event matching (YYYY-MM-DD)
+                 const year = today.getFullYear();
+                 const month = String(today.getMonth() + 1).padStart(2, '0');
+                 const day = String(today.getDate()).padStart(2, '0');
+                 const todayStr = `${year}-${month}-${day}`;
+                 
+                 // Display date with day name (e.g., "Monday, January 15, 2024")
+                 const dayName = today.toLocaleDateString('en-US', { weekday: 'long' });
+                 const dateStr = today.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+                 todayDateEl.textContent = `${dayName}, ${dateStr}`;
+                 
+                 const todaysEvents = Array.from(document.querySelectorAll(`.event[data-date="${todayStr}"]`)); 
+                 todayList.innerHTML = ''; 
+                 if (todaysEvents.length > 0) { 
+                     todaysEvents.forEach(eventEl => { 
+                         const eventClone = eventEl.cloneNode(true); 
+                         eventClone.addEventListener('click', () => { 
+                             const dateStr = eventClone.dataset.date;
+                             openEventModal(eventClone.dataset.eventTitle, eventClone.dataset.eventTime, eventClone.dataset.eventDetails, dateStr, eventClone); 
+                         }); 
+                         todayList.appendChild(eventClone); 
+                     }); 
+                 } else { 
+                     todayList.innerHTML = '<p style="opacity: 0.7; text-align: center; padding: 20px;">No events scheduled for today.</p>'; 
+                 }
             }
 
             // Desktop Week View Rendering
@@ -4465,12 +4557,68 @@ RESPOND ONLY WITH VALID JSON. NO OTHER TEXT.`;
             }
 
             // Mobile Calendar Logic
+            let mobileSelectedDate = new Date(today);
+            
             function initMobileCalendar() {
                  const monthGrid = document.getElementById('mobile-month-grid'); const agendaEvents = document.getElementById('mobile-agenda-events'); if (!monthGrid || !agendaEvents) return;
-                const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']; let selectedDate = today; const allEvents = Array.from(document.querySelectorAll('.event[data-date]')); const eventDates = new Set(allEvents.map(e => e.dataset.date));
-                function renderCalendar() { monthGrid.innerHTML = ''; dayNames.forEach(day => { const dayNameEl = document.createElement('div'); dayNameEl.className = 'day-name'; dayNameEl.textContent = day; monthGrid.appendChild(dayNameEl); }); for (let day = 19; day <= 25; day++) { const dayCell = document.createElement('div'); dayCell.className = 'day-cell'; dayCell.textContent = day; const currentDayDate = new Date(today.getFullYear(), today.getMonth(), day); const dateStr = currentDayDate.toISOString().split('T')[0]; if (day === today.getDate()) { dayCell.classList.add('today'); } if (dateStr === selectedDate.toISOString().split('T')[0]) { dayCell.classList.add('selected'); } if (eventDates.has(dateStr)) { dayCell.classList.add('has-event'); } dayCell.addEventListener('click', () => { selectedDate = currentDayDate; renderCalendar(); renderEvents(dateStr); }); monthGrid.appendChild(dayCell); } }
+                const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']; const allEvents = Array.from(document.querySelectorAll('.event[data-date]')); const eventDates = new Set(allEvents.map(e => e.dataset.date));
+                function renderCalendar() { 
+                    monthGrid.innerHTML = ''; 
+                    dayNames.forEach(day => { 
+                        const dayNameEl = document.createElement('div'); 
+                        dayNameEl.className = 'day-name'; 
+                        dayNameEl.textContent = day; 
+                        monthGrid.appendChild(dayNameEl); 
+                    }); 
+                    
+                    // Render 7 days of the current week
+                    for (let i = 0; i < 7; i++) {
+                        const currentDayDate = new Date(currentWeekStart);
+                        currentDayDate.setDate(currentWeekStart.getDate() + i);
+                        // Format date string for event matching (YYYY-MM-DD)
+                        const year = currentDayDate.getFullYear();
+                        const month = String(currentDayDate.getMonth() + 1).padStart(2, '0');
+                        const day = String(currentDayDate.getDate()).padStart(2, '0');
+                        const dateStr = `${year}-${month}-${day}`;
+                        
+                        const dayCell = document.createElement('div');
+                        dayCell.className = 'day-cell';
+                        dayCell.textContent = currentDayDate.getDate();
+                        
+                        // Check if it's today
+                        const todayYear = today.getFullYear();
+                        const todayMonth = String(today.getMonth() + 1).padStart(2, '0');
+                        const todayDay = String(today.getDate()).padStart(2, '0');
+                        const todayStr = `${todayYear}-${todayMonth}-${todayDay}`;
+                        if (dateStr === todayStr) {
+                            dayCell.classList.add('today');
+                        }
+                        
+                        // Check if it's selected
+                        const selectedYear = mobileSelectedDate.getFullYear();
+                        const selectedMonth = String(mobileSelectedDate.getMonth() + 1).padStart(2, '0');
+                        const selectedDay = String(mobileSelectedDate.getDate()).padStart(2, '0');
+                        const selectedStr = `${selectedYear}-${selectedMonth}-${selectedDay}`;
+                        if (dateStr === selectedStr) {
+                            dayCell.classList.add('selected');
+                        }
+                        
+                        // Check if it has events
+                        if (eventDates.has(dateStr)) {
+                            dayCell.classList.add('has-event');
+                        }
+                        
+                        dayCell.addEventListener('click', () => {
+                            mobileSelectedDate = new Date(currentDayDate);
+                            renderCalendar();
+                            renderEvents(dateStr);
+                        });
+                        
+                        monthGrid.appendChild(dayCell);
+                    }
+                }
                 function renderEvents(dateStr) { const dayEvents = allEvents.filter(e => e.dataset.date === dateStr); if (dayEvents.length === 0) { agendaEvents.innerHTML = '<p style="opacity: 0.7; text-align: center; padding: 20px;">No events scheduled for this day</p>'; return; } agendaEvents.innerHTML = ''; dayEvents.forEach(eventEl => { const eventDiv = document.createElement('div'); eventDiv.className = 'event'; if (eventEl.classList.contains('event-milestone')) { eventDiv.classList.add('event-milestone'); } eventDiv.innerHTML = `<div class="event-time">${eventEl.dataset.eventTime}</div> <div class="event-title">${eventEl.dataset.eventTitle}</div>`; eventDiv.addEventListener('click', () => { openEventModal(eventEl.dataset.eventTitle, eventEl.dataset.eventTime, eventEl.dataset.eventDetails, dateStr, eventEl); }); agendaEvents.appendChild(eventDiv); }); }
-                renderCalendar(); renderEvents(selectedDate.toISOString().split('T')[0]);
+                renderCalendar(); renderEvents(mobileSelectedDate.toISOString().split('T')[0]);
             }
 
             // --- News Page Functions ---
