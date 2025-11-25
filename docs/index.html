@@ -1185,7 +1185,6 @@
             flex-grow: 1;
             min-height: 0;
             overflow-y: auto;
-            overflow-x: hidden;
         }
 
         .agenda-view.active {
@@ -1197,27 +1196,21 @@
             display: flex !important; /* Use flex for week view grid */
             flex-direction: column;
             gap: 15px;
-            overflow-y: auto;
-            overflow-x: hidden;
         }
 
         #month-view.active {
             display: flex !important; /* Use flex for month view grid */
             flex-direction: column;
-            overflow-y: auto;
-            overflow-x: hidden;
         }
 
         .month-calendar-grid {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
-            gap: 3px;
+            gap: 5px;
             margin-top: 15px;
             flex-grow: 1;
             min-height: 0;
-            grid-auto-rows: minmax(40px, auto); /* Very small cells */
-            overflow-y: auto;
-            overflow-x: hidden;
+            grid-template-rows: auto repeat(6, 1fr); /* Header row + 6 weeks */
         }
 
         .month-day-header {
@@ -1265,21 +1258,11 @@
             box-shadow: 0 0 15px rgba(0, 169, 157, 0.3);
         }
 
-        .month-day-cell.other-month {
+        .month-day-cell.other-month,
+        .month-day-cell.disabled-day {
             opacity: 0.3;
             pointer-events: none;
             background: transparent;
-        }
-        
-        .month-day-cell.disabled-day {
-            opacity: 0.5;
-            background: transparent;
-            /* Keep clickable - removed pointer-events: none */
-        }
-        
-        .month-day-cell.disabled-day:hover {
-            opacity: 0.7;
-            cursor: pointer;
         }
 
         .month-day-number {
@@ -1292,7 +1275,7 @@
         .month-day-events {
             display: flex;
             flex-direction: column;
-            gap: 1px;
+            gap: 3px;
             flex-grow: 1;
             overflow: hidden;
         }
@@ -1315,16 +1298,6 @@
 
         .month-event-dot.milestone {
             background: #ffc107;
-        }
-        
-        .month-event-dot-text {
-            font-size: 0.55rem;
-            color: white;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            flex: 1;
-            line-height: 1.1;
         }
 
         .today-header {
@@ -1349,12 +1322,10 @@
         }
         .desktop-calendar { display: block; }
         .mobile-calendar { display: none; }
-        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; flex: 1; min-height: 0; overflow-y: auto; }
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; flex: 1; }
         .day-column { border-right: 1px solid var(--border-color); padding: 5px; }
         .day-column:last-child { border-right: none; }
         .day-column.weekend { background-color: rgba(0, 0, 0, 0.2); border-radius: 5px; }
-        .day-column.past-week { opacity: 0.4; }
-        .day-column.past-week .event { opacity: 0.5; }
         .day-header {
             text-align: center;
             font-weight: 600;
@@ -2237,35 +2208,10 @@
                 padding-bottom: 15px;
                 margin-bottom: 15px;
                 flex-shrink: 0; /* Prevent header from shrinking */
-                flex-direction: column;
-                gap: 10px;
-            }
-            
-            .calendar-nav-container {
-                width: 100%;
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                flex-wrap: wrap;
-                gap: 10px;
-            }
-            
-            .nav-buttons-group {
-                display: flex;
-                gap: 5px;
             }
 
             .agenda-header h2 {
                 font-size: 1.3rem;
-                flex: 1;
-                text-align: center;
-                min-width: 120px;
-            }
-            
-            .calendar-nav-btn {
-                width: 32px;
-                height: 32px;
-                font-size: 0.8rem;
             }
 
             .view-toggle {
@@ -2526,7 +2472,7 @@
             <button class="nav-button" data-target="topics-page"><i class="fas fa-th-large"></i> Focus Areas</button>
             <button class="nav-button" data-target="agenda-page"><i class="fas fa-calendar-alt"></i> Agenda</button>
             <button class="nav-button" data-target="tools-page"><i class="fas fa-cogs"></i> AI Tools</button>
-            <button class="nav-button" data-target="compose-page"><i class="fas fa-pen-alt"></i> Compose</button>
+            <button class="nav-button" data-target="news-page"><i class="fas fa-newspaper"></i> News</button>
             <button class="nav-button" data-target="templates-page"><i class="fas fa-file-alt"></i> Templates</button>
         </nav>
     </div>
@@ -2907,7 +2853,42 @@
             </div>
         </div>
         <!-- Placeholder Pages -->
-        <div id="compose-page" class="page-content"> <div class="placeholder-page" style="width: 100%;"> <h2><i class="fas fa-pen-alt"></i> Compose</h2> <p>Use this section to draft emails, reports, and other documents with AI assistance. The agent can help with tone, clarity, and content generation.</p> </div> </div>
+        <!-- News Page -->
+        <div id="news-page" class="page-content">
+            <div class="news-container" style="width: 100%;">
+                <!-- News Header -->
+                <div class="news-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; padding: 0 10px;">
+                    <h2 style="margin: 0; color: var(--text-dark);"><i class="fas fa-newspaper" style="margin-right: 10px; color: var(--primary-blue);"></i>Latest News</h2>
+                    <button id="refresh-news-btn" class="tool-action-btn" style="margin: 0;"><i class="fas fa-sync-alt"></i> Refresh</button>
+                </div>
+                
+                <!-- Topic Filters -->
+                <div class="news-filters" style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 25px; padding: 0 10px;">
+                    <button class="news-filter-btn active" data-topic-filter="all" style="background: linear-gradient(135deg, var(--primary-blue), #008a7e); border: 1px solid var(--primary-blue); color: var(--text-dark); padding: 8px 16px; border-radius: 20px; font-size: 0.9rem; cursor: pointer; transition: all 0.3s; font-weight: 500;">All Topics</button>
+                    <button class="news-filter-btn" data-topic-filter="labor-market" style="background: var(--container-bg-light); border: 1px solid var(--border-color); color: var(--text-light); padding: 8px 16px; border-radius: 20px; font-size: 0.9rem; cursor: pointer; transition: all 0.3s;">Labor Market</button>
+                    <button class="news-filter-btn" data-topic-filter="empowerment" style="background: var(--container-bg-light); border: 1px solid var(--border-color); color: var(--text-light); padding: 8px 16px; border-radius: 20px; font-size: 0.9rem; cursor: pointer; transition: all 0.3s;">Empowerment</button>
+                    <button class="news-filter-btn" data-topic-filter="non-profit" style="background: var(--container-bg-light); border: 1px solid var(--border-color); color: var(--text-light); padding: 8px 16px; border-radius: 20px; font-size: 0.9rem; cursor: pointer; transition: all 0.3s;">Non-Profit</button>
+                    <button class="news-filter-btn" data-topic-filter="strategic-partnerships" style="background: var(--container-bg-light); border: 1px solid var(--border-color); color: var(--text-light); padding: 8px 16px; border-radius: 20px; font-size: 0.9rem; cursor: pointer; transition: all 0.3s;">Partnerships</button>
+                </div>
+                
+                <!-- Loading State -->
+                <div id="news-loading" style="text-align: center; padding: 40px; display: none;">
+                    <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: var(--primary-blue); margin-bottom: 15px;"></i>
+                    <p style="opacity: 0.8;">Fetching latest news...</p>
+                </div>
+                
+                <!-- News Feed Container -->
+                <div id="news-feed" class="tools-container" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px;">
+                    <!-- News cards will be dynamically inserted here -->
+                </div>
+                
+                <!-- Empty State -->
+                <div id="news-empty" style="text-align: center; padding: 60px 20px; display: none;">
+                    <i class="fas fa-newspaper" style="font-size: 3rem; color: var(--primary-blue); opacity: 0.5; margin-bottom: 20px;"></i>
+                    <p style="opacity: 0.7; font-size: 1.1rem;">No news found for the selected topic. Click refresh to fetch latest updates.</p>
+                </div>
+            </div>
+        </div>
         <div id="templates-page" class="page-content"> <div class="placeholder-page" style="width: 100%;"> <h2><i class="fas fa-file-alt"></i> Templates</h2> <p>Access a library of pre-built templates for various documents, including meeting minutes, project proposals, and executive summaries, to streamline your workflow.</p> </div> </div>
     </div>
 
@@ -2927,7 +2908,6 @@
             <p id="event-modal-time">Event Time</p>
             <p id="event-modal-details">Event Details</p>
             <div class="event-actions">
-                <button id="edit-event-btn"><i class="fas fa-edit"></i> Edit Meeting</button>
                 <button id="summarize-event-btn"><i class="fas fa-align-left"></i> Summarize</button>
                 <button id="prepare-event-btn"><i class="fas fa-clipboard-check"></i> Consult for Preparation</button>
             </div>
@@ -2976,39 +2956,18 @@
         document.addEventListener('DOMContentLoaded', () => {
             // --- DATA ---
             const personaData = [
-                { id: 'hakim', name: 'Hakim Nüruddin', title: 'AI Executive Office Agent', largeImg: 'https://hams.ai/images/ai-voice-agent.png', smallImg: 'https://hams.ai/images/ai-voice-agent.png', description: 'As your strategic partner, I provide high-level summaries, executive advice, and focus on strategic alignment for your key decisions.', systemPrompt: 'You are Hakim Nüruddin, an AI Executive Office Agent for HRSD in Saudi Arabia. Be concise, professional, and insightful. Provide strategic advice and summaries. IMPORTANT: Do NOT format responses as emails. Do NOT include headers like "To:", "From:", "Date:", "Time:", or "Subject:". Do NOT include timestamps, dates, or time information in your responses. Simply provide your response with a clear title/subject as a heading if needed, followed by the content. Keep responses natural and conversational.' },
+                { id: 'hakim', name: 'Hakim Nüruddin', title: 'AI Executive Office Agent', largeImg: 'https://hams.ai/images/ai-voice-agent.png', smallImg: 'https://hams.ai/images/ai-voice-agent.png', description: 'As your strategic partner, I provide high-level summaries, executive advice, and focus on strategic alignment for your key decisions.', systemPrompt: 'You are Hakim Nüruddin, an AI Executive Office Agent for HRSD in Saudi Arabia. You coordinate a team of specialized AI agents to support Your Highness.\n\nAvailable Team Members:\n- Hakim Nüruddin (yourself): AI Executive Office Agent - Strategic insights, executive summaries, high-level decisions, leadership advice, policy alignment with Vision 2030\n- Layla Al-Farsi: Data Analytics Agent - Data analysis, charts, statistics, metrics, trends, quantitative insights, KPI monitoring\n- Omar Mansour: AI Coordinator - Operational coordination, task management, scheduling, workflow optimization, resource allocation\n- Nouf Al-Jafali: AI Strategy Consultant - In-depth analysis and consulting on specific strategic focus areas (labor market, empowerment, non-profit sector, strategic partnerships)\n\nWhen asked about agents, team members, or their roles, provide accurate information about all four agents listed above. Do not invent or mention agents that do not exist. Be concise, professional, and insightful. Provide strategic advice and summaries.' },
                 // Update Layla's systemPrompt for insights/charts
-                { id: 'layla', name: 'Layla Al-Farsi', title: 'Data Analytics Agent', largeImg: 'https://easy-peasy.ai/cdn-cgi/image/quality=80,format=auto,width=700/https://media.easy-peasy.ai/27feb2bb-aeb4-4a83-9fb6-8f3f2a15885e/3f6fb035-158b-47f1-8c69-5fe9a407d4f2.png', smallImg: 'https://easy-peasy.ai/cdn-cgi/image/quality=80,format=auto,width=700/https://media.easy-peasy.ai/27feb2bb-aeb4-4a83-9fb6-8f3f2a15885e/3f6fb035-158b-47f1-8c69-5fe9a407d4f2.png', description: 'As your data expert, I provide your Highness with key insights from around HRSD, identify trends, and offer detailed analytical support for your objectives.', systemPrompt: 'You are Layla Al-Farsi, a Data Analytics Agent for HRSD in Saudi Arabia. Your Highness requires data-driven insights. ALWAYS respond with concise analysis, key findings, and data points. When a visualization is appropriate (e.g., trends, comparisons), provide the necessary data in a Chart.js-compatible JSON format strictly enclosed within `[CHART_DATA:{...}]`. The JSON MUST be complete and valid. It MUST contain "type" (e.g., "bar", "line", "pie"), "labels" (array of strings), and "datasets" (array of objects, each with "label" and "data" properties). Example: `[CHART_DATA:{"type": "bar", "labels": ["Q1", "Q2"], "datasets": [{"label": "Metric A", "data": [10, 15]}]}]` Always include a brief textual explanation of the chart\'s insights immediately following the chart data marker. Focus strictly on providing analytical insights derived from data. Avoid conversational filler unless specifically asked. IMPORTANT: Do NOT format responses as emails. Do NOT include headers like "To:", "From:", "Date:", "Time:", or "Subject:". Do NOT include timestamps, dates, or time information in your responses. Simply provide your response with a clear title/subject as a heading if needed, followed by the content. Keep responses natural and conversational.' }, // Added "MUST be complete and valid"
-                { id: 'omar', name: 'Omar Mansour', title: 'AI Coordinator', largeImg: 'https://easy-peasy.ai/cdn-cgi/image/quality=80,format=auto,width=700/https://media.easy-peasy.ai/2f8cd8b2-88d5-4865-b07e-cafd6403b72b/bd99faca-67c4-4cc3-895e-06bed59a08d2.png', smallImg: 'https://easy-peasy.ai/cdn-cgi/image/quality=80,format=auto,width=700/https://media.easy-peasy.ai/2f8cd8b2-88d5-4865-b07e-cafd6403b72b/bd99faca-67c4-4cc3-895e-06bed59a08d2.png', description: 'As your operational specialist, I manage schedules, coordinate between departments, and provide logistical support to ensure operational smoothness.', systemPrompt: 'You are Omar Mansour, an AI Coordinator for HRSD. Focus on logistics, scheduling, action items, and ensuring operational smoothness. IMPORTANT: Do NOT format responses as emails. Do NOT include headers like "To:", "From:", "Date:", "Time:", or "Subject:". Do NOT include timestamps, dates, or time information in your responses. Simply provide your response with a clear title/subject as a heading if needed, followed by the content. Keep responses natural and conversational.' },
-                { id: 'zara', name: 'Zara Al-Mansoori',  title: 'Focus Areas Consultant', largeImg: 'https://api.dicebear.com/7.x/bottts/svg?seed=Zara', smallImg: 'https://api.dicebear.com/7.x/bottts/svg?seed=Zara', description: 'As your dedicated consultant for strategic focus areas, I provide in-depth analysis, policy recommendations, and detailed briefings on the key topics you are exploring.', systemPrompt: 'You are Zara Al-Mansoori, a Focus Areas Consultant for HRSD in Saudi Arabia. Your Highness will ask you to provide deep dives into specific strategic topics like "Strengthening Labor Market" or "Empowering Society & Individuals". Your responses should be comprehensive, insightful, and structured, providing detailed analysis, current status, and strategic recommendations related to the specific topic at hand. IMPORTANT: Do NOT format responses as emails. Do NOT include headers like "To:", "From:", "Date:", "Time:", or "Subject:". Do NOT include timestamps, dates, or time information in your responses. Simply provide your response with a clear title/subject as a heading if needed, followed by the content. Keep responses natural and conversational.'}
+                { id: 'layla', name: 'Layla Al-Farsi', title: 'Data Analytics Agent', largeImg: 'https://easy-peasy.ai/cdn-cgi/image/quality=80,format=auto,width=700/https://media.easy-peasy.ai/27feb2bb-aeb4-4a83-9fb6-8f3f2a15885e/3f6fb035-158b-47f1-8c69-5fe9a407d4f2.png', smallImg: 'https://easy-peasy.ai/cdn-cgi/image/quality=80,format=auto,width=700/https://media.easy-peasy.ai/27feb2bb-aeb4-4a83-9fb6-8f3f2a15885e/3f6fb035-158b-47f1-8c69-5fe9a407d4f2.png', description: 'As your data expert, I provide your Highness with key insights from around HRSD, identify trends, and offer detailed analytical support for your objectives.', systemPrompt: 'You are Layla Al-Farsi, a Data Analytics Agent for HRSD in Saudi Arabia. Your Highness requires data-driven insights. ALWAYS respond with concise analysis, key findings, and data points. When a visualization is appropriate (e.g., trends, comparisons), provide the necessary data in a Chart.js-compatible JSON format strictly enclosed within `[CHART_DATA:{...}]`. The JSON MUST be complete and valid. It MUST contain "type" (e.g., "bar", "line", "pie"), "labels" (array of strings), and "datasets" (array of objects, each with "label" and "data" properties). Example: `[CHART_DATA:{"type": "bar", "labels": ["Q1", "Q2"], "datasets": [{"label": "Metric A", "data": [10, 15]}]}]` Always include a brief textual explanation of the chart\'s insights immediately following the chart data marker. Focus strictly on providing analytical insights derived from data. Avoid conversational filler unless specifically asked.' }, // Added "MUST be complete and valid"
+                { id: 'omar', name: 'Omar Mansour', title: 'AI Coordinator', largeImg: 'https://easy-peasy.ai/cdn-cgi/image/quality=80,format=auto,width=700/https://media.easy-peasy.ai/2f8cd8b2-88d5-4865-b07e-cafd6403b72b/bd99faca-67c4-4cc3-895e-06bed59a08d2.png', smallImg: 'https://easy-peasy.ai/cdn-cgi/image/quality=80,format=auto,width=700/https://media.easy-peasy.ai/2f8cd8b2-88d5-4865-b07e-cafd6403b72b/bd99faca-67c4-4cc3-895e-06bed59a08d2.png', description: 'As your operational specialist, I manage schedules, coordinate between departments, and provide logistical support to ensure operational smoothness.', systemPrompt: 'You are Omar Mansour, an AI Coordinator for HRSD... Focus on logistics, scheduling, action items, and ensuring operational smoothness.' },
+                { id: 'nouf', name: 'Nouf Al-Jafali',  title: 'AI strategic consultant', largeImg: 'https://img.sanishtech.com/u/6906cfe61aef94b28cd8446ee2991752.png', smallImg: 'https://img.sanishtech.com/u/6906cfe61aef94b28cd8446ee2991752.png', description: 'As your dedicated consultant for strategic focus areas, I provide in-depth analysis, policy recommendations, and detailed briefings on the key topics you are exploring.', systemPrompt: 'You are Nouf Al-Jafali, an AI Strategy Consultant for HRSD in Saudi Arabia. Your Highness will ask you to provide deep dives into specific strategic topics like "Strengthening Labor Market" or "Empowering Society & Individuals" or "Enabling the Non-Profit Sector" or "Strategic Partnerships". Your responses should be comprehensive, insightful, and structured, providing detailed analysis, current status, and strategic recommendations related to the specific topic at hand.'}
 			];
             let currentPersonaId = 'hakim';
             let selectedAgents = ['hakim']; // Multi-agent: Array of selected agent IDs
             let isMultiAgentMode = false; // Mode: false = single agent, true = multi-agent
             let chatHistory = [];
             let selectedText = '';
-            // Set "today" dynamically using Riyadh timezone (Asia/Riyadh, UTC+3)
-            function getRiyadhDate() {
-                const now = new Date();
-                // Convert to Riyadh time (UTC+3)
-                const riyadhOffset = 3 * 60; // 3 hours in minutes
-                const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
-                const riyadhTime = new Date(utc + (riyadhOffset * 60000));
-                return riyadhTime;
-            }
-            
-            // Initialize today (will be refreshed when agenda is opened)
-            let today = getRiyadhDate();
-            
-            // State for calendar navigation
-            let currentWeekStart = new Date(today);
-            let currentMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-            
-            // Initialize week start to Sunday of current week
-            const day = currentWeekStart.getDay();
-            const diff = currentWeekStart.getDate() - day;
-            currentWeekStart.setDate(diff);
-            currentWeekStart.setHours(0, 0, 0, 0);
+            // Set "today" to the specified context date: Wednesday, Oct 22, 2025
 
             // --- DOM Elements ---
             const mainPersonaImage = document.getElementById('mainPersonaImage');
@@ -3360,13 +3319,13 @@
             // --- Agenda & Calendar ---
              function setupAgendaInteractions() {
                  document.querySelectorAll('.event').forEach(eventEl => {
-                    eventEl.addEventListener('click', () => {
-                        const title = eventEl.dataset.eventTitle;
-                        const time = eventEl.dataset.eventTime;
-                        const details = eventEl.dataset.eventDetails;
-                        const dateStr = eventEl.dataset.date;
-                        openEventModal(title, time, details, dateStr, eventEl);
-                    });
+                     eventEl.addEventListener('click', () => {
+                         const title = eventEl.dataset.eventTitle;
+                         const time = eventEl.dataset.eventTime;
+                         const details = eventEl.dataset.eventDetails;
+                         const dateStr = eventEl.dataset.date;
+                         openEventModal(title, time, details, dateStr, eventEl);
+                     });
                  });
              }
 
@@ -3836,8 +3795,6 @@
                 if (indicator) indicator.remove();
             }
 
-            // Function to add a meeting/event to the agenda
-
             async function handleSendMessage() {
                 if (!chatInput) return;
                 const userMessage = chatInput.value.trim();
@@ -3881,7 +3838,7 @@ Agent Specializations:
 - Hakim (hakim): Strategic insights, executive summaries, high-level decisions, leadership advice
 - Layla (layla): Data analysis, charts, statistics, metrics, trends, quantitative insights
 - Omar (omar): Operational coordination, task management, scheduling, workflow optimization
-- Zara (zara): In-depth analysis and consulting on specific strategic focus areas 
+- Nouf (nouf): In-depth analysis and consulting on specific strategic focus areas 
 
 Instructions:
 1. Analyze the user's request carefully
@@ -3898,7 +3855,7 @@ Rules:
 - Include Omar if the query needs operational/task coordination
 - Can include 1, 2, or all 3 agents depending on the request
 - Choose agents that add unique value, not redundant perspectives
-- Include Zara if the query asks for a deep dive into a specific strategic focus area (e.g., "labor market", "non-profit sector", "empowerment").
+- Include Nouf if the query asks for a deep dive into a specific strategic focus area (e.g., "labor market", "non-profit sector", "empowerment").
 
 RESPOND ONLY WITH VALID JSON. NO OTHER TEXT.`;
 
@@ -3982,7 +3939,7 @@ RESPOND ONLY WITH VALID JSON. NO OTHER TEXT.`;
             
             // Special function for orchestration requests (no display, just return response)
             async function sendOrchestrationRequest(prompt, retries = 2) {
-                const apiKey = "AIzaSyCRFXs-Ysnoy2swH1yjqZYoRMNC4HTpv_c";
+                const apiKey = "AIzaSyBxy1N5HoAi0QhXSh02jWvu1iZg_BW_qUg";
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
 
                 const payload = {
@@ -4022,7 +3979,7 @@ RESPOND ONLY WITH VALID JSON. NO OTHER TEXT.`;
             }
             
             async function sendMessageToAgent(message, agentId, retries = 3, delay = 1000) {
-                const apiKey = "AIzaSyCRFXs-Ysnoy2swH1yjqZYoRMNC4HTpv_c";
+                const apiKey = "AIzaSyBxy1N5HoAi0QhXSh02jWvu1iZg_BW_qUg";
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
 
                 const persona = personaData.find(p => p.id === agentId);
@@ -4032,7 +3989,7 @@ RESPOND ONLY WITH VALID JSON. NO OTHER TEXT.`;
                 const payload = {
                     contents: chatHistory,
                     systemInstruction: {
-                        parts: [{ text: `${systemPromptText} Your user is a high-level executive ("Your Highness"). Do NOT include date, time, or timestamp information in your responses.` }]
+                        parts: [{ text: `${systemPromptText} Your user is a high-level executive ("Your Highness"). The current date and time is ${new Date().toLocaleString('en-US', { timeZone: 'Asia/Riyadh' })}.` }]
                     },
                     generationConfig: {
                         maxOutputTokens: 8192,
@@ -4173,7 +4130,7 @@ RESPOND ONLY WITH VALID JSON. NO OTHER TEXT.`;
             
             // New function for agent discussion with separate context
             async function sendMessageToAgentDiscussion(prompt, agentId, previousContext = [], retries = 3, delay = 1000) {
-                const apiKey = "AIzaSyCRFXs-Ysnoy2swH1yjqZYoRMNC4HTpv_c";
+                const apiKey = "AIzaSyBxy1N5HoAi0QhXSh02jWvu1iZg_BW_qUg";
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
 
                 const persona = personaData.find(p => p.id === agentId);
@@ -4195,7 +4152,7 @@ RESPOND ONLY WITH VALID JSON. NO OTHER TEXT.`;
                 const payload = {
                     contents: conversationHistory,
                     systemInstruction: {
-                        parts: [{ text: `${systemPromptText} Your user is a high-level executive ("Your Highness"). Do NOT include date, time, or timestamp information in your responses.` }]
+                        parts: [{ text: `${systemPromptText} Your user is a high-level executive ("Your Highness"). The current date and time is ${new Date().toLocaleString('en-US', { timeZone: 'Asia/Riyadh' })}.` }]
                     },
                     generationConfig: {
                         maxOutputTokens: 1024, // Shorter for discussions
@@ -4258,11 +4215,7 @@ RESPOND ONLY WITH VALID JSON. NO OTHER TEXT.`;
             function updateTodaysAgendaPanel() {
                  if (!summaryContent) return;
                 const now = today;
-                // Format date string for event matching (YYYY-MM-DD)
-                const year = now.getFullYear();
-                const month = String(now.getMonth() + 1).padStart(2, '0');
-                const day = String(now.getDate()).padStart(2, '0');
-                const todayStr = `${year}-${month}-${day}`;
+                const todayStr = now.toISOString().split('T')[0];
                 const allEvents = Array.from(document.querySelectorAll('.event'));
                 const todaysEvents = allEvents.filter(eventEl => eventEl.dataset.date === todayStr);
                 const upcomingEvents = todaysEvents.filter(eventEl => { /* ... time filtering logic ... */
@@ -4301,84 +4254,41 @@ RESPOND ONLY WITH VALID JSON. NO OTHER TEXT.`;
                         const view = button.dataset.view;
                         const calendarContainer = button.closest('.desktop-calendar, .mobile-calendar');
                         if (!calendarContainer) return;
-                        
-                        // Get the previous active view before removing it
-                        const previousActiveButton = calendarContainer.querySelector('[data-view].active');
-                        const previousView = previousActiveButton ? previousActiveButton.dataset.view : null;
-                        
                         calendarContainer.querySelectorAll('[data-view]').forEach(btn => btn.classList.remove('active'));
                         button.classList.add('active');
                         if (calendarContainer.classList.contains('desktop-calendar')) {
                             calendarContainer.querySelectorAll('.agenda-view').forEach(v => v.classList.remove('active'));
                             const targetView = calendarContainer.querySelector(`#${view}-view`);
                             if (targetView) targetView.classList.add('active');
-                            if (view === 'month') { 
-                                // When switching to month view from week view, sync month to current week's month
-                                if (previousView === 'week') {
-                                    // Set month to the month of the current week
-                                    currentMonth = new Date(currentWeekStart.getFullYear(), currentWeekStart.getMonth(), 1);
-                                }
-                                renderDesktopMonthCalendar(); 
-                            }
-                            if (view === 'today') { renderTodayView(); updateWeekHeader(); }
-                            if (view === 'week') { 
-                                // When switching to week view from month view, sync week to current month
-                                if (previousView === 'month') {
-                                    // Set week start to the first Sunday of the current month (or first day if month starts on Sunday)
-                                    const firstDayOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
-                                    const dayOfWeek = firstDayOfMonth.getDay();
-                                    
-                                    // If month doesn't start on Sunday, go to the previous Sunday
-                                    if (dayOfWeek !== 0) {
-                                        const daysToSubtract = dayOfWeek;
-                                        firstDayOfMonth.setDate(firstDayOfMonth.getDate() - daysToSubtract);
-                                    }
-                                    
-                                    currentWeekStart = new Date(firstDayOfMonth);
-                                    currentWeekStart.setHours(0, 0, 0, 0);
-                                }
-                                renderWeekView(); 
-                            }
-                        } else {
-                            // Mobile calendar view toggle
-                            if (view === 'week') { 
-                                // When switching to week view from month view, sync week to current month
-                                if (previousView === 'month') {
-                                    // Set week start to the first Sunday of the current month (or first day if month starts on Sunday)
-                                    const firstDayOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
-                                    const dayOfWeek = firstDayOfMonth.getDay();
-                                    
-                                    // If month doesn't start on Sunday, go to the previous Sunday
-                                    if (dayOfWeek !== 0) {
-                                        const daysToSubtract = dayOfWeek;
-                                        firstDayOfMonth.setDate(firstDayOfMonth.getDate() - daysToSubtract);
-                                    }
-                                    
-                                    currentWeekStart = new Date(firstDayOfMonth);
-                                    currentWeekStart.setHours(0, 0, 0, 0);
-                                }
-                                initMobileCalendar(); 
-                            }
-                            if (view === 'today') { renderTodayView(); updateWeekHeader(); }
-                            if (view === 'month') { 
-                                // When switching to month view from week view, sync month to current week's month
-                                if (previousView === 'week') {
-                                    // Set month to the month of the current week
-                                    currentMonth = new Date(currentWeekStart.getFullYear(), currentWeekStart.getMonth(), 1);
-                                }
-                                renderDesktopMonthCalendar(); 
-                            }
-                        }
-                        updateWeekHeader();
-                        
-                        // Update button states after view change
-                        if (window.updateButtonStates) {
-                            setTimeout(window.updateButtonStates, 50);
+                            if (view === 'month') { renderDesktopMonthCalendar(); }
+                            if (view === 'today') { renderTodayView(); }
                         }
                     });
                 });
             }
 
+            // Get current date in Riyadh timezone
+            function getRiyadhDate() {
+                const now = new Date();
+                // Convert to Riyadh time (UTC+3)
+                const riyadhOffset = 3 * 60; // 3 hours in minutes
+                const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+                const riyadhTime = new Date(utc + (riyadhOffset * 60000));
+                return riyadhTime;
+            }
+            
+            // Initialize today (will be refreshed when agenda is opened)
+            let today = getRiyadhDate();
+            
+            // State for calendar navigation
+            let currentWeekStart = new Date(today);
+            let currentMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+            
+            // Initialize week start to Sunday of current week
+            const day = currentWeekStart.getDay();
+            const diff = currentWeekStart.getDate() - day;
+            currentWeekStart.setDate(diff);
+            currentWeekStart.setHours(0, 0, 0, 0);
 
             // Desktop Month Calendar Rendering
             function renderDesktopMonthCalendar() {
@@ -4386,111 +4296,15 @@ RESPOND ONLY WITH VALID JSON. NO OTHER TEXT.`;
                 if (!monthGrid) return;
                 const allEvents = Array.from(document.querySelectorAll('.event[data-date]'));
                 const eventsByDate = new Map();
-                allEvents.forEach(e => {
-                    const date = e.dataset.date;
-                    if (!eventsByDate.has(date)) {
-                        eventsByDate.set(date, []);
-                    }
-                    eventsByDate.get(date).push(e);
-                }); 
-                const year = currentMonth.getFullYear();
-                const month = currentMonth.getMonth();
+                allEvents.forEach(e => { const date = e.dataset.date; if (!eventsByDate.has(date)) { eventsByDate.set(date, []); } eventsByDate.get(date).push(e); });
+                const year = currentMonth.getFullYear(); const month = currentMonth.getMonth();
                 const todayDateOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-                const firstDayOfMonth = new Date(year, month, 1);
-                const daysInMonth = new Date(year, month + 1, 0).getDate();
-                const startingDay = firstDayOfMonth.getDay();
-                
+                const firstDayOfMonth = new Date(year, month, 1); const daysInMonth = new Date(year, month + 1, 0).getDate(); const startingDay = firstDayOfMonth.getDay();
                 monthGrid.innerHTML = '';
-                ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].forEach((day, index) => {
-                    const header = document.createElement('div');
-                    header.className = `month-day-header ${index === 5 || index === 6 ? 'weekend' : ''}`;
-                    header.textContent = day;
-                    monthGrid.appendChild(header);
-                });
-                
-                for (let i = 0; i < startingDay; i++) {
-                    const fillerCell = document.createElement('div');
-                    fillerCell.className = 'month-day-cell other-month';
-                    monthGrid.appendChild(fillerCell);
-                }
-                
-                for (let day = 1; day <= daysInMonth; day++) {
-                    const date = new Date(year, month, day);
-                    const dayOfWeek = date.getDay();
-                    const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-                    const isToday = year === today.getFullYear() && month === today.getMonth() && day === today.getDate();
-                    const isPast = date < todayDateOnly;
-                    const isWeekend = dayOfWeek === 5 || dayOfWeek === 6;
-                    let cellClasses = 'month-day-cell';
-                    if (isToday) cellClasses += ' today';
-                    if (isPast) cellClasses += ' disabled-day';
-                    if (isWeekend) cellClasses += ' weekend';
-                    
-                    const cell = document.createElement('div');
-                    cell.className = cellClasses;
-                    cell.dataset.date = dateStr;
-                    
-                    const numberDiv = document.createElement('div');
-                    numberDiv.className = 'month-day-number';
-                    numberDiv.textContent = day;
-                    
-                    const eventsContainer = document.createElement('div');
-                    eventsContainer.className = 'month-day-events';
-                    
-                    const eventsForDate = eventsByDate.get(dateStr) || [];
-                    eventsForDate.forEach(eventEl => {
-                        const eventDot = document.createElement('div');
-                        eventDot.className = `month-event-dot${eventEl.classList.contains('event-milestone') ? ' milestone' : ''}`;
-                        
-                        const textSpan = document.createElement('span');
-                        textSpan.className = 'month-event-dot-text';
-                        textSpan.textContent = `${eventEl.dataset.eventTime || ''} ${eventEl.dataset.eventTitle || ''}`.trim();
-                        
-                        eventDot.appendChild(textSpan);
-                        
-                        eventDot.addEventListener('click', (e) => {
-                            e.stopPropagation();
-                            openEventModal(
-                                eventEl.dataset.eventTitle,
-                                eventEl.dataset.eventTime,
-                                eventEl.dataset.eventDetails,
-                                dateStr,
-                                eventEl
-                            );
-                        });
-                        
-                        eventsContainer.appendChild(eventDot);
-                    });
-                    
-                    cell.appendChild(numberDiv);
-                    cell.appendChild(eventsContainer);
-                    
-                    const hasEvents = eventsForDate.length > 0;
-                    if (isPast && !hasEvents) {
-                        cell.style.cursor = 'not-allowed';
-                        cell.style.opacity = '0.3';
-                    } else {
-                        cell.style.cursor = 'pointer';
-                        cell.addEventListener('click', () => {
-                            if (hasEvents) {
-                                const firstEvent = eventsForDate[0];
-                                openEventModal(
-                                    firstEvent.dataset.eventTitle,
-                                    firstEvent.dataset.eventTime,
-                                    firstEvent.dataset.eventDetails,
-                                    dateStr,
-                                    firstEvent
-                                );
-                            } else if (!isPast) {
-                                openDayActionModal(dateStr);
-                            }
-                        });
-                    }
-                    
-                    monthGrid.appendChild(cell);
-                }
-                
-                updateWeekHeader();
+                ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].forEach((day, index) => { const isWeekend = index === 5 || index === 6; monthGrid.innerHTML += `<div class="month-day-header ${isWeekend ? 'weekend' : ''}">${day}</div>`; });
+                for (let i = 0; i < startingDay; i++) { monthGrid.innerHTML += '<div class="month-day-cell other-month"></div>'; }
+                for (let day = 1; day <= daysInMonth; day++) { const date = new Date(year, month, day); const dayOfWeek = date.getDay(); const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`; const isToday = year === today.getFullYear() && month === today.getMonth() && day === today.getDate(); const isPast = date < todayDateOnly; const isWeekend = dayOfWeek === 5 || dayOfWeek === 6; let cellClasses = 'month-day-cell'; if (isToday) cellClasses += ' today'; if (isPast) cellClasses += ' disabled-day'; if (isWeekend) cellClasses += ' weekend'; let cellHtml = `<div class="${cellClasses}" data-date="${dateStr}"><div class="month-day-number">${day}</div><div class="month-day-events">`; if (eventsByDate.has(dateStr)) { eventsByDate.get(dateStr).forEach(eventEl => { const isMilestone = eventEl.classList.contains('event-milestone'); cellHtml += `<div class="month-event-dot ${isMilestone ? 'milestone' : ''}"></div>`; }); } cellHtml += `</div></div>`; monthGrid.innerHTML += cellHtml; }
+                 monthGrid.querySelectorAll('.month-day-cell:not(.disabled-day, .other-month)').forEach(cell => { const dateStr = cell.dataset.date; cell.addEventListener('click', () => { if (eventsByDate.has(dateStr)) { const firstEvent = eventsByDate.get(dateStr)[0]; openEventModal(firstEvent.dataset.eventTitle, firstEvent.dataset.eventTime, firstEvent.dataset.eventDetails, dateStr, firstEvent); } else { openDayActionModal(dateStr); } }); });
             }
 
             // Day Action Modal
@@ -4501,35 +4315,8 @@ RESPOND ONLY WITH VALID JSON. NO OTHER TEXT.`;
 
             // Desktop Today View Rendering
             function renderTodayView() {
-                 const todayList = document.getElementById('today-events-list'); 
-                 const todayDateEl = document.querySelector('#today-view .today-date'); 
-                 if (!todayList || !todayDateEl) return;
-                 
-                 // Format date string for event matching (YYYY-MM-DD)
-                 const year = today.getFullYear();
-                 const month = String(today.getMonth() + 1).padStart(2, '0');
-                 const day = String(today.getDate()).padStart(2, '0');
-                 const todayStr = `${year}-${month}-${day}`;
-                 
-                 // Display date with day name (e.g., "Monday, January 15, 2024")
-                 const dayName = today.toLocaleDateString('en-US', { weekday: 'long' });
-                 const dateStr = today.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-                 todayDateEl.textContent = `${dayName}, ${dateStr}`;
-                 
-                 const todaysEvents = Array.from(document.querySelectorAll(`.event[data-date="${todayStr}"]`)); 
-                 todayList.innerHTML = ''; 
-                 if (todaysEvents.length > 0) { 
-                     todaysEvents.forEach(eventEl => { 
-                         const eventClone = eventEl.cloneNode(true); 
-                         eventClone.addEventListener('click', () => { 
-                             const dateStr = eventClone.dataset.date;
-                             openEventModal(eventClone.dataset.eventTitle, eventClone.dataset.eventTime, eventClone.dataset.eventDetails, dateStr, eventClone); 
-                         }); 
-                         todayList.appendChild(eventClone); 
-                     }); 
-                 } else { 
-                     todayList.innerHTML = '<p style="opacity: 0.7; text-align: center; padding: 20px;">No events scheduled for today.</p>'; 
-                 }
+                 const todayList = document.getElementById('today-events-list'); const todayDateEl = document.querySelector('#today-view .today-date'); if (!todayList || !todayDateEl) return;
+                const todayStr = today.toISOString().split('T')[0]; todayDateEl.textContent = today.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }); const todaysEvents = Array.from(document.querySelectorAll(`.event[data-date="${todayStr}"]`)); todayList.innerHTML = ''; if (todaysEvents.length > 0) { todaysEvents.forEach(eventEl => { const eventClone = eventEl.cloneNode(true); eventClone.addEventListener('click', () => { openEventModal(eventClone.dataset.eventTitle, eventClone.dataset.eventTime, eventClone.dataset.eventDetails, todayStr, eventEl); }); todayList.appendChild(eventClone); }); } else { todayList.innerHTML = '<p style="opacity: 0.7; text-align: center; padding: 20px;">No events scheduled for today.</p>'; }
             }
 
             // Desktop Week View Rendering
@@ -4636,11 +4423,11 @@ RESPOND ONLY WITH VALID JSON. NO OTHER TEXT.`;
                     calendarGrid.appendChild(dayColumn);
                 }
                 
-                // Update week header
+                // Update header after rendering
                 updateWeekHeader();
             }
             
-            // Update week header text
+            // Update calendar header based on current view
             function updateWeekHeader() {
                 const weekEnd = new Date(currentWeekStart);
                 weekEnd.setDate(currentWeekStart.getDate() + 6);
@@ -4678,67 +4465,576 @@ RESPOND ONLY WITH VALID JSON. NO OTHER TEXT.`;
             }
 
             // Mobile Calendar Logic
-            let mobileSelectedDate = new Date(today);
             function initMobileCalendar() {
                  const monthGrid = document.getElementById('mobile-month-grid'); const agendaEvents = document.getElementById('mobile-agenda-events'); if (!monthGrid || !agendaEvents) return;
-                const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']; const allEvents = Array.from(document.querySelectorAll('.event[data-date]')); const eventDates = new Set(allEvents.map(e => e.dataset.date));
-                function renderCalendar() { 
-                    monthGrid.innerHTML = ''; 
-                    dayNames.forEach(day => { 
-                        const dayNameEl = document.createElement('div'); 
-                        dayNameEl.className = 'day-name'; 
-                        dayNameEl.textContent = day; 
-                        monthGrid.appendChild(dayNameEl); 
-                    }); 
+                const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']; let selectedDate = today; const allEvents = Array.from(document.querySelectorAll('.event[data-date]')); const eventDates = new Set(allEvents.map(e => e.dataset.date));
+                function renderCalendar() { monthGrid.innerHTML = ''; dayNames.forEach(day => { const dayNameEl = document.createElement('div'); dayNameEl.className = 'day-name'; dayNameEl.textContent = day; monthGrid.appendChild(dayNameEl); }); for (let day = 19; day <= 25; day++) { const dayCell = document.createElement('div'); dayCell.className = 'day-cell'; dayCell.textContent = day; const currentDayDate = new Date(today.getFullYear(), today.getMonth(), day); const dateStr = currentDayDate.toISOString().split('T')[0]; if (day === today.getDate()) { dayCell.classList.add('today'); } if (dateStr === selectedDate.toISOString().split('T')[0]) { dayCell.classList.add('selected'); } if (eventDates.has(dateStr)) { dayCell.classList.add('has-event'); } dayCell.addEventListener('click', () => { selectedDate = currentDayDate; renderCalendar(); renderEvents(dateStr); }); monthGrid.appendChild(dayCell); } }
+                function renderEvents(dateStr) { const dayEvents = allEvents.filter(e => e.dataset.date === dateStr); if (dayEvents.length === 0) { agendaEvents.innerHTML = '<p style="opacity: 0.7; text-align: center; padding: 20px;">No events scheduled for this day</p>'; return; } agendaEvents.innerHTML = ''; dayEvents.forEach(eventEl => { const eventDiv = document.createElement('div'); eventDiv.className = 'event'; if (eventEl.classList.contains('event-milestone')) { eventDiv.classList.add('event-milestone'); } eventDiv.innerHTML = `<div class="event-time">${eventEl.dataset.eventTime}</div> <div class="event-title">${eventEl.dataset.eventTitle}</div>`; eventDiv.addEventListener('click', () => { openEventModal(eventEl.dataset.eventTitle, eventEl.dataset.eventTime, eventEl.dataset.eventDetails, dateStr, eventEl); }); agendaEvents.appendChild(eventDiv); }); }
+                renderCalendar(); renderEvents(selectedDate.toISOString().split('T')[0]);
+            }
+
+            // --- News Page Functions ---
+            let newsData = [];
+            let currentNewsFilter = 'all';
+            
+            // Topic mapping for news queries
+            const topicMapping = {
+                'labor-market': 'Strengthening Labor Market',
+                'empowerment': 'Empowering Society & Individuals',
+                'non-profit': 'Enabling the Non-Profit Sector',
+                'strategic-partnerships': 'Strategic Partnerships'
+            };
+            
+            // RSS Feed sources for Saudi Arabia news (Saudi sources only)
+            // Using only the most reliable feeds to avoid rate limiting
+            const rssFeeds = [
+                // Saudi News Websites (most reliable)
+                'https://www.arabnews.com/rss.xml'
+                // Removed other feeds due to:
+                // - Nitter feeds: All failing with CORS/rate limit errors
+                // - Saudi Gazette: Returning HTML instead of XML
+                // - SPA: HTTP/2 protocol errors
+                // Can add more reliable feeds later
+            ];
+            
+            // CORS proxy services (multiple fallback options, free, no API key needed)
+            const corsProxies = [
+                'https://api.allorigins.win/get?url=',
+                'https://corsproxy.io/?',
+                'https://api.codetabs.com/v1/proxy?quest='
+            ];
+            
+            // Parse RSS XML to extract articles
+            function parseRSS(xmlText) {
+                try {
+                    // Additional validation
+                    if (!xmlText || typeof xmlText !== 'string') {
+                        return [];
+                    }
                     
-                    // Render 7 days of the current week
-                    for (let i = 0; i < 7; i++) {
-                        const currentDayDate = new Date(currentWeekStart);
-                        currentDayDate.setDate(currentWeekStart.getDate() + i);
-                        // Format date string for event matching (YYYY-MM-DD)
-                        const year = currentDayDate.getFullYear();
-                        const month = String(currentDayDate.getMonth() + 1).padStart(2, '0');
-                        const day = String(currentDayDate.getDate()).padStart(2, '0');
-                        const dateStr = `${year}-${month}-${day}`;
+                    const parser = new DOMParser();
+                    const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
+                    
+                    // Check for parsing errors
+                    const parseError = xmlDoc.querySelector('parsererror');
+                    if (parseError) {
+                        // Try to extract some info even if there are minor errors
+                        const errorText = parseError.textContent || '';
+                        if (errorText.includes('async')) {
+                            // This is likely HTML, not XML - skip it
+                            return [];
+                        }
+                        console.warn('RSS parsing warning:', errorText.substring(0, 100));
+                    }
+                    
+                    // Try both 'item' (RSS 2.0) and 'entry' (Atom) formats
+                    const items = xmlDoc.querySelectorAll('item, entry');
+                    const articles = [];
+                    
+                    items.forEach(item => {
+                        const title = item.querySelector('title')?.textContent || '';
+                        const link = item.querySelector('link')?.textContent || 
+                                    item.querySelector('link')?.getAttribute('href') ||
+                                    item.querySelector('guid')?.textContent || '';
+                        const description = item.querySelector('description')?.textContent || 
+                                          item.querySelector('content')?.textContent ||
+                                          item.querySelector('summary')?.textContent ||
+                                          item.querySelector('content\\:encoded')?.textContent || '';
+                        const pubDate = item.querySelector('pubDate')?.textContent || 
+                                      item.querySelector('published')?.textContent ||
+                                      item.querySelector('updated')?.textContent || '';
+                        const source = item.querySelector('source')?.textContent || 
+                                     xmlDoc.querySelector('channel > title')?.textContent ||
+                                     xmlDoc.querySelector('feed > title')?.textContent ||
+                                     'News Source';
                         
-                        const dayCell = document.createElement('div');
-                        dayCell.className = 'day-cell';
-                        dayCell.textContent = currentDayDate.getDate();
+                        // Clean HTML tags from description
+                        const cleanDescription = description.replace(/<[^>]*>/g, '').trim();
                         
-                        // Check if it's today
-                        const todayYear = today.getFullYear();
-                        const todayMonth = String(today.getMonth() + 1).padStart(2, '0');
-                        const todayDay = String(today.getDate()).padStart(2, '0');
-                        const todayStr = `${todayYear}-${todayMonth}-${todayDay}`;
-                        if (dateStr === todayStr) {
-                            dayCell.classList.add('today');
+                        if (title && link) {
+                            articles.push({
+                                title: title.trim(),
+                                url: link.trim(),
+                                description: cleanDescription,
+                                publishedAt: pubDate,
+                                source: source.trim()
+                            });
+                        }
+                    });
+                    
+                    return articles;
+                } catch (error) {
+                    console.error('Error parsing RSS:', error);
+                    return [];
+                }
+            }
+            
+            // Fetch RSS feed using CORS proxy with fallback options and rate limit handling
+            async function fetchRSSFeed(feedUrl, retryCount = 0) {
+                const maxRetries = 2;
+                
+                // Try each CORS proxy in order
+                for (const proxy of corsProxies) {
+                    try {
+                        // Add delay to avoid rate limiting (especially for retries)
+                        if (retryCount > 0) {
+                            await new Promise(resolve => setTimeout(resolve, 2000 * retryCount));
                         }
                         
-                        // Check if it's selected
-                        const selectedYear = mobileSelectedDate.getFullYear();
-                        const selectedMonth = String(mobileSelectedDate.getMonth() + 1).padStart(2, '0');
-                        const selectedDay = String(mobileSelectedDate.getDate()).padStart(2, '0');
-                        const selectedStr = `${selectedYear}-${selectedMonth}-${selectedDay}`;
-                        if (dateStr === selectedStr) {
-                            dayCell.classList.add('selected');
-                        }
-                        
-                        // Check if it has events
-                        if (eventDates.has(dateStr)) {
-                            dayCell.classList.add('has-event');
-                        }
-                        
-                        dayCell.addEventListener('click', () => {
-                            mobileSelectedDate = new Date(currentDayDate);
-                            renderCalendar();
-                            renderEvents(dateStr);
+                        const proxyUrl = proxy + encodeURIComponent(feedUrl);
+                        const response = await fetch(proxyUrl, {
+                            method: 'GET',
+                            headers: {
+                                'Accept': 'application/xml, text/xml, */*'
+                            }
                         });
                         
-                        monthGrid.appendChild(dayCell);
+                        // Handle rate limiting
+                        if (response.status === 429) {
+                            if (retryCount < maxRetries) {
+                                await new Promise(resolve => setTimeout(resolve, 5000)); // Wait 5 seconds
+                                return fetchRSSFeed(feedUrl, retryCount + 1);
+                            }
+                            continue; // Try next proxy
+                        }
+                        
+                        if (!response.ok) {
+                            continue; // Try next proxy
+                        }
+                        
+                        let xmlText;
+                        
+                        // Handle different proxy response formats
+                        if (proxy.includes('allorigins.win')) {
+                            const data = await response.json();
+                            xmlText = data.contents || '';
+                        } else if (proxy.includes('codetabs.com')) {
+                            xmlText = await response.text();
+                        } else {
+                            xmlText = await response.text();
+                        }
+                        
+                        // Validate that we got XML, not HTML
+                        if (!xmlText || xmlText.trim().length === 0) {
+                            continue; // Try next proxy
+                        }
+                        
+                        // Check if response is actually XML (not HTML)
+                        if (xmlText.includes('<!DOCTYPE html') || xmlText.includes('<html')) {
+                            console.warn('Received HTML instead of XML for:', feedUrl);
+                            continue; // Try next proxy
+                        }
+                        
+                        // Check if it looks like RSS/XML
+                        if (!xmlText.includes('<?xml') && !xmlText.includes('<rss') && !xmlText.includes('<feed')) {
+                            console.warn('Response does not appear to be RSS/XML for:', feedUrl);
+                            continue; // Try next proxy
+                        }
+                        
+                        const articles = parseRSS(xmlText);
+                        if (articles.length > 0) {
+                            return articles; // Success!
+                        }
+                    } catch (error) {
+                        // Try next proxy
+                        continue;
                     }
                 }
-                function renderEvents(dateStr) { const dayEvents = allEvents.filter(e => e.dataset.date === dateStr); if (dayEvents.length === 0) { agendaEvents.innerHTML = '<p style="opacity: 0.7; text-align: center; padding: 20px;">No events scheduled for this day</p>'; return; } agendaEvents.innerHTML = ''; dayEvents.forEach(eventEl => { const eventDiv = document.createElement('div'); eventDiv.className = 'event'; if (eventEl.classList.contains('event-milestone')) { eventDiv.classList.add('event-milestone'); } eventDiv.innerHTML = `<div class="event-time">${eventEl.dataset.eventTime}</div> <div class="event-title">${eventEl.dataset.eventTitle}</div>`; eventDiv.addEventListener('click', () => { openEventModal(eventEl.dataset.eventTitle, eventEl.dataset.eventTime, eventEl.dataset.eventDetails, dateStr, eventEl); }); agendaEvents.appendChild(eventDiv); }); }
-                renderCalendar(); renderEvents(mobileSelectedDate.toISOString().split('T')[0]);
+                
+                // All proxies failed
+                if (retryCount < maxRetries) {
+                    await new Promise(resolve => setTimeout(resolve, 3000));
+                    return fetchRSSFeed(feedUrl, retryCount + 1);
+                }
+                
+                console.warn('All CORS proxies failed for RSS feed:', feedUrl);
+                return [];
+            }
+            
+            // Fetch all RSS feeds and combine articles (sequential to avoid rate limits)
+            async function fetchAllRSSArticles() {
+                const allArticles = [];
+                
+                // Fetch sequentially with delays to avoid rate limiting
+                for (let i = 0; i < rssFeeds.length; i++) {
+                    const feed = rssFeeds[i];
+                    try {
+                        const articles = await fetchRSSFeed(feed);
+                        if (articles && articles.length > 0) {
+                            allArticles.push(...articles);
+                        }
+                        
+                        // Add delay between requests to avoid rate limiting (except for last feed)
+                        if (i < rssFeeds.length - 1) {
+                            await new Promise(resolve => setTimeout(resolve, 1000)); // 1 second delay
+                        }
+                    } catch (error) {
+                        console.warn(`Failed to fetch RSS feed ${i}:`, feed, error);
+                    }
+                }
+                
+                // Remove duplicates based on URL
+                const uniqueArticles = [];
+                const seenUrls = new Set();
+                
+                allArticles.forEach(article => {
+                    if (article.url && !seenUrls.has(article.url)) {
+                        seenUrls.add(article.url);
+                        uniqueArticles.push(article);
+                    }
+                });
+                
+                return uniqueArticles;
+            }
+            
+            // Cache for RSS articles to avoid refetching
+            let cachedRSSArticles = [];
+            let rssCacheTime = 0;
+            const RSS_CACHE_DURATION = 30 * 60 * 1000; // 30 minutes (increased to reduce API calls)
+            
+            async function fetchNewsForTopic(topicId, usedArticleUrls = []) {
+                const geminiApiKey = "AIzaSyBxy1N5HoAi0QhXSh02jWvu1iZg_BW_qUg";
+                const topicName = topicMapping[topicId] || 'HRSD initiatives';
+                
+                try {
+                    // Step 1: Fetch RSS articles (use cache if available)
+                    const now = Date.now();
+                    if (cachedRSSArticles.length === 0 || (now - rssCacheTime) > RSS_CACHE_DURATION) {
+                        cachedRSSArticles = await fetchAllRSSArticles();
+                        rssCacheTime = now;
+                    }
+                    
+                    if (cachedRSSArticles.length === 0) {
+                        return []; // No articles available
+                    }
+                    
+                    // Sort articles by date (most recent first) and filter out used ones
+                    const availableArticles = cachedRSSArticles
+                        .filter(article => !usedArticleUrls.includes(article.url))
+                        .sort((a, b) => {
+                            // Sort by published date (most recent first)
+                            const dateA = a.publishedAt ? new Date(a.publishedAt).getTime() : 0;
+                            const dateB = b.publishedAt ? new Date(b.publishedAt).getTime() : 0;
+                            return dateB - dateA; // Descending order (newest first)
+                        });
+                    
+                    if (availableArticles.length === 0) {
+                        return []; // No unused articles available
+                    }
+                    
+                    // Step 2: Select 2 articles for this topic
+                    const articlesForAnalysis = availableArticles.slice(0, 20); // Check up to 20 most recent
+                    const selectedArticles = [];
+                    
+                    // Simple keyword-based selection first (faster, no API call)
+                    const topicKeywords = {
+                        'labor-market': ['labor', 'employment', 'job', 'workforce', 'saudization', 'worker', 'employee', 'hiring'],
+                        'empowerment': ['empowerment', 'society', 'social', 'community', 'individual', 'support', 'development', 'program'],
+                        'non-profit': ['non-profit', 'charity', 'ngo', 'organization', 'sector', 'volunteer', 'donation'],
+                        'strategic-partnerships': ['partnership', 'mou', 'agreement', 'collaboration', 'cooperation', 'alliance', 'deal']
+                    };
+                    
+                    const keywords = topicKeywords[topicId] || [];
+                    
+                    // Find articles matching keywords (prioritize recent ones)
+                    const keywordMatches = articlesForAnalysis.filter(article => {
+                        const text = (article.title + ' ' + article.description).toLowerCase();
+                        return keywords.some(keyword => text.includes(keyword));
+                    });
+                    
+                    // Select up to 2 articles
+                    if (keywordMatches.length >= 2) {
+                        selectedArticles.push(keywordMatches[0], keywordMatches[1]);
+                    } else if (keywordMatches.length === 1) {
+                        selectedArticles.push(keywordMatches[0]);
+                        // Get the next most recent unused article
+                        const nextArticle = articlesForAnalysis.find(a => 
+                            !selectedArticles.includes(a) && !usedArticleUrls.includes(a.url)
+                        );
+                        if (nextArticle) selectedArticles.push(nextArticle);
+                    } else {
+                        // No keyword matches - use 2 most recent articles
+                        selectedArticles.push(articlesForAnalysis[0]);
+                        if (articlesForAnalysis.length > 1) {
+                            selectedArticles.push(articlesForAnalysis[1]);
+                        }
+                    }
+                    
+                    // Step 3: Summarize each selected article with Gemini
+                    const newsItems = [];
+                    
+                    for (let i = 0; i < selectedArticles.length; i++) {
+                        const selectedArticle = selectedArticles[i];
+                        
+                        // Add delay before Gemini API call to avoid rate limits
+                        if (i > 0) {
+                            await new Promise(resolve => setTimeout(resolve, 1000));
+                        }
+                        
+                        let aiSummary = selectedArticle.description || 'No summary available.';
+                        
+                        try {
+                            const geminiApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${geminiApiKey}`;
+                            
+                            const summaryPrompt = `Provide a 2-3 sentence summary of this news article for HRSD executive, focusing on "${topicName}":
+
+Title: ${selectedArticle.title || 'No title'}
+Description: ${selectedArticle.description?.substring(0, 400) || 'No description available'}
+
+Keep it brief and executive-level.`;
+
+                            const summaryPayload = {
+                                contents: [{ role: 'user', parts: [{ text: summaryPrompt }] }],
+                                systemInstruction: {
+                                    parts: [{ text: 'You are Layla Al-Farsi. Provide concise executive summaries. Be brief.' }]
+                                },
+                                generationConfig: {
+                                    maxOutputTokens: 200,
+                                    temperature: 0.7,
+                                },
+                                safetySettings: [
+                                    { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
+                                    { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
+                                    { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
+                                    { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
+                                ]
+                            };
+                            
+                            const summaryResponse = await fetch(geminiApiUrl, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify(summaryPayload)
+                            });
+                            
+                            if (summaryResponse.ok) {
+                                const summaryResult = await summaryResponse.json();
+                                const summaryText = summaryResult.candidates?.[0]?.content?.parts?.[0]?.text;
+                                if (summaryText) {
+                                    aiSummary = summaryText.trim();
+                                }
+                            } else if (summaryResponse.status === 429) {
+                                // Rate limited - use description as fallback
+                                console.warn('Gemini API rate limited, using article description');
+                            }
+                        } catch (summaryError) {
+                            // Silently fail - use description
+                        }
+                        
+                        // Format and add the news item
+                        const newsItem = {
+                            id: `news-${Date.now()}-${Math.random().toString(36).substr(2, 9)}-${i}`,
+                            title: selectedArticle.title || 'News Update',
+                            summary: aiSummary,
+                            source: selectedArticle.source || 'News Source',
+                            url: selectedArticle.url || '#',
+                            publishedAt: selectedArticle.publishedAt || new Date().toISOString(),
+                            topic: topicId,
+                            timestamp: new Date().toISOString()
+                        };
+                        
+                        newsItems.push(newsItem);
+                    }
+                    
+                    return newsItems;
+                    
+                } catch (error) {
+                    console.error('Error fetching news for topic:', topicId, error);
+                    return [];
+                }
+            }
+            
+            async function loadAllNews() {
+                const newsFeed = document.getElementById('news-feed');
+                const newsLoading = document.getElementById('news-loading');
+                const newsEmpty = document.getElementById('news-empty');
+                
+                if (!newsFeed || !newsLoading) return;
+                
+                // Show loading state
+                newsFeed.style.display = 'none';
+                newsEmpty.style.display = 'none';
+                newsLoading.style.display = 'block';
+                
+                try {
+                    // Fetch news for all topics sequentially to avoid rate limits
+                    const allTopics = ['labor-market', 'empowerment', 'non-profit', 'strategic-partnerships'];
+                    newsData = [];
+                    const usedArticleUrls = []; // Track which articles have been used
+                    
+                    for (let i = 0; i < allTopics.length; i++) {
+                        const topicId = allTopics[i];
+                        const topicNews = await fetchNewsForTopic(topicId, usedArticleUrls);
+                        if (topicNews && topicNews.length > 0) {
+                            newsData.push(...topicNews);
+                            // Mark these articles as used
+                            topicNews.forEach(item => {
+                                if (item.url) {
+                                    usedArticleUrls.push(item.url);
+                                }
+                            });
+                        }
+                        
+                        // Add delay between topics to avoid rate limiting (except for last topic)
+                        if (i < allTopics.length - 1) {
+                            await new Promise(resolve => setTimeout(resolve, 2000)); // 2 second delay
+                        }
+                    }
+                    
+                    // Final deduplication by URL (safety net)
+                    const uniqueNews = [];
+                    const seenUrls = new Set();
+                    newsData.forEach(item => {
+                        if (item.url && !seenUrls.has(item.url)) {
+                            seenUrls.add(item.url);
+                            uniqueNews.push(item);
+                        }
+                    });
+                    newsData = uniqueNews;
+                    
+                    // Filter out any empty results (topics with no news found)
+                    newsData = newsData.filter(item => item && item.title);
+                    
+                    // Render news
+                    renderNews();
+                    
+                } catch (error) {
+                    console.error('Error loading news:', error);
+                    showMessageModal('Failed to load news. Please try again.', 'Error');
+                } finally {
+                    newsLoading.style.display = 'none';
+                    newsFeed.style.display = 'grid';
+                }
+            }
+            
+            function renderNews() {
+                const newsFeed = document.getElementById('news-feed');
+                const newsEmpty = document.getElementById('news-empty');
+                
+                if (!newsFeed) return;
+                
+                // Filter news based on current filter
+                let filteredNews = newsData;
+                if (currentNewsFilter !== 'all') {
+                    filteredNews = newsData.filter(item => item.topic === currentNewsFilter);
+                }
+                
+                // Clear existing news
+                newsFeed.innerHTML = '';
+                
+                if (filteredNews.length === 0) {
+                    newsFeed.style.display = 'none';
+                    if (newsEmpty) newsEmpty.style.display = 'block';
+                    return;
+                }
+                
+                if (newsEmpty) newsEmpty.style.display = 'none';
+                newsFeed.style.display = 'grid';
+                
+                // Render each news item as a card
+                filteredNews.forEach(newsItem => {
+                    const newsCard = document.createElement('div');
+                    newsCard.className = 'tool-card';
+                    newsCard.style.cursor = 'pointer';
+                    
+                    // Get topic name for display
+                    const topicName = topicMapping[newsItem.topic] || 'General';
+                    const topicIcons = {
+                        'labor-market': 'fa-briefcase',
+                        'empowerment': 'fa-users',
+                        'non-profit': 'fa-hand-holding-heart',
+                        'strategic-partnerships': 'fa-handshake'
+                    };
+                    const topicIcon = topicIcons[newsItem.topic] || 'fa-newspaper';
+                    
+                    newsCard.innerHTML = `
+                        <div class="tool-icon"><i class="fas ${topicIcon}"></i></div>
+                        <div style="width: 100%; text-align: left; margin-bottom: 10px;">
+                            <span style="font-size: 0.75rem; color: var(--primary-blue); background: rgba(0, 169, 157, 0.1); padding: 4px 8px; border-radius: 12px; display: inline-block; margin-bottom: 8px;">${topicName}</span>
+                        </div>
+                        <h3 class="tool-title" style="text-align: left; width: 100%; margin-bottom: 12px;">${newsItem.title || 'News Update'}</h3>
+                        <p class="tool-description" style="text-align: left; width: 100%; margin-bottom: 12px;">${newsItem.summary || 'No summary available.'}</p>
+                        <div style="width: 100%; text-align: left; margin-bottom: 15px; font-size: 0.75rem; opacity: 0.7;">
+                            <div style="margin-bottom: 5px;">
+                                <i class="fas fa-newspaper"></i> Source: <strong>${newsItem.source || 'Media'}</strong>
+                            </div>
+                            ${newsItem.publishedAt ? `<div style="margin-bottom: 5px; opacity: 0.6;">
+                                <i class="fas fa-calendar"></i> ${new Date(newsItem.publishedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+                            </div>` : ''}
+                            ${newsItem.url && newsItem.url !== '#' ? `<div>
+                                <a href="${newsItem.url}" target="_blank" rel="noopener noreferrer" style="color: var(--primary-blue); text-decoration: none; display: inline-flex; align-items: center; gap: 5px;">
+                                    <i class="fas fa-external-link-alt"></i> View Original Article
+                                </a>
+                            </div>` : ''}
+                        </div>
+                        <button class="tool-action-btn news-ask-agent-btn" data-news-id="${newsItem.id}" style="width: 100%;">
+                            <i class="fas fa-comment-dots"></i> Ask Agent About This
+                        </button>
+                    `;
+                    
+                    newsFeed.appendChild(newsCard);
+                });
+                
+                // Add event listeners to "Ask Agent" buttons
+                document.querySelectorAll('.news-ask-agent-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const newsId = btn.dataset.newsId;
+                        const newsItem = newsData.find(item => item.id === newsId);
+                        if (newsItem) {
+                            const prompt = `Please provide more details and analysis about this news: "${newsItem.title}". ${newsItem.summary ? `Summary: ${newsItem.summary}` : ''}`;
+                            switchToAgentAndSendPrompt(prompt, 'layla');
+                        }
+                    });
+                });
+            }
+            
+            function applyNewsFilter(topicId) {
+                currentNewsFilter = topicId;
+                
+                // Update filter button states
+                document.querySelectorAll('.news-filter-btn').forEach(btn => {
+                    const isActive = btn.dataset.topicFilter === topicId;
+                    btn.classList.toggle('active', isActive);
+                    
+                    // Update inline styles for active state
+                    if (isActive) {
+                        btn.style.background = 'linear-gradient(135deg, var(--primary-blue), #008a7e)';
+                        btn.style.border = '1px solid var(--primary-blue)';
+                        btn.style.color = 'var(--text-dark)';
+                        btn.style.fontWeight = '500';
+                    } else {
+                        btn.style.background = 'var(--container-bg-light)';
+                        btn.style.border = '1px solid var(--border-color)';
+                        btn.style.color = 'var(--text-light)';
+                        btn.style.fontWeight = 'normal';
+                    }
+                });
+                
+                renderNews();
+            }
+            
+            // Auto-load news when news page is opened
+            function initializeNewsPage() {
+                const newsPage = document.getElementById('news-page');
+                if (!newsPage) return;
+                
+                // Check if news page is visible and news hasn't been loaded
+                const observer = new MutationObserver((mutations) => {
+                    mutations.forEach((mutation) => {
+                        if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                            if (newsPage.classList.contains('active') && newsData.length === 0) {
+                                loadAllNews();
+                            }
+                        }
+                    });
+                });
+                
+                observer.observe(newsPage, { attributes: true });
+                
+                // Also check on initial load
+                if (newsPage.classList.contains('active')) {
+                    loadAllNews();
+                }
             }
 
             // --- Event Listeners & Initialization ---
@@ -4756,7 +5052,7 @@ RESPOND ONLY WITH VALID JSON. NO OTHER TEXT.`;
             if (sendBtn) { sendBtn.addEventListener('click', handleSendMessage); }
             if (chatInput) { chatInput.addEventListener('keydown', (event) => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); handleSendMessage(); } }); }
             // Topic card actions
-            document.querySelectorAll('.topic-action-btn').forEach(button => { button.addEventListener('click', () => { const action = button.dataset.action; const card = button.closest('.topic-card'); if (!card) return; const topicId = card.dataset.topicId; const topicTitleEl = card.querySelector('.topic-title'); if (!topicTitleEl) return; const topicTitle = topicTitleEl.textContent; if (action === 'meetings') { openMeetingsModal(topicId, topicTitle); } else if (action === 'deeper') { const prompt = `Please provide a detailed briefing on the focus area: "${topicTitle}". Include key details, current status, and strategic recommendations.`; switchToAgentAndSendPrompt(prompt, 'zara');} else if (action === 'references') { const prompt = `Please pull up the latest references and documents from my team regarding "${topicTitle}".`; takeActionFromTopic(prompt); } }); });
+            document.querySelectorAll('.topic-action-btn').forEach(button => { button.addEventListener('click', () => { const action = button.dataset.action; const card = button.closest('.topic-card'); if (!card) return; const topicId = card.dataset.topicId; const topicTitleEl = card.querySelector('.topic-title'); if (!topicTitleEl) return; const topicTitle = topicTitleEl.textContent; if (action === 'meetings') { openMeetingsModal(topicId, topicTitle); } else if (action === 'deeper') { const prompt = `Please provide a detailed briefing on the focus area: "${topicTitle}". Include key details, current status, and strategic recommendations.`; switchToAgentAndSendPrompt(prompt, 'nouf');} else if (action === 'references') { const prompt = `Please pull up the latest references and documents from my team regarding "${topicTitle}".`; takeActionFromTopic(prompt); } }); });
             // "Ask Agent" on text selection
              document.addEventListener('mouseup', (e) => { if (!askAgentBtn) return; const targetElement = e.target; if (targetElement.tagName === 'INPUT' || targetElement.tagName === 'TEXTAREA' || targetElement.closest('.modal') || targetElement.closest('#ask-agent-btn')) { askAgentBtn.style.display = 'none'; return; } setTimeout(() => { const text = window.getSelection().toString().trim(); if (text.length > 1) { selectedText = text; const rect = window.getSelection().getRangeAt(0).getBoundingClientRect(); askAgentBtn.style.left = `${rect.right + window.scrollX + 5}px`; askAgentBtn.style.top = `${rect.bottom + window.scrollY + 5}px`; askAgentBtn.style.display = 'block'; } else { askAgentBtn.style.display = 'none'; } }, 10); });
             document.addEventListener('mousedown', (e) => { if (askAgentBtn && e.target.id !== 'ask-agent-btn') { askAgentBtn.style.display = 'none'; } });
@@ -4768,7 +5064,45 @@ RESPOND ONLY WITH VALID JSON. NO OTHER TEXT.`;
             // Chat "+" Action Button
              chatActionBtn?.addEventListener('click', (e) => { e.stopPropagation(); const list = document.getElementById('meetings-modal-list'); const title = document.getElementById('meetings-modal-title'); if (!list || !title) { console.error("Meetings modal elements not found"); return; } openModal(meetingsModal); list.innerHTML = ''; title.textContent = `Discuss a Topic`; let content = '<div class="dropdown-header">Discuss a Focus Area</div><div class="modal-pills-container">'; document.querySelectorAll('.topic-card .topic-title').forEach(titleEl => { content += `<div class="modal-topic-pill chat-action-item" data-prompt="Let's discuss the focus area: ${titleEl.textContent}">${titleEl.textContent}</div>`; }); content += '</div>'; content += '<div class="dropdown-header">Discuss a Meeting</div>'; const events = document.querySelectorAll('.event[data-date]'); if (events.length > 0) { events.forEach(event => { const eventTitle = event.dataset.eventTitle || 'Unnamed Meeting'; const eventTime = event.dataset.eventTime || 'No time'; const eventDateStr = event.dataset.date; if(eventDateStr) { const eventDate = new Date(eventDateStr + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }); content += `<div class="meeting-item chat-action-item" data-prompt="What should I know about the meeting: ${eventTitle}?"><div class="meeting-title">${eventTitle}</div><div class="meeting-time">${eventDate} - ${eventTime}</div></div>`; } }); } else { content += '<p>No meetings found.</p>'; } list.innerHTML = content; list.querySelectorAll('.chat-action-item').forEach(item => { item.addEventListener('click', (ev) => { ev.preventDefault(); if (chatInput && item.dataset.prompt) { chatInput.value = item.dataset.prompt; handleSendMessage(); } closeModal(meetingsModal); }); }); });
 
-             // --- Updated Tool Card Actions ---
+             // --- News Page Event Listeners ---
+            // Refresh news button
+            const refreshNewsBtn = document.getElementById('refresh-news-btn');
+            if (refreshNewsBtn) {
+                refreshNewsBtn.addEventListener('click', () => {
+                    newsData = []; // Clear existing news
+                    loadAllNews();
+                });
+            }
+            
+            // News filter buttons
+            document.querySelectorAll('.news-filter-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const topicId = btn.dataset.topicFilter;
+                    applyNewsFilter(topicId);
+                });
+                
+                // Add hover effects
+                btn.addEventListener('mouseenter', function() {
+                    if (!this.classList.contains('active')) {
+                        this.style.background = 'rgba(0, 169, 157, 0.2)';
+                        this.style.borderColor = 'var(--primary-blue)';
+                        this.style.transform = 'translateY(-2px)';
+                    }
+                });
+                
+                btn.addEventListener('mouseleave', function() {
+                    if (!this.classList.contains('active')) {
+                        this.style.background = 'var(--container-bg-light)';
+                        this.style.borderColor = 'var(--border-color)';
+                        this.style.transform = 'translateY(0)';
+                    }
+                });
+            });
+            
+            // Initialize news page
+            initializeNewsPage();
+
+            // --- Updated Tool Card Actions ---
              document.querySelectorAll('.tool-action-btn').forEach(button => {
                 button.addEventListener('click', () => {
                     const action = button.dataset.toolAction;
@@ -4864,161 +5198,161 @@ RESPOND ONLY WITH VALID JSON. NO OTHER TEXT.`;
              } else {
                  console.error("Navigation buttons or page content elements not found.");
              }
-             
-             // Calendar Navigation Buttons
-             function setupCalendarNavigation() {
-                 // Desktop navigation
-                 const prevWeekBtn = document.getElementById('prev-week-btn');
-                 const nextWeekBtn = document.getElementById('next-week-btn');
-                 const prevMonthBtn = document.getElementById('prev-month-btn');
-                 const nextMonthBtn = document.getElementById('next-month-btn');
-                 
-                 // Mobile navigation
-                 const mobilePrevWeekBtn = document.getElementById('mobile-prev-week-btn');
-                 const mobileNextWeekBtn = document.getElementById('mobile-next-week-btn');
-                 const mobilePrevMonthBtn = document.getElementById('mobile-prev-month-btn');
-                 const mobileNextMonthBtn = document.getElementById('mobile-next-month-btn');
-                 
-                 function navigateWeek(direction) {
-                     currentWeekStart.setDate(currentWeekStart.getDate() + (direction * 7));
-                     renderWeekView();
-                     initMobileCalendar();
-                     
-                     // Sync month view to the month of the current week
-                     const weekMonth = new Date(currentWeekStart.getFullYear(), currentWeekStart.getMonth(), 1);
-                     if (weekMonth.getTime() !== currentMonth.getTime()) {
-                         currentMonth = weekMonth;
-                         // Only update month calendar if month view is active
-                         const activeView = document.querySelector('.view-btn.active, .mobile-view-btn.active');
-                         const view = activeView ? activeView.dataset.view : 'week';
-                         if (view === 'month') {
-                             renderDesktopMonthCalendar();
-                         }
-                         updateCalendarHeaders();
-                     }
-                 }
-                 
-                 function navigateMonth(direction) {
-                     currentMonth.setMonth(currentMonth.getMonth() + direction);
-                     renderDesktopMonthCalendar();
-                     
-                     // If on week tab, also update the week view to show the first week of the new month
-                     const activeView = document.querySelector('.view-btn.active, .mobile-view-btn.active');
-                     const view = activeView ? activeView.dataset.view : 'week';
-                     if (view === 'week' || view === 'today') {
-                         // Set week start to the first Sunday of the new month (or first day if month doesn't start on Sunday)
-                         const firstDayOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
-                         const dayOfWeek = firstDayOfMonth.getDay();
-                         
-                         // If month doesn't start on Sunday, go to the previous Sunday
-                         if (dayOfWeek !== 0) {
-                             const daysToSubtract = dayOfWeek;
-                             firstDayOfMonth.setDate(firstDayOfMonth.getDate() - daysToSubtract);
-                         }
-                         
-                         currentWeekStart = new Date(firstDayOfMonth);
-                         currentWeekStart.setHours(0, 0, 0, 0);
-                         renderWeekView();
-                         initMobileCalendar();
-                     }
-                     
-                     // Update calendar headers
-                     updateCalendarHeaders();
-                 }
-                 
-                 // Function to update button states based on active view (make it accessible)
-                 window.updateButtonStates = function() {
-                     const activeView = document.querySelector('.view-btn.active, .mobile-view-btn.active');
-                     const view = activeView ? activeView.dataset.view : 'week';
-                     const isMonthView = view === 'month';
-                     
-                     // Week buttons - disabled in month view
-                     const weekButtons = [prevWeekBtn, nextWeekBtn, mobilePrevWeekBtn, mobileNextWeekBtn];
-                     weekButtons.forEach(btn => {
-                         if (btn) {
-                             if (isMonthView) {
-                                 btn.disabled = true;
-                                 btn.style.opacity = '0.4';
-                                 btn.style.cursor = 'not-allowed';
-                             } else {
-                                 btn.disabled = false;
-                                 btn.style.opacity = '1';
-                                 btn.style.cursor = 'pointer';
-                             }
-                         }
-                     });
-                 };
-                 
-                 // Week navigation buttons (only work in week/today view)
-                 if (prevWeekBtn) {
-                     prevWeekBtn.addEventListener('click', () => {
-                         if (!prevWeekBtn.disabled) {
-                             navigateWeek(-1);
-                         }
-                     });
-                 }
-                 
-                 if (nextWeekBtn) {
-                     nextWeekBtn.addEventListener('click', () => {
-                         if (!nextWeekBtn.disabled) {
-                             navigateWeek(1);
-                         }
-                     });
-                 }
-                 
-                 // Month navigation buttons (always work)
-                 if (prevMonthBtn) {
-                     prevMonthBtn.addEventListener('click', () => {
-                         navigateMonth(-1);
-                     });
-                 }
-                 
-                 if (nextMonthBtn) {
-                     nextMonthBtn.addEventListener('click', () => {
-                         navigateMonth(1);
-                     });
-                 }
-                 
-                 // Mobile week navigation
-                 if (mobilePrevWeekBtn) {
-                     mobilePrevWeekBtn.addEventListener('click', () => {
-                         if (!mobilePrevWeekBtn.disabled) {
-                             navigateWeek(-1);
-                         }
-                     });
-                 }
-                 
-                 if (mobileNextWeekBtn) {
-                     mobileNextWeekBtn.addEventListener('click', () => {
-                         if (!mobileNextWeekBtn.disabled) {
-                             navigateWeek(1);
-                         }
-                     });
-                 }
-                 
-                 // Mobile month navigation
-                 if (mobilePrevMonthBtn) {
-                     mobilePrevMonthBtn.addEventListener('click', () => {
-                         navigateMonth(-1);
-                     });
-                 }
-                 
-                 if (mobileNextMonthBtn) {
-                     mobileNextMonthBtn.addEventListener('click', () => {
-                         navigateMonth(1);
-                     });
-                 }
-                 
-                 // Update button states when view changes
-                 document.querySelectorAll('.view-toggle').forEach(toggle => {
-                     toggle.addEventListener('click', (e) => {
-                         setTimeout(updateButtonStates, 100); // Small delay to ensure view is updated
-                     });
-                 });
-                 
-                 // Initial state
-                 updateButtonStates();
-             }
+
+            // Calendar Navigation Buttons
+            function setupCalendarNavigation() {
+                // Desktop navigation
+                const prevWeekBtn = document.getElementById('prev-week-btn');
+                const nextWeekBtn = document.getElementById('next-week-btn');
+                const prevMonthBtn = document.getElementById('prev-month-btn');
+                const nextMonthBtn = document.getElementById('next-month-btn');
+                
+                // Mobile navigation
+                const mobilePrevWeekBtn = document.getElementById('mobile-prev-week-btn');
+                const mobileNextWeekBtn = document.getElementById('mobile-next-week-btn');
+                const mobilePrevMonthBtn = document.getElementById('mobile-prev-month-btn');
+                const mobileNextMonthBtn = document.getElementById('mobile-next-month-btn');
+                
+                function navigateWeek(direction) {
+                    currentWeekStart.setDate(currentWeekStart.getDate() + (direction * 7));
+                    renderWeekView();
+                    initMobileCalendar();
+                    
+                    // Sync month view to the month of the current week
+                    const weekMonth = new Date(currentWeekStart.getFullYear(), currentWeekStart.getMonth(), 1);
+                    if (weekMonth.getTime() !== currentMonth.getTime()) {
+                        currentMonth = weekMonth;
+                        // Only update month calendar if month view is active
+                        const activeView = document.querySelector('.view-btn.active, .mobile-view-btn.active');
+                        const view = activeView ? activeView.dataset.view : 'week';
+                        if (view === 'month') {
+                            renderDesktopMonthCalendar();
+                        }
+                        updateWeekHeader();
+                    }
+                }
+                
+                function navigateMonth(direction) {
+                    currentMonth.setMonth(currentMonth.getMonth() + direction);
+                    renderDesktopMonthCalendar();
+                    
+                    // If on week tab, also update the week view to show the first week of the new month
+                    const activeView = document.querySelector('.view-btn.active, .mobile-view-btn.active');
+                    const view = activeView ? activeView.dataset.view : 'week';
+                    if (view === 'week' || view === 'today') {
+                        // Set week start to the first Sunday of the new month (or first day if month doesn't start on Sunday)
+                        const firstDayOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
+                        const dayOfWeek = firstDayOfMonth.getDay();
+                        
+                        // If month doesn't start on Sunday, go to the previous Sunday
+                        if (dayOfWeek !== 0) {
+                            const daysToSubtract = dayOfWeek;
+                            firstDayOfMonth.setDate(firstDayOfMonth.getDate() - daysToSubtract);
+                        }
+                        
+                        currentWeekStart = new Date(firstDayOfMonth);
+                        currentWeekStart.setHours(0, 0, 0, 0);
+                        renderWeekView();
+                        initMobileCalendar();
+                    }
+                    
+                    // Update calendar headers
+                    updateWeekHeader();
+                }
+                
+                // Function to update button states based on active view (make it accessible)
+                window.updateButtonStates = function() {
+                    const activeView = document.querySelector('.view-btn.active, .mobile-view-btn.active');
+                    const view = activeView ? activeView.dataset.view : 'week';
+                    const isMonthView = view === 'month';
+                    
+                    // Week buttons - disabled in month view
+                    const weekButtons = [prevWeekBtn, nextWeekBtn, mobilePrevWeekBtn, mobileNextWeekBtn];
+                    weekButtons.forEach(btn => {
+                        if (btn) {
+                            if (isMonthView) {
+                                btn.disabled = true;
+                                btn.style.opacity = '0.4';
+                                btn.style.cursor = 'not-allowed';
+                            } else {
+                                btn.disabled = false;
+                                btn.style.opacity = '1';
+                                btn.style.cursor = 'pointer';
+                            }
+                        }
+                    });
+                };
+                
+                // Week navigation buttons (only work in week/today view)
+                if (prevWeekBtn) {
+                    prevWeekBtn.addEventListener('click', () => {
+                        if (!prevWeekBtn.disabled) {
+                            navigateWeek(-1);
+                        }
+                    });
+                }
+                
+                if (nextWeekBtn) {
+                    nextWeekBtn.addEventListener('click', () => {
+                        if (!nextWeekBtn.disabled) {
+                            navigateWeek(1);
+                        }
+                    });
+                }
+                
+                // Month navigation buttons (always work)
+                if (prevMonthBtn) {
+                    prevMonthBtn.addEventListener('click', () => {
+                        navigateMonth(-1);
+                    });
+                }
+                
+                if (nextMonthBtn) {
+                    nextMonthBtn.addEventListener('click', () => {
+                        navigateMonth(1);
+                    });
+                }
+                
+                // Mobile week navigation
+                if (mobilePrevWeekBtn) {
+                    mobilePrevWeekBtn.addEventListener('click', () => {
+                        if (!mobilePrevWeekBtn.disabled) {
+                            navigateWeek(-1);
+                        }
+                    });
+                }
+                
+                if (mobileNextWeekBtn) {
+                    mobileNextWeekBtn.addEventListener('click', () => {
+                        if (!mobileNextWeekBtn.disabled) {
+                            navigateWeek(1);
+                        }
+                    });
+                }
+                
+                // Mobile month navigation
+                if (mobilePrevMonthBtn) {
+                    mobilePrevMonthBtn.addEventListener('click', () => {
+                        navigateMonth(-1);
+                    });
+                }
+                
+                if (mobileNextMonthBtn) {
+                    mobileNextMonthBtn.addEventListener('click', () => {
+                        navigateMonth(1);
+                    });
+                }
+                
+                // Update button states when view changes
+                document.querySelectorAll('.view-toggle').forEach(toggle => {
+                    toggle.addEventListener('click', (e) => {
+                        setTimeout(updateButtonStates, 100); // Small delay to ensure view is updated
+                    });
+                });
+                
+                // Initial state
+                updateButtonStates();
+            }
 
             // --- INITIALIZATION ---
             setViewportHeight();
@@ -5029,8 +5363,8 @@ RESPOND ONLY WITH VALID JSON. NO OTHER TEXT.`;
             setupAgendaInteractions();
             initMobileCalendar();
             renderDesktopMonthCalendar();
-            renderTodayView();
             renderWeekView();
+            renderTodayView();
             updateWeekHeader();
             
             // Initialize UI based on mode (start in single agent mode)
