@@ -1162,6 +1162,57 @@
             flex-direction: column;
         }
 
+        .calendar-nav-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex: 1 1 auto;
+            min-width: 150px;
+            justify-content: space-between;
+        }
+        
+        .nav-buttons-group {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        
+        .calendar-nav-btn {
+            background: var(--container-bg-light);
+            border: 1px solid var(--border-color);
+            color: var(--text-light);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+        }
+        
+        .calendar-nav-btn:hover {
+            background: linear-gradient(135deg, var(--primary-blue), #008a7e);
+            color: var(--text-dark);
+            box-shadow: 0 2px 10px rgba(0, 169, 157, 0.4);
+            transform: scale(1.1);
+        }
+        
+        .calendar-nav-btn:active {
+            transform: scale(0.95);
+        }
+
+        .agenda-header h2 {
+            margin: 0;
+            font-weight: 600;
+            font-size: 1.5rem;
+            color: var(--text-dark);
+            text-shadow: 0 2px 10px rgba(0, 169, 157, 0.2);
+            flex: 1;
+            text-align: center;
+        }
+
         .month-calendar-grid {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
@@ -2687,7 +2738,17 @@
                 <!-- Desktop Calendar View -->
                 <div class="desktop-calendar">
                     <div class="agenda-header">
-                        <h2>October 2025</h2>
+                        <div class="calendar-nav-container">
+                            <div class="nav-buttons-group">
+                                <button class="calendar-nav-btn" id="prev-month-btn" title="Previous Month"><i class="fas fa-angle-double-left"></i></button>
+                                <button class="calendar-nav-btn" id="prev-week-btn" title="Previous Week"><i class="fas fa-chevron-left"></i></button>
+                            </div>
+                            <h2 id="desktop-calendar-title">October 2025</h2>
+                            <div class="nav-buttons-group">
+                                <button class="calendar-nav-btn" id="next-week-btn" title="Next Week"><i class="fas fa-chevron-right"></i></button>
+                                <button class="calendar-nav-btn" id="next-month-btn" title="Next Month"><i class="fas fa-angle-double-right"></i></button>
+                            </div>
+                        </div>
                         <div class="view-toggle">
                             <button class="view-btn" data-view="today">Today</button>
                             <button class="view-btn active" data-view="week">Week</button>
@@ -2705,15 +2766,7 @@
 
                     <!-- Week View (Desktop) -->
                     <div id="week-view" class="agenda-view active">
-                        <div class="calendar-grid">
-                            <div class="day-column"><div class="day-header"><div class="day-name">Sun</div><div class="day-number">19</div></div></div>
-                            <div class="day-column"><div class="day-header"><div class="day-name">Mon</div><div class="day-number">20</div></div> <div class="event" data-event-title="Labor Market Policy Review" data-event-time="09:00 AM" data-event-details="Strategic sync on new labor market policies to enhance Saudization." data-topic="labor-market" data-date="2025-10-20"> <div class="event-time">09:00 AM</div> <div class="event-title">Labor Market Policy Review</div> </div> <div class="event event-milestone" data-event-title="Milestone: Non-Profit Portal Launch" data-event-time="EOD" data-event-details="Official launch of the new national portal for non-profit organizations. Review launch communications." data-topic="non-profit" data-date="2025-10-20"> <div class="event-time">EOD</div> <div class="event-title">Milestone: Non-Profit Portal Launch</div> </div></div>
-                            <div class="day-column"><div class="day-header"><div class="day-name">Tue</div><div class="day-number">21</div></div> <div class="event" data-event-title="Partnership MoU Signing" data-event-time="10:00 AM" data-event-details="Ceremony for signing the Memorandum of Understanding with key private sector partners." data-topic="strategic-partnerships" data-date="2025-10-21"> <div class="event-time">10:00 AM</div> <div class="event-title">Partnership MoU Signing</div> </div></div>
-                            <div class="day-column"><div class="day-header"><div class="day-name">Wed</div><div class="day-number">22</div></div></div>
-                            <div class="day-column"><div class="day-header"><div class="day-name">Thu</div><div class="day-number">23</div></div> <div class="event" data-event-title="Community Empowerment Briefing" data-event-time="02:00 PM" data-event-details="Briefing on the results of the recent community empowerment programs and future plans." data-topic="empowerment" data-date="2025-10-23"> <div class="event-time">02:00 PM</div> <div class="event-title">Community Empowerment Briefing</div> </div></div>
-                            <div class="day-column weekend"><div class="day-header"><div class="day-name">Fri</div><div class="day-number">24</div></div></div>
-                            <div class="day-column weekend"><div class="day-header"><div class="day-name">Sat</div><div class="day-number">25</div></div></div>
-                        </div>
+                        <div class="calendar-grid"></div>
                     </div>
 
                     <!-- Month View (Desktop) -->
@@ -2724,7 +2777,17 @@
                 <!-- Mobile Calendar View -->
                 <div class="mobile-calendar">
                      <div class="agenda-header">
-                        <h2 id="mobile-calendar-title">October 2025</h2>
+                        <div class="calendar-nav-container">
+                            <div class="nav-buttons-group">
+                                <button class="calendar-nav-btn" id="mobile-prev-month-btn" title="Previous Month"><i class="fas fa-angle-double-left"></i></button>
+                                <button class="calendar-nav-btn" id="mobile-prev-week-btn" title="Previous Week"><i class="fas fa-chevron-left"></i></button>
+                            </div>
+                            <h2 id="mobile-calendar-title">October 2025</h2>
+                            <div class="nav-buttons-group">
+                                <button class="calendar-nav-btn" id="mobile-next-week-btn" title="Next Week"><i class="fas fa-chevron-right"></i></button>
+                                <button class="calendar-nav-btn" id="mobile-next-month-btn" title="Next Month"><i class="fas fa-angle-double-right"></i></button>
+                            </div>
+                        </div>
                         <div class="view-toggle">
                             <button class="mobile-view-btn" data-view="today">Today</button>
                             <button class="mobile-view-btn active" data-view="week">Week</button>
@@ -2734,6 +2797,14 @@
                     <div id="mobile-month-grid"><div class="day-name">Sun</div><div class="day-name">Mon</div><div class="day-name">Tue</div><div class="day-name">Wed</div><div class="day-name">Thu</div><div class="day-name">Fri</div><div class="day-name">Sat</div><div class="day-cell">19</div><div class="day-cell">20</div><div class="day-cell has-event">21</div><div class="day-cell today has-event">22</div><div class="day-cell selected">23</div><div class="day-cell has-event">24</div><div class="day-cell">25</div></div>
                     <div id="mobile-agenda-events"><p style="opacity: 0.7; text-align: center; padding: 20px;">No events scheduled for this day</p></div>
                 </div>
+            </div>
+            
+            <!-- Hidden event data container (for calendar to find events) -->
+            <div id="event-data-container" style="display: none;">
+                <div class="event" data-event-title="Labor Market Policy Review" data-event-time="09:00 AM" data-event-details="Strategic sync on new labor market policies to enhance Saudization." data-topic="labor-market" data-date="2025-10-20"></div>
+                <div class="event event-milestone" data-event-title="Milestone: Non-Profit Portal Launch" data-event-time="EOD" data-event-details="Official launch of the new national portal for non-profit organizations. Review launch communications." data-topic="non-profit" data-date="2025-10-20"></div>
+                <div class="event" data-event-title="Partnership MoU Signing" data-event-time="10:00 AM" data-event-details="Ceremony for signing the Memorandum of Understanding with key private sector partners." data-topic="strategic-partnerships" data-date="2025-10-21"></div>
+                <div class="event" data-event-title="Community Empowerment Briefing" data-event-time="02:00 PM" data-event-details="Briefing on the results of the recent community empowerment programs and future plans." data-topic="empowerment" data-date="2025-10-23"></div>
             </div>
         </div>
 
@@ -2791,7 +2862,7 @@
             <div class="news-container" style="width: 100%;">
                 <!-- News Header -->
                 <div class="news-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; padding: 0 10px;">
-                    <h2 style="margin: 0; color: var(--text-dark);"><i class="fas fa-newspaper" style="margin-right: 10px; color: var(--primary-blue);"></i>Latest News & Media</h2>
+                    <h2 style="margin: 0; color: var(--text-dark);"><i class="fas fa-newspaper" style="margin-right: 10px; color: var(--primary-blue);"></i>Latest News</h2>
                     <button id="refresh-news-btn" class="tool-action-btn" style="margin: 0;"><i class="fas fa-sync-alt"></i> Refresh</button>
                 </div>
                 
@@ -2889,11 +2960,11 @@
         document.addEventListener('DOMContentLoaded', () => {
             // --- DATA ---
             const personaData = [
-                { id: 'hakim', name: 'Hakim Nüruddin', title: 'AI Executive Office Agent', largeImg: 'https://hams.ai/images/ai-voice-agent.png', smallImg: 'https://hams.ai/images/ai-voice-agent.png', description: 'As your strategic partner, I provide high-level summaries, executive advice, and focus on strategic alignment for your key decisions.', systemPrompt: 'You are Hakim Nüruddin, an AI Executive Office Agent for HRSD in Saudi Arabia... Be concise, professional, and insightful. Provide strategic advice and summaries.' },
+                { id: 'hakim', name: 'Hakim Nüruddin', title: 'AI Executive Office Agent', largeImg: 'https://hams.ai/images/ai-voice-agent.png', smallImg: 'https://hams.ai/images/ai-voice-agent.png', description: 'As your strategic partner, I provide high-level summaries, executive advice, and focus on strategic alignment for your key decisions.', systemPrompt: 'You are Hakim Nüruddin, an AI Executive Office Agent for HRSD in Saudi Arabia. You coordinate a team of specialized AI agents to support Your Highness.\n\nAvailable Team Members:\n- Hakim Nüruddin (yourself): AI Executive Office Agent - Strategic insights, executive summaries, high-level decisions, leadership advice, policy alignment with Vision 2030\n- Layla Al-Farsi: Data Analytics Agent - Data analysis, charts, statistics, metrics, trends, quantitative insights, KPI monitoring\n- Omar Mansour: AI Coordinator - Operational coordination, task management, scheduling, workflow optimization, resource allocation\n- Nouf Al-Jafali: AI Strategy Consultant - In-depth analysis and consulting on specific strategic focus areas (labor market, empowerment, non-profit sector, strategic partnerships)\n\nWhen asked about agents, team members, or their roles, provide accurate information about all four agents listed above. Do not invent or mention agents that do not exist. Be concise, professional, and insightful. Provide strategic advice and summaries.' },
                 // Update Layla's systemPrompt for insights/charts
                 { id: 'layla', name: 'Layla Al-Farsi', title: 'Data Analytics Agent', largeImg: 'https://easy-peasy.ai/cdn-cgi/image/quality=80,format=auto,width=700/https://media.easy-peasy.ai/27feb2bb-aeb4-4a83-9fb6-8f3f2a15885e/3f6fb035-158b-47f1-8c69-5fe9a407d4f2.png', smallImg: 'https://easy-peasy.ai/cdn-cgi/image/quality=80,format=auto,width=700/https://media.easy-peasy.ai/27feb2bb-aeb4-4a83-9fb6-8f3f2a15885e/3f6fb035-158b-47f1-8c69-5fe9a407d4f2.png', description: 'As your data expert, I provide your Highness with key insights from around HRSD, identify trends, and offer detailed analytical support for your objectives.', systemPrompt: 'You are Layla Al-Farsi, a Data Analytics Agent for HRSD in Saudi Arabia. Your Highness requires data-driven insights. ALWAYS respond with concise analysis, key findings, and data points. When a visualization is appropriate (e.g., trends, comparisons), provide the necessary data in a Chart.js-compatible JSON format strictly enclosed within `[CHART_DATA:{...}]`. The JSON MUST be complete and valid. It MUST contain "type" (e.g., "bar", "line", "pie"), "labels" (array of strings), and "datasets" (array of objects, each with "label" and "data" properties). Example: `[CHART_DATA:{"type": "bar", "labels": ["Q1", "Q2"], "datasets": [{"label": "Metric A", "data": [10, 15]}]}]` Always include a brief textual explanation of the chart\'s insights immediately following the chart data marker. Focus strictly on providing analytical insights derived from data. Avoid conversational filler unless specifically asked.' }, // Added "MUST be complete and valid"
                 { id: 'omar', name: 'Omar Mansour', title: 'AI Coordinator', largeImg: 'https://easy-peasy.ai/cdn-cgi/image/quality=80,format=auto,width=700/https://media.easy-peasy.ai/2f8cd8b2-88d5-4865-b07e-cafd6403b72b/bd99faca-67c4-4cc3-895e-06bed59a08d2.png', smallImg: 'https://easy-peasy.ai/cdn-cgi/image/quality=80,format=auto,width=700/https://media.easy-peasy.ai/2f8cd8b2-88d5-4865-b07e-cafd6403b72b/bd99faca-67c4-4cc3-895e-06bed59a08d2.png', description: 'As your operational specialist, I manage schedules, coordinate between departments, and provide logistical support to ensure operational smoothness.', systemPrompt: 'You are Omar Mansour, an AI Coordinator for HRSD... Focus on logistics, scheduling, action items, and ensuring operational smoothness.' },
-                { id: 'zara', name: 'Zara Al-Mansoori',  title: 'Focus Areas Consultant', largeImg: 'https://api.dicebear.com/7.x/bottts/svg?seed=Zara', smallImg: 'https://api.dicebear.com/7.x/bottts/svg?seed=Zara', description: 'As your dedicated consultant for strategic focus areas, I provide in-depth analysis, policy recommendations, and detailed briefings on the key topics you are exploring.', systemPrompt: 'You are Zara Al-Mansoori, a Focus Areas Consultant for HRSD in Saudi Arabia. Your Highness will ask you to provide deep dives into specific strategic topics like "Strengthening Labor Market" or "Empowering Society & Individuals". Your responses should be comprehensive, insightful, and structured, providing detailed analysis, current status, and strategic recommendations related to the specific topic at hand.'}
+                { id: 'nouf', name: 'Nouf Al-Jafali',  title: 'AI strategic consultant', largeImg: 'https://img.sanishtech.com/u/6906cfe61aef94b28cd8446ee2991752.png', smallImg: 'https://img.sanishtech.com/u/6906cfe61aef94b28cd8446ee2991752.png', description: 'As your dedicated consultant for strategic focus areas, I provide in-depth analysis, policy recommendations, and detailed briefings on the key topics you are exploring.', systemPrompt: 'You are Nouf Al-Jafali, an AI Strategy Consultant for HRSD in Saudi Arabia. Your Highness will ask you to provide deep dives into specific strategic topics like "Strengthening Labor Market" or "Empowering Society & Individuals" or "Enabling the Non-Profit Sector" or "Strategic Partnerships". Your responses should be comprehensive, insightful, and structured, providing detailed analysis, current status, and strategic recommendations related to the specific topic at hand.'}
 			];
             let currentPersonaId = 'hakim';
             let selectedAgents = ['hakim']; // Multi-agent: Array of selected agent IDs
@@ -2927,6 +2998,28 @@
             const messageModalTitle = document.getElementById("message-modal-title"); // New
             const messageModalText = document.getElementById("message-modal-text"); // New
             const copySummaryBtn = document.getElementById("copy-summary-btn"); // Copy button
+
+            // --- Calendar State Variables ---
+            function getRiyadhDate() {
+                const now = new Date();
+                const riyadhOffset = 3; // UTC+3
+                const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+                const riyadhTime = new Date(utc + (riyadhOffset * 60000));
+                return riyadhTime;
+            }
+            
+            // Initialize today (will be refreshed when agenda is opened)
+            let today = getRiyadhDate();
+            
+            // State for calendar navigation
+            let currentWeekStart = new Date(today);
+            let currentMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+            
+            // Initialize week start to Sunday of current week
+            const day = currentWeekStart.getDay();
+            const diff = currentWeekStart.getDate() - day;
+            currentWeekStart.setDate(diff);
+            currentWeekStart.setHours(0, 0, 0, 0);
 
             // --- Function Definitions ---
 
@@ -3669,7 +3762,7 @@ Agent Specializations:
 - Hakim (hakim): Strategic insights, executive summaries, high-level decisions, leadership advice
 - Layla (layla): Data analysis, charts, statistics, metrics, trends, quantitative insights
 - Omar (omar): Operational coordination, task management, scheduling, workflow optimization
-- Zara (zara): In-depth analysis and consulting on specific strategic focus areas 
+- Nouf (nouf): In-depth analysis and consulting on specific strategic focus areas 
 
 Instructions:
 1. Analyze the user's request carefully
@@ -3686,7 +3779,7 @@ Rules:
 - Include Omar if the query needs operational/task coordination
 - Can include 1, 2, or all 3 agents depending on the request
 - Choose agents that add unique value, not redundant perspectives
-- Include Zara if the query asks for a deep dive into a specific strategic focus area (e.g., "labor market", "non-profit sector", "empowerment").
+- Include Nouf if the query asks for a deep dive into a specific strategic focus area (e.g., "labor market", "non-profit sector", "empowerment").
 
 RESPOND ONLY WITH VALID JSON. NO OTHER TEXT.`;
 
@@ -3770,7 +3863,7 @@ RESPOND ONLY WITH VALID JSON. NO OTHER TEXT.`;
             
             // Special function for orchestration requests (no display, just return response)
             async function sendOrchestrationRequest(prompt, retries = 2) {
-                const apiKey = "AIzaSyCRFXs-Ysnoy2swH1yjqZYoRMNC4HTpv_c";
+                const apiKey = "AIzaSyBxy1N5HoAi0QhXSh02jWvu1iZg_BW_qUg";
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
 
                 const payload = {
@@ -3810,7 +3903,7 @@ RESPOND ONLY WITH VALID JSON. NO OTHER TEXT.`;
             }
             
             async function sendMessageToAgent(message, agentId, retries = 3, delay = 1000) {
-                const apiKey = "AIzaSyCRFXs-Ysnoy2swH1yjqZYoRMNC4HTpv_c";
+                const apiKey = "AIzaSyBxy1N5HoAi0QhXSh02jWvu1iZg_BW_qUg";
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
 
                 const persona = personaData.find(p => p.id === agentId);
@@ -3961,7 +4054,7 @@ RESPOND ONLY WITH VALID JSON. NO OTHER TEXT.`;
             
             // New function for agent discussion with separate context
             async function sendMessageToAgentDiscussion(prompt, agentId, previousContext = [], retries = 3, delay = 1000) {
-                const apiKey = "AIzaSyCRFXs-Ysnoy2swH1yjqZYoRMNC4HTpv_c";
+                const apiKey = "AIzaSyBxy1N5HoAi0QhXSh02jWvu1iZg_BW_qUg";
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
 
                 const persona = personaData.find(p => p.id === agentId);
@@ -4092,7 +4185,12 @@ RESPOND ONLY WITH VALID JSON. NO OTHER TEXT.`;
                             const targetView = calendarContainer.querySelector(`#${view}-view`);
                             if (targetView) targetView.classList.add('active');
                             if (view === 'month') { renderDesktopMonthCalendar(); }
+                            if (view === 'week') { renderWeekView(); }
                             if (view === 'today') { renderTodayView(); }
+                            updateCalendarHeaders();
+                            if (window.updateButtonStates) {
+                                setTimeout(window.updateButtonStates, 50);
+                            }
                         }
                     });
                 });
@@ -4114,6 +4212,146 @@ RESPOND ONLY WITH VALID JSON. NO OTHER TEXT.`;
                 for (let i = 0; i < startingDay; i++) { monthGrid.innerHTML += '<div class="month-day-cell other-month"></div>'; }
                 for (let day = 1; day <= daysInMonth; day++) { const date = new Date(year, month, day); const dayOfWeek = date.getDay(); const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`; const isToday = day === today.getDate(); const isPast = date < todayDateOnly; const isWeekend = dayOfWeek === 5 || dayOfWeek === 6; let cellClasses = 'month-day-cell'; if (isToday) cellClasses += ' today'; if (isPast) cellClasses += ' disabled-day'; if (isWeekend) cellClasses += ' weekend'; let cellHtml = `<div class="${cellClasses}" data-date="${dateStr}"><div class="month-day-number">${day}</div><div class="month-day-events">`; if (eventsByDate.has(dateStr)) { eventsByDate.get(dateStr).forEach(eventEl => { const isMilestone = eventEl.classList.contains('event-milestone'); cellHtml += `<div class="month-event-dot ${isMilestone ? 'milestone' : ''}"></div>`; }); } cellHtml += `</div></div>`; monthGrid.innerHTML += cellHtml; }
                  monthGrid.querySelectorAll('.month-day-cell:not(.disabled-day, .other-month)').forEach(cell => { const dateStr = cell.dataset.date; cell.addEventListener('click', () => { if (eventsByDate.has(dateStr)) { const firstEvent = eventsByDate.get(dateStr)[0]; openEventModal(firstEvent.dataset.eventTitle, firstEvent.dataset.eventTime, firstEvent.dataset.eventDetails); } else { openDayActionModal(dateStr); } }); });
+            }
+
+            function renderWeekView() {
+                const weekView = document.getElementById('week-view');
+                if (!weekView) return;
+                
+                const calendarGrid = weekView.querySelector('.calendar-grid');
+                if (!calendarGrid) return;
+                
+                // Get all events
+                const allEvents = Array.from(document.querySelectorAll('.event[data-date]'));
+                const eventsByDate = new Map();
+                allEvents.forEach(e => {
+                    const date = e.dataset.date;
+                    if (!eventsByDate.has(date)) {
+                        eventsByDate.set(date, []);
+                    }
+                    eventsByDate.get(date).push(e);
+                });
+                
+                // Clear and rebuild the week grid
+                calendarGrid.innerHTML = '';
+                const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+                
+                for (let i = 0; i < 7; i++) {
+                    const currentDate = new Date(currentWeekStart);
+                    currentDate.setDate(currentWeekStart.getDate() + i);
+                    // Format date string for event matching (YYYY-MM-DD)
+                    const year = currentDate.getFullYear();
+                    const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+                    const day = String(currentDate.getDate()).padStart(2, '0');
+                    const dateStr = `${year}-${month}-${day}`;
+                    const dayName = dayNames[i];
+                    const dayNumber = currentDate.getDate();
+                    const dayOfWeek = currentDate.getDay();
+                    // Weekend is Friday (5) and Saturday (6) in this region
+                    const isWeekend = dayOfWeek === 5 || dayOfWeek === 6;
+                    // Compare with today's date
+                    const todayYear = today.getFullYear();
+                    const todayMonth = String(today.getMonth() + 1).padStart(2, '0');
+                    const todayDay = String(today.getDate()).padStart(2, '0');
+                    const todayStr = `${todayYear}-${todayMonth}-${todayDay}`;
+                    const isToday = dateStr === todayStr;
+                    
+                    // Check if this week is in the past (check if the week's last day is before today)
+                    const weekEndDate = new Date(currentWeekStart);
+                    weekEndDate.setDate(currentWeekStart.getDate() + 6);
+                    const todayDateOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+                    const isPastWeek = weekEndDate < todayDateOnly;
+                    
+                    const dayColumn = document.createElement('div');
+                    dayColumn.className = `day-column${isWeekend ? ' weekend' : ''}${isToday ? ' today' : ''}${isPastWeek ? ' past-week' : ''}`;
+                    
+                    const dayHeader = document.createElement('div');
+                    dayHeader.className = 'day-header';
+                    dayHeader.innerHTML = `
+                        <div class="day-name">${dayName}</div>
+                        <div class="day-number">${dayNumber}</div>
+                    `;
+                    dayColumn.appendChild(dayHeader);
+                    
+                    // Add events for this day - create visible rectangles with titles
+                    if (eventsByDate.has(dateStr)) {
+                        eventsByDate.get(dateStr).forEach(eventEl => {
+                            const eventDiv = document.createElement('div');
+                            eventDiv.className = 'event';
+                            if (eventEl.classList.contains('event-milestone')) {
+                                eventDiv.classList.add('event-milestone');
+                            }
+                            
+                            // Create visible event rectangle with title and time
+                            eventDiv.innerHTML = `
+                                <div class="event-time">${eventEl.dataset.eventTime}</div>
+                                <div class="event-title">${eventEl.dataset.eventTitle}</div>
+                            `;
+                            
+                            eventDiv.addEventListener('click', () => {
+                                openEventModal(eventEl.dataset.eventTitle, eventEl.dataset.eventTime, eventEl.dataset.eventDetails, dateStr, eventEl);
+                            });
+                            dayColumn.appendChild(eventDiv);
+                        });
+                    }
+                    
+                    // Add click handler to day column for booking meetings on empty days
+                    const isPast = new Date(dateStr + 'T00:00:00') < todayDateOnly;
+                    if (!isPast || eventsByDate.has(dateStr)) {
+                        dayColumn.style.cursor = 'pointer';
+                        dayColumn.addEventListener('click', (e) => {
+                            // Only trigger if clicking on the column itself, not on an event
+                            if (e.target === dayColumn || e.target === dayHeader || e.target.closest('.day-header')) {
+                                if (eventsByDate.has(dateStr)) {
+                                    // If there are events, open the first one
+                                    const firstEvent = eventsByDate.get(dateStr)[0];
+                                    openEventModal(firstEvent.dataset.eventTitle, firstEvent.dataset.eventTime, firstEvent.dataset.eventDetails, dateStr, firstEvent);
+                                } else {
+                                    // If no events, open day action modal to book a meeting
+                                    openDayActionModal(dateStr);
+                                }
+                            }
+                        });
+                    }
+                    
+                    calendarGrid.appendChild(dayColumn);
+                }
+            }
+
+            function updateCalendarHeaders() {
+                const weekEnd = new Date(currentWeekStart);
+                weekEnd.setDate(currentWeekStart.getDate() + 6);
+                const desktopTitle = document.getElementById('desktop-calendar-title');
+                const mobileTitle = document.getElementById('mobile-calendar-title');
+                const activeView = document.querySelector('.view-btn.active, .mobile-view-btn.active');
+                const view = activeView ? activeView.dataset.view : 'week';
+                
+                if (view === 'week') {
+                    const startMonth = currentWeekStart.toLocaleDateString('en-US', { month: 'short' });
+                    const endMonth = weekEnd.toLocaleDateString('en-US', { month: 'short' });
+                    const startYear = currentWeekStart.getFullYear();
+                    const endYear = weekEnd.getFullYear();
+                    
+                    let weekText = '';
+                    if (startMonth === endMonth && startYear === endYear) {
+                        weekText = `${startMonth} ${currentWeekStart.getDate()} - ${weekEnd.getDate()}, ${startYear}`;
+                    } else if (startYear === endYear) {
+                        weekText = `${startMonth} ${currentWeekStart.getDate()} - ${endMonth} ${weekEnd.getDate()}, ${startYear}`;
+                    } else {
+                        weekText = `${startMonth} ${currentWeekStart.getDate()}, ${startYear} - ${endMonth} ${weekEnd.getDate()}, ${endYear}`;
+                    }
+                    
+                    if (desktopTitle) desktopTitle.textContent = weekText;
+                    if (mobileTitle) mobileTitle.textContent = weekText;
+                } else if (view === 'month') {
+                    const monthText = currentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+                    if (desktopTitle) desktopTitle.textContent = monthText;
+                    if (mobileTitle) mobileTitle.textContent = monthText;
+                } else {
+                    const todayText = today.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+                    if (desktopTitle) desktopTitle.textContent = todayText;
+                    if (mobileTitle) mobileTitle.textContent = todayText;
+                }
             }
 
             // Day Action Modal
@@ -4149,84 +4387,360 @@ RESPOND ONLY WITH VALID JSON. NO OTHER TEXT.`;
                 'strategic-partnerships': 'Strategic Partnerships'
             };
             
-            async function fetchNewsForTopic(topicId) {
-                const apiKey = "AIzaSyCRFXs-Ysnoy2swH1yjqZYoRMNC4HTpv_c";
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
-                
-                const topicName = topicMapping[topicId] || 'HRSD initiatives';
-                const prompt = `You are Layla Al-Farsi, a Data Analytics Agent for HRSD in Saudi Arabia. Your Highness needs to stay informed about the latest news and media coverage related to "${topicName}" in Saudi Arabia.
-
-Please provide a summary of the latest news, social media discussions, and media coverage about "${topicName}" and related HRSD initiatives. Focus on recent developments, public sentiment, and key updates.
-
-Format your response as a JSON array of news items. Each item should have:
-- title: A concise headline
-- summary: A brief 2-3 sentence summary
-- source: The type of source (e.g., "Social Media", "News Article", "Official Statement")
-- relevance: A brief note on why this is relevant to HRSD
-
-Return ONLY a valid JSON array with 3-5 news items. Example format:
-[
-  {
-    "title": "News headline here",
-    "summary": "Brief summary of the news item...",
-    "source": "Social Media",
-    "relevance": "Relevant because..."
-  }
-]
-
-Current date: ${new Date().toLocaleDateString('en-US', { timeZone: 'Asia/Riyadh' })}`;
-
-                const payload = {
-                    contents: [{ role: 'user', parts: [{ text: prompt }] }],
-                    systemInstruction: {
-                        parts: [{ text: 'You are Layla Al-Farsi, a Data Analytics Agent. Always respond with valid JSON arrays only. No markdown, no explanations, just JSON.' }]
-                    },
-                    generationConfig: {
-                        maxOutputTokens: 2048,
-                        temperature: 0.7,
-                    },
-                    safetySettings: [
-                        { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
-                        { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
-                        { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
-                        { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
-                    ]
-                };
-
+            // RSS Feed sources for Saudi Arabia news (Saudi sources only)
+            // Using only the most reliable feeds to avoid rate limiting
+            const rssFeeds = [
+                // Saudi News Websites (most reliable)
+                'https://www.arabnews.com/rss.xml'
+                // Removed other feeds due to:
+                // - Nitter feeds: All failing with CORS/rate limit errors
+                // - Saudi Gazette: Returning HTML instead of XML
+                // - SPA: HTTP/2 protocol errors
+                // Can add more reliable feeds later
+            ];
+            
+            // CORS proxy services (multiple fallback options, free, no API key needed)
+            const corsProxies = [
+                'https://api.allorigins.win/get?url=',
+                'https://corsproxy.io/?',
+                'https://api.codetabs.com/v1/proxy?quest='
+            ];
+            
+            // Parse RSS XML to extract articles
+            function parseRSS(xmlText) {
                 try {
-                    const response = await fetch(apiUrl, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
-
-                    if (!response.ok) {
-                        throw new Error(`API error: ${response.status}`);
-                    }
-
-                    const result = await response.json();
-                    const responseText = result.candidates?.[0]?.content?.parts?.[0]?.text;
-                    
-                    if (!responseText) {
+                    // Additional validation
+                    if (!xmlText || typeof xmlText !== 'string') {
                         return [];
                     }
+                    
+                    const parser = new DOMParser();
+                    const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
+                    
+                    // Check for parsing errors
+                    const parseError = xmlDoc.querySelector('parsererror');
+                    if (parseError) {
+                        // Try to extract some info even if there are minor errors
+                        const errorText = parseError.textContent || '';
+                        if (errorText.includes('async')) {
+                            // This is likely HTML, not XML - skip it
+                            return [];
+                        }
+                        console.warn('RSS parsing warning:', errorText.substring(0, 100));
+                    }
+                    
+                    // Try both 'item' (RSS 2.0) and 'entry' (Atom) formats
+                    const items = xmlDoc.querySelectorAll('item, entry');
+                    const articles = [];
+                    
+                    items.forEach(item => {
+                        const title = item.querySelector('title')?.textContent || '';
+                        const link = item.querySelector('link')?.textContent || 
+                                    item.querySelector('link')?.getAttribute('href') ||
+                                    item.querySelector('guid')?.textContent || '';
+                        const description = item.querySelector('description')?.textContent || 
+                                          item.querySelector('content')?.textContent ||
+                                          item.querySelector('summary')?.textContent ||
+                                          item.querySelector('content\\:encoded')?.textContent || '';
+                        const pubDate = item.querySelector('pubDate')?.textContent || 
+                                      item.querySelector('published')?.textContent ||
+                                      item.querySelector('updated')?.textContent || '';
+                        const source = item.querySelector('source')?.textContent || 
+                                     xmlDoc.querySelector('channel > title')?.textContent ||
+                                     xmlDoc.querySelector('feed > title')?.textContent ||
+                                     'News Source';
+                        
+                        // Clean HTML tags from description
+                        const cleanDescription = description.replace(/<[^>]*>/g, '').trim();
+                        
+                        if (title && link) {
+                            articles.push({
+                                title: title.trim(),
+                                url: link.trim(),
+                                description: cleanDescription,
+                                publishedAt: pubDate,
+                                source: source.trim()
+                            });
+                        }
+                    });
+                    
+                    return articles;
+                } catch (error) {
+                    console.error('Error parsing RSS:', error);
+                    return [];
+                }
+            }
+            
+            // Fetch RSS feed using CORS proxy with fallback options and rate limit handling
+            async function fetchRSSFeed(feedUrl, retryCount = 0) {
+                const maxRetries = 2;
+                
+                // Try each CORS proxy in order
+                for (const proxy of corsProxies) {
+                    try {
+                        // Add delay to avoid rate limiting (especially for retries)
+                        if (retryCount > 0) {
+                            await new Promise(resolve => setTimeout(resolve, 2000 * retryCount));
+                        }
+                        
+                        const proxyUrl = proxy + encodeURIComponent(feedUrl);
+                        const response = await fetch(proxyUrl, {
+                            method: 'GET',
+                            headers: {
+                                'Accept': 'application/xml, text/xml, */*'
+                            }
+                        });
+                        
+                        // Handle rate limiting
+                        if (response.status === 429) {
+                            if (retryCount < maxRetries) {
+                                await new Promise(resolve => setTimeout(resolve, 5000)); // Wait 5 seconds
+                                return fetchRSSFeed(feedUrl, retryCount + 1);
+                            }
+                            continue; // Try next proxy
+                        }
+                        
+                        if (!response.ok) {
+                            continue; // Try next proxy
+                        }
+                        
+                        let xmlText;
+                        
+                        // Handle different proxy response formats
+                        if (proxy.includes('allorigins.win')) {
+                            const data = await response.json();
+                            xmlText = data.contents || '';
+                        } else if (proxy.includes('codetabs.com')) {
+                            xmlText = await response.text();
+                        } else {
+                            xmlText = await response.text();
+                        }
+                        
+                        // Validate that we got XML, not HTML
+                        if (!xmlText || xmlText.trim().length === 0) {
+                            continue; // Try next proxy
+                        }
+                        
+                        // Check if response is actually XML (not HTML)
+                        if (xmlText.includes('<!DOCTYPE html') || xmlText.includes('<html')) {
+                            console.warn('Received HTML instead of XML for:', feedUrl);
+                            continue; // Try next proxy
+                        }
+                        
+                        // Check if it looks like RSS/XML
+                        if (!xmlText.includes('<?xml') && !xmlText.includes('<rss') && !xmlText.includes('<feed')) {
+                            console.warn('Response does not appear to be RSS/XML for:', feedUrl);
+                            continue; // Try next proxy
+                        }
+                        
+                        const articles = parseRSS(xmlText);
+                        if (articles.length > 0) {
+                            return articles; // Success!
+                        }
+                    } catch (error) {
+                        // Try next proxy
+                        continue;
+                    }
+                }
+                
+                // All proxies failed
+                if (retryCount < maxRetries) {
+                    await new Promise(resolve => setTimeout(resolve, 3000));
+                    return fetchRSSFeed(feedUrl, retryCount + 1);
+                }
+                
+                console.warn('All CORS proxies failed for RSS feed:', feedUrl);
+                return [];
+            }
+            
+            // Fetch all RSS feeds and combine articles (sequential to avoid rate limits)
+            async function fetchAllRSSArticles() {
+                const allArticles = [];
+                
+                // Fetch sequentially with delays to avoid rate limiting
+                for (let i = 0; i < rssFeeds.length; i++) {
+                    const feed = rssFeeds[i];
+                    try {
+                        const articles = await fetchRSSFeed(feed);
+                        if (articles && articles.length > 0) {
+                            allArticles.push(...articles);
+                        }
+                        
+                        // Add delay between requests to avoid rate limiting (except for last feed)
+                        if (i < rssFeeds.length - 1) {
+                            await new Promise(resolve => setTimeout(resolve, 1000)); // 1 second delay
+                        }
+                    } catch (error) {
+                        console.warn(`Failed to fetch RSS feed ${i}:`, feed, error);
+                    }
+                }
+                
+                // Remove duplicates based on URL
+                const uniqueArticles = [];
+                const seenUrls = new Set();
+                
+                allArticles.forEach(article => {
+                    if (article.url && !seenUrls.has(article.url)) {
+                        seenUrls.add(article.url);
+                        uniqueArticles.push(article);
+                    }
+                });
+                
+                return uniqueArticles;
+            }
+            
+            // Cache for RSS articles to avoid refetching
+            let cachedRSSArticles = [];
+            let rssCacheTime = 0;
+            const RSS_CACHE_DURATION = 30 * 60 * 1000; // 30 minutes (increased to reduce API calls)
+            
+            async function fetchNewsForTopic(topicId, usedArticleUrls = []) {
+                const geminiApiKey = "AIzaSyBxy1N5HoAi0QhXSh02jWvu1iZg_BW_qUg";
+                const topicName = topicMapping[topicId] || 'HRSD initiatives';
+                
+                try {
+                    // Step 1: Fetch RSS articles (use cache if available)
+                    const now = Date.now();
+                    if (cachedRSSArticles.length === 0 || (now - rssCacheTime) > RSS_CACHE_DURATION) {
+                        cachedRSSArticles = await fetchAllRSSArticles();
+                        rssCacheTime = now;
+                    }
+                    
+                    if (cachedRSSArticles.length === 0) {
+                        return []; // No articles available
+                    }
+                    
+                    // Sort articles by date (most recent first) and filter out used ones
+                    const availableArticles = cachedRSSArticles
+                        .filter(article => !usedArticleUrls.includes(article.url))
+                        .sort((a, b) => {
+                            // Sort by published date (most recent first)
+                            const dateA = a.publishedAt ? new Date(a.publishedAt).getTime() : 0;
+                            const dateB = b.publishedAt ? new Date(b.publishedAt).getTime() : 0;
+                            return dateB - dateA; // Descending order (newest first)
+                        });
+                    
+                    if (availableArticles.length === 0) {
+                        return []; // No unused articles available
+                    }
+                    
+                    // Step 2: Select 2 articles for this topic
+                    const articlesForAnalysis = availableArticles.slice(0, 20); // Check up to 20 most recent
+                    const selectedArticles = [];
+                    
+                    // Simple keyword-based selection first (faster, no API call)
+                    const topicKeywords = {
+                        'labor-market': ['labor', 'employment', 'job', 'workforce', 'saudization', 'worker', 'employee', 'hiring'],
+                        'empowerment': ['empowerment', 'society', 'social', 'community', 'individual', 'support', 'development', 'program'],
+                        'non-profit': ['non-profit', 'charity', 'ngo', 'organization', 'sector', 'volunteer', 'donation'],
+                        'strategic-partnerships': ['partnership', 'mou', 'agreement', 'collaboration', 'cooperation', 'alliance', 'deal']
+                    };
+                    
+                    const keywords = topicKeywords[topicId] || [];
+                    
+                    // Find articles matching keywords (prioritize recent ones)
+                    const keywordMatches = articlesForAnalysis.filter(article => {
+                        const text = (article.title + ' ' + article.description).toLowerCase();
+                        return keywords.some(keyword => text.includes(keyword));
+                    });
+                    
+                    // Select up to 2 articles
+                    if (keywordMatches.length >= 2) {
+                        selectedArticles.push(keywordMatches[0], keywordMatches[1]);
+                    } else if (keywordMatches.length === 1) {
+                        selectedArticles.push(keywordMatches[0]);
+                        // Get the next most recent unused article
+                        const nextArticle = articlesForAnalysis.find(a => 
+                            !selectedArticles.includes(a) && !usedArticleUrls.includes(a.url)
+                        );
+                        if (nextArticle) selectedArticles.push(nextArticle);
+                    } else {
+                        // No keyword matches - use 2 most recent articles
+                        selectedArticles.push(articlesForAnalysis[0]);
+                        if (articlesForAnalysis.length > 1) {
+                            selectedArticles.push(articlesForAnalysis[1]);
+                        }
+                    }
+                    
+                    // Step 3: Summarize each selected article with Gemini
+                    const newsItems = [];
+                    
+                    for (let i = 0; i < selectedArticles.length; i++) {
+                        const selectedArticle = selectedArticles[i];
+                        
+                        // Add delay before Gemini API call to avoid rate limits
+                        if (i > 0) {
+                            await new Promise(resolve => setTimeout(resolve, 1000));
+                        }
+                        
+                        let aiSummary = selectedArticle.description || 'No summary available.';
+                        
+                        try {
+                            const geminiApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${geminiApiKey}`;
+                            
+                            const summaryPrompt = `Provide a 2-3 sentence summary of this news article for HRSD executive, focusing on "${topicName}":
 
-                    // Parse JSON response (remove markdown code blocks if present)
-                    let jsonText = responseText.trim();
-                    jsonText = jsonText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+Title: ${selectedArticle.title || 'No title'}
+Description: ${selectedArticle.description?.substring(0, 400) || 'No description available'}
+
+Keep it brief and executive-level.`;
+
+                            const summaryPayload = {
+                                contents: [{ role: 'user', parts: [{ text: summaryPrompt }] }],
+                                systemInstruction: {
+                                    parts: [{ text: 'You are Layla Al-Farsi. Provide concise executive summaries. Be brief.' }]
+                                },
+                                generationConfig: {
+                                    maxOutputTokens: 200,
+                                    temperature: 0.7,
+                                },
+                                safetySettings: [
+                                    { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
+                                    { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
+                                    { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
+                                    { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
+                                ]
+                            };
+                            
+                            const summaryResponse = await fetch(geminiApiUrl, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify(summaryPayload)
+                            });
+                            
+                            if (summaryResponse.ok) {
+                                const summaryResult = await summaryResponse.json();
+                                const summaryText = summaryResult.candidates?.[0]?.content?.parts?.[0]?.text;
+                                if (summaryText) {
+                                    aiSummary = summaryText.trim();
+                                }
+                            } else if (summaryResponse.status === 429) {
+                                // Rate limited - use description as fallback
+                                console.warn('Gemini API rate limited, using article description');
+                            }
+                        } catch (summaryError) {
+                            // Silently fail - use description
+                        }
+                        
+                        // Format and add the news item
+                        const newsItem = {
+                            id: `news-${Date.now()}-${Math.random().toString(36).substr(2, 9)}-${i}`,
+                            title: selectedArticle.title || 'News Update',
+                            summary: aiSummary,
+                            source: selectedArticle.source || 'News Source',
+                            url: selectedArticle.url || '#',
+                            publishedAt: selectedArticle.publishedAt || new Date().toISOString(),
+                            topic: topicId,
+                            timestamp: new Date().toISOString()
+                        };
+                        
+                        newsItems.push(newsItem);
+                    }
                     
-                    const newsItems = JSON.parse(jsonText);
-                    
-                    // Add topic and timestamp to each item
-                    return Array.isArray(newsItems) ? newsItems.map(item => ({
-                        ...item,
-                        topic: topicId,
-                        timestamp: new Date().toISOString(),
-                        id: `news-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
-                    })) : [];
+                    return newsItems;
                     
                 } catch (error) {
-                    console.error('Error fetching news:', error);
+                    console.error('Error fetching news for topic:', topicId, error);
                     return [];
                 }
             }
@@ -4244,15 +4758,43 @@ Current date: ${new Date().toLocaleDateString('en-US', { timeZone: 'Asia/Riyadh'
                 newsLoading.style.display = 'block';
                 
                 try {
-                    // Fetch news for all topics
+                    // Fetch news for all topics sequentially to avoid rate limits
                     const allTopics = ['labor-market', 'empowerment', 'non-profit', 'strategic-partnerships'];
-                    const allNewsPromises = allTopics.map(topicId => fetchNewsForTopic(topicId));
+                    newsData = [];
+                    const usedArticleUrls = []; // Track which articles have been used
                     
-                    const newsArrays = await Promise.all(allNewsPromises);
-                    newsData = newsArrays.flat();
+                    for (let i = 0; i < allTopics.length; i++) {
+                        const topicId = allTopics[i];
+                        const topicNews = await fetchNewsForTopic(topicId, usedArticleUrls);
+                        if (topicNews && topicNews.length > 0) {
+                            newsData.push(...topicNews);
+                            // Mark these articles as used
+                            topicNews.forEach(item => {
+                                if (item.url) {
+                                    usedArticleUrls.push(item.url);
+                                }
+                            });
+                        }
+                        
+                        // Add delay between topics to avoid rate limiting (except for last topic)
+                        if (i < allTopics.length - 1) {
+                            await new Promise(resolve => setTimeout(resolve, 2000)); // 2 second delay
+                        }
+                    }
                     
-                    // Shuffle and limit to reasonable number
-                    newsData = newsData.sort(() => Math.random() - 0.5).slice(0, 20);
+                    // Final deduplication by URL (safety net)
+                    const uniqueNews = [];
+                    const seenUrls = new Set();
+                    newsData.forEach(item => {
+                        if (item.url && !seenUrls.has(item.url)) {
+                            seenUrls.add(item.url);
+                            uniqueNews.push(item);
+                        }
+                    });
+                    newsData = uniqueNews;
+                    
+                    // Filter out any empty results (topics with no news found)
+                    newsData = newsData.filter(item => item && item.title);
                     
                     // Render news
                     renderNews();
@@ -4314,7 +4856,17 @@ Current date: ${new Date().toLocaleDateString('en-US', { timeZone: 'Asia/Riyadh'
                         <h3 class="tool-title" style="text-align: left; width: 100%; margin-bottom: 12px;">${newsItem.title || 'News Update'}</h3>
                         <p class="tool-description" style="text-align: left; width: 100%; margin-bottom: 12px;">${newsItem.summary || 'No summary available.'}</p>
                         <div style="width: 100%; text-align: left; margin-bottom: 15px; font-size: 0.75rem; opacity: 0.7;">
-                            <i class="fas fa-info-circle"></i> Source: ${newsItem.source || 'Media'}
+                            <div style="margin-bottom: 5px;">
+                                <i class="fas fa-newspaper"></i> Source: <strong>${newsItem.source || 'Media'}</strong>
+                            </div>
+                            ${newsItem.publishedAt ? `<div style="margin-bottom: 5px; opacity: 0.6;">
+                                <i class="fas fa-calendar"></i> ${new Date(newsItem.publishedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+                            </div>` : ''}
+                            ${newsItem.url && newsItem.url !== '#' ? `<div>
+                                <a href="${newsItem.url}" target="_blank" rel="noopener noreferrer" style="color: var(--primary-blue); text-decoration: none; display: inline-flex; align-items: center; gap: 5px;">
+                                    <i class="fas fa-external-link-alt"></i> View Original Article
+                                </a>
+                            </div>` : ''}
                         </div>
                         <button class="tool-action-btn news-ask-agent-btn" data-news-id="${newsItem.id}" style="width: 100%;">
                             <i class="fas fa-comment-dots"></i> Ask Agent About This
@@ -4402,7 +4954,7 @@ Current date: ${new Date().toLocaleDateString('en-US', { timeZone: 'Asia/Riyadh'
             if (sendBtn) { sendBtn.addEventListener('click', handleSendMessage); }
             if (chatInput) { chatInput.addEventListener('keydown', (event) => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); handleSendMessage(); } }); }
             // Topic card actions
-            document.querySelectorAll('.topic-action-btn').forEach(button => { button.addEventListener('click', () => { const action = button.dataset.action; const card = button.closest('.topic-card'); if (!card) return; const topicId = card.dataset.topicId; const topicTitleEl = card.querySelector('.topic-title'); if (!topicTitleEl) return; const topicTitle = topicTitleEl.textContent; if (action === 'meetings') { openMeetingsModal(topicId, topicTitle); } else if (action === 'deeper') { const prompt = `Please provide a detailed briefing on the focus area: "${topicTitle}". Include key details, current status, and strategic recommendations.`; switchToAgentAndSendPrompt(prompt, 'zara');} else if (action === 'references') { const prompt = `Please pull up the latest references and documents from my team regarding "${topicTitle}".`; takeActionFromTopic(prompt); } }); });
+            document.querySelectorAll('.topic-action-btn').forEach(button => { button.addEventListener('click', () => { const action = button.dataset.action; const card = button.closest('.topic-card'); if (!card) return; const topicId = card.dataset.topicId; const topicTitleEl = card.querySelector('.topic-title'); if (!topicTitleEl) return; const topicTitle = topicTitleEl.textContent; if (action === 'meetings') { openMeetingsModal(topicId, topicTitle); } else if (action === 'deeper') { const prompt = `Please provide a detailed briefing on the focus area: "${topicTitle}". Include key details, current status, and strategic recommendations.`; switchToAgentAndSendPrompt(prompt, 'nouf');} else if (action === 'references') { const prompt = `Please pull up the latest references and documents from my team regarding "${topicTitle}".`; takeActionFromTopic(prompt); } }); });
             // "Ask Agent" on text selection
              document.addEventListener('mouseup', (e) => { if (!askAgentBtn) return; const targetElement = e.target; if (targetElement.tagName === 'INPUT' || targetElement.tagName === 'TEXTAREA' || targetElement.closest('.modal') || targetElement.closest('#ask-agent-btn')) { askAgentBtn.style.display = 'none'; return; } setTimeout(() => { const text = window.getSelection().toString().trim(); if (text.length > 1) { selectedText = text; const rect = window.getSelection().getRangeAt(0).getBoundingClientRect(); askAgentBtn.style.left = `${rect.right + window.scrollX + 5}px`; askAgentBtn.style.top = `${rect.bottom + window.scrollY + 5}px`; askAgentBtn.style.display = 'block'; } else { askAgentBtn.style.display = 'none'; } }, 10); });
             document.addEventListener('mousedown', (e) => { if (askAgentBtn && e.target.id !== 'ask-agent-btn') { askAgentBtn.style.display = 'none'; } });
@@ -4529,6 +5081,162 @@ Current date: ${new Date().toLocaleDateString('en-US', { timeZone: 'Asia/Riyadh'
                  console.error("Navigation buttons or page content elements not found.");
              }
 
+            // --- Calendar Navigation Handlers ---
+            const prevWeekBtn = document.getElementById('prev-week-btn');
+            const nextWeekBtn = document.getElementById('next-week-btn');
+            const prevMonthBtn = document.getElementById('prev-month-btn');
+            const nextMonthBtn = document.getElementById('next-month-btn');
+            
+            // Mobile navigation
+            const mobilePrevWeekBtn = document.getElementById('mobile-prev-week-btn');
+            const mobileNextWeekBtn = document.getElementById('mobile-next-week-btn');
+            const mobilePrevMonthBtn = document.getElementById('mobile-prev-month-btn');
+            const mobileNextMonthBtn = document.getElementById('mobile-next-month-btn');
+            
+            function navigateWeek(direction) {
+                currentWeekStart.setDate(currentWeekStart.getDate() + (direction * 7));
+                renderWeekView();
+                initMobileCalendar();
+                
+                // Sync month view to the month of the current week
+                const weekMonth = new Date(currentWeekStart.getFullYear(), currentWeekStart.getMonth(), 1);
+                if (weekMonth.getTime() !== currentMonth.getTime()) {
+                    currentMonth = weekMonth;
+                    // Only update month calendar if month view is active
+                    const activeView = document.querySelector('.view-btn.active, .mobile-view-btn.active');
+                    const view = activeView ? activeView.dataset.view : 'week';
+                    if (view === 'month') {
+                        renderDesktopMonthCalendar();
+                    }
+                    updateCalendarHeaders();
+                } else {
+                    updateCalendarHeaders();
+                }
+            }
+            
+            function navigateMonth(direction) {
+                currentMonth.setMonth(currentMonth.getMonth() + direction);
+                renderDesktopMonthCalendar();
+                
+                // If on week tab, also update the week view to show the first week of the new month
+                const activeView = document.querySelector('.view-btn.active, .mobile-view-btn.active');
+                const view = activeView ? activeView.dataset.view : 'week';
+                if (view === 'week' || view === 'today') {
+                    // Set week start to the first Sunday of the new month (or first day if month doesn't start on Sunday)
+                    const firstDayOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
+                    const dayOfWeek = firstDayOfMonth.getDay();
+                    
+                    // If month doesn't start on Sunday, go to the previous Sunday
+                    if (dayOfWeek !== 0) {
+                        const daysToSubtract = dayOfWeek;
+                        firstDayOfMonth.setDate(firstDayOfMonth.getDate() - daysToSubtract);
+                    }
+                    
+                    currentWeekStart = new Date(firstDayOfMonth);
+                    currentWeekStart.setHours(0, 0, 0, 0);
+                    renderWeekView();
+                    initMobileCalendar();
+                }
+                
+                // Update calendar headers
+                updateCalendarHeaders();
+            }
+            
+            // Function to update button states based on active view (make it accessible)
+            window.updateButtonStates = function() {
+                const activeView = document.querySelector('.view-btn.active, .mobile-view-btn.active');
+                const view = activeView ? activeView.dataset.view : 'week';
+                const isMonthView = view === 'month';
+                
+                // Week buttons - disabled in month view
+                const weekButtons = [prevWeekBtn, nextWeekBtn, mobilePrevWeekBtn, mobileNextWeekBtn];
+                weekButtons.forEach(btn => {
+                    if (btn) {
+                        if (isMonthView) {
+                            btn.disabled = true;
+                            btn.style.opacity = '0.4';
+                            btn.style.cursor = 'not-allowed';
+                        } else {
+                            btn.disabled = false;
+                            btn.style.opacity = '1';
+                            btn.style.cursor = 'pointer';
+                        }
+                    }
+                });
+            };
+            
+            // Week navigation buttons (only work in week/today view)
+            if (prevWeekBtn) {
+                prevWeekBtn.addEventListener('click', () => {
+                    if (!prevWeekBtn.disabled) {
+                        navigateWeek(-1);
+                    }
+                });
+            }
+            
+            if (nextWeekBtn) {
+                nextWeekBtn.addEventListener('click', () => {
+                    if (!nextWeekBtn.disabled) {
+                        navigateWeek(1);
+                    }
+                });
+            }
+            
+            // Month navigation buttons (always work)
+            if (prevMonthBtn) {
+                prevMonthBtn.addEventListener('click', () => {
+                    navigateMonth(-1);
+                });
+            }
+            
+            if (nextMonthBtn) {
+                nextMonthBtn.addEventListener('click', () => {
+                    navigateMonth(1);
+                });
+            }
+            
+            // Mobile week navigation
+            if (mobilePrevWeekBtn) {
+                mobilePrevWeekBtn.addEventListener('click', () => {
+                    if (!mobilePrevWeekBtn.disabled) {
+                        navigateWeek(-1);
+                    }
+                });
+            }
+            
+            if (mobileNextWeekBtn) {
+                mobileNextWeekBtn.addEventListener('click', () => {
+                    if (!mobileNextWeekBtn.disabled) {
+                        navigateWeek(1);
+                    }
+                });
+            }
+            
+            // Mobile month navigation
+            if (mobilePrevMonthBtn) {
+                mobilePrevMonthBtn.addEventListener('click', () => {
+                    navigateMonth(-1);
+                });
+            }
+            
+            if (mobileNextMonthBtn) {
+                mobileNextMonthBtn.addEventListener('click', () => {
+                    navigateMonth(1);
+                });
+            }
+            
+            // Update button states when view changes
+            document.querySelectorAll('.view-toggle').forEach(toggle => {
+                toggle.addEventListener('click', (e) => {
+                    setTimeout(updateButtonStates, 100); // Small delay to ensure view is updated
+                });
+            });
+            
+            // Initial state
+            if (window.updateButtonStates) {
+                setTimeout(window.updateButtonStates, 100);
+            }
+
             // --- INITIALIZATION ---
             setViewportHeight();
             setupCalendarToggles(); // Should be defined before call now
@@ -4537,7 +5245,9 @@ Current date: ${new Date().toLocaleDateString('en-US', { timeZone: 'Asia/Riyadh'
             setupAgendaInteractions();
             initMobileCalendar();
             renderDesktopMonthCalendar();
+            renderWeekView();
             renderTodayView();
+            updateCalendarHeaders();
             
             // Initialize UI based on mode (start in single agent mode)
             toggleMode(false);
