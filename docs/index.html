@@ -3938,7 +3938,7 @@ RESPOND ONLY WITH VALID JSON. NO OTHER TEXT.`;
             
             // Special function for orchestration requests (no display, just return response)
             async function sendOrchestrationRequest(prompt, retries = 2) {
-                const apiKey = "AIzaSyCoiwmSusOxy1N8RaMa-lP94HldriSh1Sk";
+                const apiKey = "AIzaSyAjp8CltKCJXv7OXhZ6GIArcO_1DhUO_gs";
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
 
                 const payload = {
@@ -3978,7 +3978,7 @@ RESPOND ONLY WITH VALID JSON. NO OTHER TEXT.`;
             }
             
             async function sendMessageToAgent(message, agentId, retries = 3, delay = 1000) {
-                const apiKey = "AIzaSyCoiwmSusOxy1N8RaMa-lP94HldriSh1Sk";
+                const apiKey = "AIzaSyAjp8CltKCJXv7OXhZ6GIArcO_1DhUO_gs";
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
 
                 const persona = personaData.find(p => p.id === agentId);
@@ -4030,6 +4030,13 @@ RESPOND ONLY WITH VALID JSON. NO OTHER TEXT.`;
                         // Add successful AI response to history
                         chatHistory.push({ role: 'model', parts: [{ text: agentResponseText }] });
                     } else {
+                        // In multi-agent mode, silently skip empty responses (agent wasn't selected to respond)
+                        if (isMultiAgentMode && !candidate?.finishReason && !result?.promptFeedback?.blockReason) {
+                            // Silently skip - this agent wasn't meant to respond
+                            console.log(`Agent ${agentId} returned empty response in multi-agent mode - skipping`);
+                            return;
+                        }
+                        
                         let errorText = "I apologize, but I couldn't process that request fully. Please try rephrasing.";
                         if (candidate && candidate.finishReason && candidate.finishReason !== 'STOP') {
                             errorText = `I'm sorry, my response was stopped due to: ${candidate.finishReason.toLowerCase().replace(/_/g, ' ')}.`;
@@ -4129,7 +4136,7 @@ RESPOND ONLY WITH VALID JSON. NO OTHER TEXT.`;
             
             // New function for agent discussion with separate context
             async function sendMessageToAgentDiscussion(prompt, agentId, previousContext = [], retries = 3, delay = 1000) {
-                const apiKey = "AIzaSyCoiwmSusOxy1N8RaMa-lP94HldriSh1Sk";
+                const apiKey = "AIzaSyAjp8CltKCJXv7OXhZ6GIArcO_1DhUO_gs";
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
 
                 const persona = personaData.find(p => p.id === agentId);
@@ -4840,7 +4847,7 @@ RESPOND ONLY WITH VALID JSON. NO OTHER TEXT.`;
             const RSS_CACHE_DURATION = 30 * 60 * 1000; // 30 minutes (increased to reduce API calls)
             
             async function fetchNewsForTopic(topicId, usedArticleUrls = []) {
-                const geminiApiKey = "AIzaSyCoiwmSusOxy1N8RaMa-lP94HldriSh1Sk";
+                const geminiApiKey = "AIzaSyAjp8CltKCJXv7OXhZ6GIArcO_1DhUO_gs";
                 const topicName = topicMapping[topicId] || 'HRSD initiatives';
                 
                 try {
