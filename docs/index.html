@@ -1095,14 +1095,55 @@
             flex-wrap: wrap;
             gap: 15px;
         }
+        .calendar-nav-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex: 1 1 auto;
+            min-width: 150px;
+            justify-content: space-between;
+        }
+        
+        .nav-buttons-group {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        
+        .calendar-nav-btn {
+            background: var(--container-bg-light);
+            border: 1px solid var(--border-color);
+            color: var(--text-light);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+        }
+        
+        .calendar-nav-btn:hover {
+            background: linear-gradient(135deg, var(--primary-blue), #008a7e);
+            color: var(--text-dark);
+            box-shadow: 0 2px 10px rgba(0, 169, 157, 0.4);
+            transform: scale(1.1);
+        }
+        
+        .calendar-nav-btn:active {
+            transform: scale(0.95);
+        }
+        
         .agenda-header h2 {
             margin: 0;
             font-weight: 600;
             font-size: 1.5rem;
             color: var(--text-dark);
             text-shadow: 0 2px 10px rgba(0, 169, 157, 0.2);
-            flex: 1 1 auto;
-            min-width: 150px;
+            flex: 1;
+            text-align: center;
         }
 
         .view-toggle {
@@ -1160,57 +1201,6 @@
         #month-view.active {
             display: flex !important; /* Use flex for month view grid */
             flex-direction: column;
-        }
-
-        .calendar-nav-container {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            flex: 1 1 auto;
-            min-width: 150px;
-            justify-content: space-between;
-        }
-        
-        .nav-buttons-group {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-        }
-        
-        .calendar-nav-btn {
-            background: var(--container-bg-light);
-            border: 1px solid var(--border-color);
-            color: var(--text-light);
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s;
-            font-size: 0.9rem;
-        }
-        
-        .calendar-nav-btn:hover {
-            background: linear-gradient(135deg, var(--primary-blue), #008a7e);
-            color: var(--text-dark);
-            box-shadow: 0 2px 10px rgba(0, 169, 157, 0.4);
-            transform: scale(1.1);
-        }
-        
-        .calendar-nav-btn:active {
-            transform: scale(0.95);
-        }
-
-        .agenda-header h2 {
-            margin: 0;
-            font-weight: 600;
-            font-size: 1.5rem;
-            color: var(--text-dark);
-            text-shadow: 0 2px 10px rgba(0, 169, 157, 0.2);
-            flex: 1;
-            text-align: center;
         }
 
         .month-calendar-grid {
@@ -2971,6 +2961,7 @@
             let isMultiAgentMode = false; // Mode: false = single agent, true = multi-agent
             let chatHistory = [];
             let selectedText = '';
+            // Set "today" to the specified context date: Wednesday, Oct 22, 2025
 
             // --- DOM Elements ---
             const mainPersonaImage = document.getElementById('mainPersonaImage');
@@ -2996,28 +2987,6 @@
             const messageModalTitle = document.getElementById("message-modal-title"); // New
             const messageModalText = document.getElementById("message-modal-text"); // New
             const copySummaryBtn = document.getElementById("copy-summary-btn"); // Copy button
-
-            // --- Calendar State Variables ---
-            function getRiyadhDate() {
-                const now = new Date();
-                const riyadhOffset = 3; // UTC+3
-                const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
-                const riyadhTime = new Date(utc + (riyadhOffset * 60000));
-                return riyadhTime;
-            }
-            
-            // Initialize today (will be refreshed when agenda is opened)
-            let today = getRiyadhDate();
-            
-            // State for calendar navigation
-            let currentWeekStart = new Date(today);
-            let currentMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-            
-            // Initialize week start to Sunday of current week
-            const day = currentWeekStart.getDay();
-            const diff = currentWeekStart.getDate() - day;
-            currentWeekStart.setDate(diff);
-            currentWeekStart.setHours(0, 0, 0, 0);
 
             // --- Function Definitions ---
 
@@ -4183,17 +4152,34 @@ RESPOND ONLY WITH VALID JSON. NO OTHER TEXT.`;
                             const targetView = calendarContainer.querySelector(`#${view}-view`);
                             if (targetView) targetView.classList.add('active');
                             if (view === 'month') { renderDesktopMonthCalendar(); }
-                            if (view === 'week') { renderWeekView(); }
                             if (view === 'today') { renderTodayView(); }
-                            updateWeekHeader();
-                            if (window.updateButtonStates) {
-                                setTimeout(window.updateButtonStates, 50);
-                            }
                         }
                     });
                 });
             }
 
+            // Get current date in Riyadh timezone
+            function getRiyadhDate() {
+                const now = new Date();
+                // Convert to Riyadh time (UTC+3)
+                const riyadhOffset = 3 * 60; // 3 hours in minutes
+                const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+                const riyadhTime = new Date(utc + (riyadhOffset * 60000));
+                return riyadhTime;
+            }
+            
+            // Initialize today (will be refreshed when agenda is opened)
+            let today = getRiyadhDate();
+            
+            // State for calendar navigation
+            let currentWeekStart = new Date(today);
+            let currentMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+            
+            // Initialize week start to Sunday of current week
+            const day = currentWeekStart.getDay();
+            const diff = currentWeekStart.getDate() - day;
+            currentWeekStart.setDate(diff);
+            currentWeekStart.setHours(0, 0, 0, 0);
 
             // Desktop Month Calendar Rendering
             function renderDesktopMonthCalendar() {
@@ -4202,16 +4188,29 @@ RESPOND ONLY WITH VALID JSON. NO OTHER TEXT.`;
                 const allEvents = Array.from(document.querySelectorAll('.event[data-date]'));
                 const eventsByDate = new Map();
                 allEvents.forEach(e => { const date = e.dataset.date; if (!eventsByDate.has(date)) { eventsByDate.set(date, []); } eventsByDate.get(date).push(e); });
-                const year = today.getFullYear(); const month = today.getMonth();
-                const todayDateOnly = new Date(year, month, today.getDate());
+                const year = currentMonth.getFullYear(); const month = currentMonth.getMonth();
+                const todayDateOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
                 const firstDayOfMonth = new Date(year, month, 1); const daysInMonth = new Date(year, month + 1, 0).getDate(); const startingDay = firstDayOfMonth.getDay();
                 monthGrid.innerHTML = '';
                 ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].forEach((day, index) => { const isWeekend = index === 5 || index === 6; monthGrid.innerHTML += `<div class="month-day-header ${isWeekend ? 'weekend' : ''}">${day}</div>`; });
                 for (let i = 0; i < startingDay; i++) { monthGrid.innerHTML += '<div class="month-day-cell other-month"></div>'; }
-                for (let day = 1; day <= daysInMonth; day++) { const date = new Date(year, month, day); const dayOfWeek = date.getDay(); const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`; const isToday = day === today.getDate(); const isPast = date < todayDateOnly; const isWeekend = dayOfWeek === 5 || dayOfWeek === 6; let cellClasses = 'month-day-cell'; if (isToday) cellClasses += ' today'; if (isPast) cellClasses += ' disabled-day'; if (isWeekend) cellClasses += ' weekend'; let cellHtml = `<div class="${cellClasses}" data-date="${dateStr}"><div class="month-day-number">${day}</div><div class="month-day-events">`; if (eventsByDate.has(dateStr)) { eventsByDate.get(dateStr).forEach(eventEl => { const isMilestone = eventEl.classList.contains('event-milestone'); cellHtml += `<div class="month-event-dot ${isMilestone ? 'milestone' : ''}"></div>`; }); } cellHtml += `</div></div>`; monthGrid.innerHTML += cellHtml; }
+                for (let day = 1; day <= daysInMonth; day++) { const date = new Date(year, month, day); const dayOfWeek = date.getDay(); const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`; const isToday = year === today.getFullYear() && month === today.getMonth() && day === today.getDate(); const isPast = date < todayDateOnly; const isWeekend = dayOfWeek === 5 || dayOfWeek === 6; let cellClasses = 'month-day-cell'; if (isToday) cellClasses += ' today'; if (isPast) cellClasses += ' disabled-day'; if (isWeekend) cellClasses += ' weekend'; let cellHtml = `<div class="${cellClasses}" data-date="${dateStr}"><div class="month-day-number">${day}</div><div class="month-day-events">`; if (eventsByDate.has(dateStr)) { eventsByDate.get(dateStr).forEach(eventEl => { const isMilestone = eventEl.classList.contains('event-milestone'); cellHtml += `<div class="month-event-dot ${isMilestone ? 'milestone' : ''}"></div>`; }); } cellHtml += `</div></div>`; monthGrid.innerHTML += cellHtml; }
                  monthGrid.querySelectorAll('.month-day-cell:not(.disabled-day, .other-month)').forEach(cell => { const dateStr = cell.dataset.date; cell.addEventListener('click', () => { if (eventsByDate.has(dateStr)) { const firstEvent = eventsByDate.get(dateStr)[0]; openEventModal(firstEvent.dataset.eventTitle, firstEvent.dataset.eventTime, firstEvent.dataset.eventDetails); } else { openDayActionModal(dateStr); } }); });
             }
 
+            // Day Action Modal
+            function openDayActionModal(dateStr) {
+                 const date = new Date(dateStr + 'T00:00:00'); const titleEl = document.getElementById('day-action-title'); const pillsContainer = document.getElementById('day-action-pills'); const actionsContainer = document.querySelector('#dayActionModal .day-actions'); if (!titleEl || !pillsContainer || !actionsContainer) return;
+                titleEl.textContent = `Actions for ${date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}`; pillsContainer.innerHTML = ''; document.querySelectorAll('.topic-card .topic-title').forEach(titleElement => { const pill = document.createElement('div'); pill.className = 'modal-topic-pill'; pill.textContent = titleElement.textContent; pill.dataset.topic = titleElement.textContent; pillsContainer.appendChild(pill); }); let selectedTopic = ''; pillsContainer.querySelectorAll('.modal-topic-pill').forEach(pill => { pill.addEventListener('click', () => { pillsContainer.querySelectorAll('.modal-topic-pill').forEach(p => p.classList.remove('active')); pill.classList.add('active'); selectedTopic = pill.dataset.topic; }); }); const newActionsContainer = actionsContainer.cloneNode(true); actionsContainer.parentNode.replaceChild(newActionsContainer, actionsContainer); newActionsContainer.querySelectorAll('button').forEach(button => { button.addEventListener('click', () => { if (!selectedTopic) { showMessageModal("Please select a focus area first."); return; } const action = button.dataset.action; let prompt = ''; const formattedDate = date.toLocaleDateString('en-US', { month: 'long', day: 'numeric' }); switch(action) { case 'check': prompt = `Draft an email to check stakeholders' availability for a meeting on ${formattedDate} regarding "${selectedTopic}".`; break; case 'media': prompt = `Draft an email to the media team to coordinate potential media coverage for an initiative related to "${selectedTopic}" around ${formattedDate}.`; break; case 'consulting': prompt = `Draft an email to summon the consulting team for a high-priority meeting on ${formattedDate} to discuss "${selectedTopic}". Emphasize urgency.`; break; } if(prompt) { switchToAgentAndSendPrompt(prompt); } }); }); openModal(dayActionModal);
+            }
+
+            // Desktop Today View Rendering
+            function renderTodayView() {
+                 const todayList = document.getElementById('today-events-list'); const todayDateEl = document.querySelector('#today-view .today-date'); if (!todayList || !todayDateEl) return;
+                const todayStr = today.toISOString().split('T')[0]; todayDateEl.textContent = today.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }); const todaysEvents = Array.from(document.querySelectorAll(`.event[data-date="${todayStr}"]`)); todayList.innerHTML = ''; if (todaysEvents.length > 0) { todaysEvents.forEach(eventEl => { const eventClone = eventEl.cloneNode(true); eventClone.addEventListener('click', () => { openEventModal(eventClone.dataset.eventTitle, eventClone.dataset.eventTime, eventClone.dataset.eventDetails); }); todayList.appendChild(eventClone); }); } else { todayList.innerHTML = '<p style="opacity: 0.7; text-align: center; padding: 20px;">No events scheduled for today.</p>'; }
+            }
+
+            // Desktop Week View Rendering
             function renderWeekView() {
                 const weekView = document.getElementById('week-view');
                 if (!weekView) return;
@@ -4314,8 +4313,12 @@ RESPOND ONLY WITH VALID JSON. NO OTHER TEXT.`;
                     
                     calendarGrid.appendChild(dayColumn);
                 }
+                
+                // Update header after rendering
+                updateWeekHeader();
             }
-
+            
+            // Update calendar header based on current view
             function updateWeekHeader() {
                 const weekEnd = new Date(currentWeekStart);
                 weekEnd.setDate(currentWeekStart.getDate() + 6);
@@ -4350,18 +4353,6 @@ RESPOND ONLY WITH VALID JSON. NO OTHER TEXT.`;
                     if (desktopTitle) desktopTitle.textContent = todayText;
                     if (mobileTitle) mobileTitle.textContent = todayText;
                 }
-            }
-
-            // Day Action Modal
-            function openDayActionModal(dateStr) {
-                 const date = new Date(dateStr + 'T00:00:00'); const titleEl = document.getElementById('day-action-title'); const pillsContainer = document.getElementById('day-action-pills'); const actionsContainer = document.querySelector('#dayActionModal .day-actions'); if (!titleEl || !pillsContainer || !actionsContainer) return;
-                titleEl.textContent = `Actions for ${date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}`; pillsContainer.innerHTML = ''; document.querySelectorAll('.topic-card .topic-title').forEach(titleElement => { const pill = document.createElement('div'); pill.className = 'modal-topic-pill'; pill.textContent = titleElement.textContent; pill.dataset.topic = titleElement.textContent; pillsContainer.appendChild(pill); }); let selectedTopic = ''; pillsContainer.querySelectorAll('.modal-topic-pill').forEach(pill => { pill.addEventListener('click', () => { pillsContainer.querySelectorAll('.modal-topic-pill').forEach(p => p.classList.remove('active')); pill.classList.add('active'); selectedTopic = pill.dataset.topic; }); }); const newActionsContainer = actionsContainer.cloneNode(true); actionsContainer.parentNode.replaceChild(newActionsContainer, actionsContainer); newActionsContainer.querySelectorAll('button').forEach(button => { button.addEventListener('click', () => { if (!selectedTopic) { showMessageModal("Please select a focus area first."); return; } const action = button.dataset.action; let prompt = ''; const formattedDate = date.toLocaleDateString('en-US', { month: 'long', day: 'numeric' }); switch(action) { case 'check': prompt = `Draft an email to check stakeholders' availability for a meeting on ${formattedDate} regarding "${selectedTopic}".`; break; case 'media': prompt = `Draft an email to the media team to coordinate potential media coverage for an initiative related to "${selectedTopic}" around ${formattedDate}.`; break; case 'consulting': prompt = `Draft an email to summon the consulting team for a high-priority meeting on ${formattedDate} to discuss "${selectedTopic}". Emphasize urgency.`; break; } if(prompt) { switchToAgentAndSendPrompt(prompt); } }); }); openModal(dayActionModal);
-            }
-
-            // Desktop Today View Rendering
-            function renderTodayView() {
-                 const todayList = document.getElementById('today-events-list'); const todayDateEl = document.querySelector('#today-view .today-date'); if (!todayList || !todayDateEl) return;
-                const todayStr = today.toISOString().split('T')[0]; todayDateEl.textContent = today.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }); const todaysEvents = Array.from(document.querySelectorAll(`.event[data-date="${todayStr}"]`)); todayList.innerHTML = ''; if (todaysEvents.length > 0) { todaysEvents.forEach(eventEl => { const eventClone = eventEl.cloneNode(true); eventClone.addEventListener('click', () => { openEventModal(eventClone.dataset.eventTitle, eventClone.dataset.eventTime, eventClone.dataset.eventDetails); }); todayList.appendChild(eventClone); }); } else { todayList.innerHTML = '<p style="opacity: 0.7; text-align: center; padding: 20px;">No events scheduled for today.</p>'; }
             }
 
             // Mobile Calendar Logic
@@ -5079,165 +5070,165 @@ Keep it brief and executive-level.`;
                  console.error("Navigation buttons or page content elements not found.");
              }
 
-            // --- Calendar Navigation Handlers ---
-            const prevWeekBtn = document.getElementById('prev-week-btn');
-            const nextWeekBtn = document.getElementById('next-week-btn');
-            const prevMonthBtn = document.getElementById('prev-month-btn');
-            const nextMonthBtn = document.getElementById('next-month-btn');
-            
-            // Mobile navigation
-            const mobilePrevWeekBtn = document.getElementById('mobile-prev-week-btn');
-            const mobileNextWeekBtn = document.getElementById('mobile-next-week-btn');
-            const mobilePrevMonthBtn = document.getElementById('mobile-prev-month-btn');
-            const mobileNextMonthBtn = document.getElementById('mobile-next-month-btn');
-            
-            function navigateWeek(direction) {
-                currentWeekStart.setDate(currentWeekStart.getDate() + (direction * 7));
-                renderWeekView();
-                initMobileCalendar();
+            // Calendar Navigation Buttons
+            function setupCalendarNavigation() {
+                // Desktop navigation
+                const prevWeekBtn = document.getElementById('prev-week-btn');
+                const nextWeekBtn = document.getElementById('next-week-btn');
+                const prevMonthBtn = document.getElementById('prev-month-btn');
+                const nextMonthBtn = document.getElementById('next-month-btn');
                 
-                // Sync month view to the month of the current week
-                const weekMonth = new Date(currentWeekStart.getFullYear(), currentWeekStart.getMonth(), 1);
-                if (weekMonth.getTime() !== currentMonth.getTime()) {
-                    currentMonth = weekMonth;
-                    // Only update month calendar if month view is active
-                    const activeView = document.querySelector('.view-btn.active, .mobile-view-btn.active');
-                    const view = activeView ? activeView.dataset.view : 'week';
-                    if (view === 'month') {
-                        renderDesktopMonthCalendar();
-                    }
-                    updateWeekHeader();
-                } else {
-                    updateWeekHeader();
-                }
-            }
-            
-            function navigateMonth(direction) {
-                currentMonth.setMonth(currentMonth.getMonth() + direction);
-                renderDesktopMonthCalendar();
+                // Mobile navigation
+                const mobilePrevWeekBtn = document.getElementById('mobile-prev-week-btn');
+                const mobileNextWeekBtn = document.getElementById('mobile-next-week-btn');
+                const mobilePrevMonthBtn = document.getElementById('mobile-prev-month-btn');
+                const mobileNextMonthBtn = document.getElementById('mobile-next-month-btn');
                 
-                // If on week tab, also update the week view to show the first week of the new month
-                const activeView = document.querySelector('.view-btn.active, .mobile-view-btn.active');
-                const view = activeView ? activeView.dataset.view : 'week';
-                if (view === 'week' || view === 'today') {
-                    // Set week start to the first Sunday of the new month (or first day if month doesn't start on Sunday)
-                    const firstDayOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
-                    const dayOfWeek = firstDayOfMonth.getDay();
-                    
-                    // If month doesn't start on Sunday, go to the previous Sunday
-                    if (dayOfWeek !== 0) {
-                        const daysToSubtract = dayOfWeek;
-                        firstDayOfMonth.setDate(firstDayOfMonth.getDate() - daysToSubtract);
-                    }
-                    
-                    currentWeekStart = new Date(firstDayOfMonth);
-                    currentWeekStart.setHours(0, 0, 0, 0);
+                function navigateWeek(direction) {
+                    currentWeekStart.setDate(currentWeekStart.getDate() + (direction * 7));
                     renderWeekView();
                     initMobileCalendar();
+                    
+                    // Sync month view to the month of the current week
+                    const weekMonth = new Date(currentWeekStart.getFullYear(), currentWeekStart.getMonth(), 1);
+                    if (weekMonth.getTime() !== currentMonth.getTime()) {
+                        currentMonth = weekMonth;
+                        // Only update month calendar if month view is active
+                        const activeView = document.querySelector('.view-btn.active, .mobile-view-btn.active');
+                        const view = activeView ? activeView.dataset.view : 'week';
+                        if (view === 'month') {
+                            renderDesktopMonthCalendar();
+                        }
+                        updateWeekHeader();
+                    }
                 }
                 
-                // Update calendar headers
-                updateWeekHeader();
-            }
-            
-            // Function to update button states based on active view (make it accessible)
-            window.updateButtonStates = function() {
-                const activeView = document.querySelector('.view-btn.active, .mobile-view-btn.active');
-                const view = activeView ? activeView.dataset.view : 'week';
-                const isMonthView = view === 'month';
-                
-                // Week buttons - disabled in month view
-                const weekButtons = [prevWeekBtn, nextWeekBtn, mobilePrevWeekBtn, mobileNextWeekBtn];
-                weekButtons.forEach(btn => {
-                    if (btn) {
-                        if (isMonthView) {
-                            btn.disabled = true;
-                            btn.style.opacity = '0.4';
-                            btn.style.cursor = 'not-allowed';
-                        } else {
-                            btn.disabled = false;
-                            btn.style.opacity = '1';
-                            btn.style.cursor = 'pointer';
+                function navigateMonth(direction) {
+                    currentMonth.setMonth(currentMonth.getMonth() + direction);
+                    renderDesktopMonthCalendar();
+                    
+                    // If on week tab, also update the week view to show the first week of the new month
+                    const activeView = document.querySelector('.view-btn.active, .mobile-view-btn.active');
+                    const view = activeView ? activeView.dataset.view : 'week';
+                    if (view === 'week' || view === 'today') {
+                        // Set week start to the first Sunday of the new month (or first day if month doesn't start on Sunday)
+                        const firstDayOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
+                        const dayOfWeek = firstDayOfMonth.getDay();
+                        
+                        // If month doesn't start on Sunday, go to the previous Sunday
+                        if (dayOfWeek !== 0) {
+                            const daysToSubtract = dayOfWeek;
+                            firstDayOfMonth.setDate(firstDayOfMonth.getDate() - daysToSubtract);
                         }
+                        
+                        currentWeekStart = new Date(firstDayOfMonth);
+                        currentWeekStart.setHours(0, 0, 0, 0);
+                        renderWeekView();
+                        initMobileCalendar();
                     }
+                    
+                    // Update calendar headers
+                    updateWeekHeader();
+                }
+                
+                // Function to update button states based on active view (make it accessible)
+                window.updateButtonStates = function() {
+                    const activeView = document.querySelector('.view-btn.active, .mobile-view-btn.active');
+                    const view = activeView ? activeView.dataset.view : 'week';
+                    const isMonthView = view === 'month';
+                    
+                    // Week buttons - disabled in month view
+                    const weekButtons = [prevWeekBtn, nextWeekBtn, mobilePrevWeekBtn, mobileNextWeekBtn];
+                    weekButtons.forEach(btn => {
+                        if (btn) {
+                            if (isMonthView) {
+                                btn.disabled = true;
+                                btn.style.opacity = '0.4';
+                                btn.style.cursor = 'not-allowed';
+                            } else {
+                                btn.disabled = false;
+                                btn.style.opacity = '1';
+                                btn.style.cursor = 'pointer';
+                            }
+                        }
+                    });
+                };
+                
+                // Week navigation buttons (only work in week/today view)
+                if (prevWeekBtn) {
+                    prevWeekBtn.addEventListener('click', () => {
+                        if (!prevWeekBtn.disabled) {
+                            navigateWeek(-1);
+                        }
+                    });
+                }
+                
+                if (nextWeekBtn) {
+                    nextWeekBtn.addEventListener('click', () => {
+                        if (!nextWeekBtn.disabled) {
+                            navigateWeek(1);
+                        }
+                    });
+                }
+                
+                // Month navigation buttons (always work)
+                if (prevMonthBtn) {
+                    prevMonthBtn.addEventListener('click', () => {
+                        navigateMonth(-1);
+                    });
+                }
+                
+                if (nextMonthBtn) {
+                    nextMonthBtn.addEventListener('click', () => {
+                        navigateMonth(1);
+                    });
+                }
+                
+                // Mobile week navigation
+                if (mobilePrevWeekBtn) {
+                    mobilePrevWeekBtn.addEventListener('click', () => {
+                        if (!mobilePrevWeekBtn.disabled) {
+                            navigateWeek(-1);
+                        }
+                    });
+                }
+                
+                if (mobileNextWeekBtn) {
+                    mobileNextWeekBtn.addEventListener('click', () => {
+                        if (!mobileNextWeekBtn.disabled) {
+                            navigateWeek(1);
+                        }
+                    });
+                }
+                
+                // Mobile month navigation
+                if (mobilePrevMonthBtn) {
+                    mobilePrevMonthBtn.addEventListener('click', () => {
+                        navigateMonth(-1);
+                    });
+                }
+                
+                if (mobileNextMonthBtn) {
+                    mobileNextMonthBtn.addEventListener('click', () => {
+                        navigateMonth(1);
+                    });
+                }
+                
+                // Update button states when view changes
+                document.querySelectorAll('.view-toggle').forEach(toggle => {
+                    toggle.addEventListener('click', (e) => {
+                        setTimeout(updateButtonStates, 100); // Small delay to ensure view is updated
+                    });
                 });
-            };
-            
-            // Week navigation buttons (only work in week/today view)
-            if (prevWeekBtn) {
-                prevWeekBtn.addEventListener('click', () => {
-                    if (!prevWeekBtn.disabled) {
-                        navigateWeek(-1);
-                    }
-                });
-            }
-            
-            if (nextWeekBtn) {
-                nextWeekBtn.addEventListener('click', () => {
-                    if (!nextWeekBtn.disabled) {
-                        navigateWeek(1);
-                    }
-                });
-            }
-            
-            // Month navigation buttons (always work)
-            if (prevMonthBtn) {
-                prevMonthBtn.addEventListener('click', () => {
-                    navigateMonth(-1);
-                });
-            }
-            
-            if (nextMonthBtn) {
-                nextMonthBtn.addEventListener('click', () => {
-                    navigateMonth(1);
-                });
-            }
-            
-            // Mobile week navigation
-            if (mobilePrevWeekBtn) {
-                mobilePrevWeekBtn.addEventListener('click', () => {
-                    if (!mobilePrevWeekBtn.disabled) {
-                        navigateWeek(-1);
-                    }
-                });
-            }
-            
-            if (mobileNextWeekBtn) {
-                mobileNextWeekBtn.addEventListener('click', () => {
-                    if (!mobileNextWeekBtn.disabled) {
-                        navigateWeek(1);
-                    }
-                });
-            }
-            
-            // Mobile month navigation
-            if (mobilePrevMonthBtn) {
-                mobilePrevMonthBtn.addEventListener('click', () => {
-                    navigateMonth(-1);
-                });
-            }
-            
-            if (mobileNextMonthBtn) {
-                mobileNextMonthBtn.addEventListener('click', () => {
-                    navigateMonth(1);
-                });
-            }
-            
-            // Update button states when view changes
-            document.querySelectorAll('.view-toggle').forEach(toggle => {
-                toggle.addEventListener('click', (e) => {
-                    setTimeout(updateButtonStates, 100); // Small delay to ensure view is updated
-                });
-            });
-            
-            // Initial state
-            if (window.updateButtonStates) {
-                setTimeout(window.updateButtonStates, 100);
+                
+                // Initial state
+                updateButtonStates();
             }
 
             // --- INITIALIZATION ---
             setViewportHeight();
             setupCalendarToggles(); // Should be defined before call now
+            setupCalendarNavigation(); // Setup navigation buttons
             updatePersonaUI(currentPersonaId, true);
             updateTodaysAgendaPanel();
             setupAgendaInteractions();
