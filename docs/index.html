@@ -1884,6 +1884,45 @@
             padding: 10px 0;
         }
 
+        .meeting-columns-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr); /* Always 3 columns on desktop */
+            gap: 20px;
+            margin-top: 15px;
+        }
+        .meeting-column {
+            background: var(--container-bg);
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            padding: 18px;
+            display: flex;
+            flex-direction: column;
+            min-height: 360px;
+        }
+        .meeting-column-title {
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+        }
+        .meeting-column-list {
+            flex: 1;
+            overflow-y: auto;
+            padding-right: 6px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-height: 55vh;
+        }
+        .meeting-column-empty {
+            text-align: center;
+            opacity: 0.6;
+            font-size: 0.9rem;
+            padding: 25px 0;
+        }
+
         #meetings-modal-list .meeting-item {
             cursor: pointer;
             transition: all 0.3s;
@@ -2237,6 +2276,29 @@
             .persona-display:not(.expanded) .agent-selection-list,
             .persona-display:not(.expanded) .quick-actions {
                 display: none;
+            }
+
+            /* Meeting Columns - Mobile Responsive */
+            .meeting-columns-grid {
+                grid-template-columns: 1fr; /* Stack columns on mobile */
+                gap: 15px;
+            }
+            .meeting-column {
+                min-height: auto; /* Remove fixed height on mobile */
+                padding: 15px;
+            }
+            .meeting-column-list {
+                max-height: 40vh; /* Reduce max height on mobile */
+            }
+            .meeting-column-title {
+                font-size: 0.95rem;
+            }
+            .modal-content {
+                padding: 20px;
+                max-height: 85vh;
+            }
+            #meetings-modal-list {
+                margin-top: 15px;
             }
             
             /* Agent Selector Button on Mobile */
@@ -3244,6 +3306,29 @@
             .tool-icon {
                 font-size: 1.8rem;
             }
+
+            /* Meeting Columns - Very Small Screens */
+            .meeting-columns-grid {
+                gap: 12px;
+            }
+            .meeting-column {
+                padding: 12px;
+                border-radius: 12px;
+            }
+            .meeting-column-title {
+                font-size: 0.85rem;
+                margin-bottom: 8px;
+            }
+            .meeting-column-list {
+                max-height: 35vh;
+                gap: 10px;
+            }
+            #meetings-modal-list .meeting-item {
+                padding: 14px;
+            }
+            #meetings-modal-list .meeting-title {
+                font-size: 0.95rem;
+            }
             
             .tool-title {
                 font-size: 0.95rem;
@@ -3923,6 +4008,12 @@
                 <div class="event" data-event-title="Afternoon Team Sync" data-event-time="01:00 PM" data-event-details="Team synchronization meeting to align on current projects and priorities." data-topic="strategic-partnerships" data-date="2025-11-26"></div>
                 <div class="event" data-event-title="Quarterly Review Meeting" data-event-time="04:00 PM" data-event-details="Quarterly performance review and strategic planning discussion with key stakeholders." data-topic="labor-market" data-date="2025-11-26"></div>
                 <div class="event" data-event-title="Evening Board Meeting" data-event-time="08:00 PM" data-event-details="Evening board meeting to review strategic initiatives and make key decisions." data-topic="empowerment" data-date="2025-11-26"></div>
+                <div class="event" data-event-title="Labor Compliance Workshop" data-event-time="11:30 AM" data-event-details="Workshop with regional directors to review recent compliance audits and correct course." data-topic="labor-market" data-date="2025-10-10"></div>
+                <div class="event" data-event-title="Workforce Metrics Stand-Up" data-event-time="08:30 AM" data-event-details="Early KPI check-in to align on week 2 labor-market dashboard metrics and blockers." data-topic="labor-market" data-date="2025-10-14"></div>
+                <div class="event" data-event-title="Labor Market Innovation Summit" data-event-time="09:30 AM" data-event-details="Deep dive into post-2025 labor reforms, automation readiness, and private-sector hiring acceleration." data-topic="labor-market" data-date="2025-12-03"></div>
+                <div class="event" data-event-title="Community Empowerment Progress Review" data-event-time="02:30 PM" data-event-details="Review the December activation of community empowerment grants and assess beneficiary readiness metrics." data-topic="empowerment" data-date="2025-12-05"></div>
+                <div class="event" data-event-title="Non-Profit Impact Forum" data-event-time="11:00 AM" data-event-details="Roundtable with leading NGOs to align 2026 funding cycles and performance indicators." data-topic="non-profit" data-date="2025-12-07"></div>
+                <div class="event" data-event-title="Global Partnership Council" data-event-time="03:30 PM" data-event-details="Strategic partnership council to finalize cross-border collaborations for 2026 initiatives." data-topic="strategic-partnerships" data-date="2025-12-09"></div>
             </div>
         </div>
 
@@ -4617,6 +4708,119 @@
                 }
             }
 
+            function buildMeetingColumns(eventsArray, parentEl) {
+                const todayDateOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+                const categories = {
+                    today: [],
+                    future: [],
+                    past: []
+                };
+
+                const parseTimeToMinutes = (timeStr) => {
+                    if (!timeStr) return 24 * 60;
+                    if (timeStr === 'EOD') return 17 * 60;
+                    const parts = timeStr.match(/(\d+):(\d+)\s*(AM|PM)?/i);
+                    if (parts) {
+                        let hours = parseInt(parts[1]);
+                        const minutes = parseInt(parts[2]);
+                        const period = parts[3] ? parts[3].toUpperCase() : '';
+                        if (period === 'PM' && hours !== 12) hours += 12;
+                        if (period === 'AM' && hours === 12) hours = 0;
+                        return hours * 60 + minutes;
+                    }
+                    return 24 * 60;
+                };
+
+                eventsArray.forEach(eventEl => {
+                    const eventDateStr = eventEl.dataset.date;
+                    let bucket = 'future';
+                    if (eventDateStr) {
+                        const eventDate = new Date(eventDateStr + 'T00:00:00');
+                        if (eventDate.toDateString() === todayDateOnly.toDateString()) {
+                            bucket = 'today';
+                        } else if (eventDate < todayDateOnly) {
+                            bucket = 'past';
+                        } else {
+                            bucket = 'future';
+                        }
+                    }
+                    categories[bucket].push(eventEl);
+                });
+
+                const sortEvents = (eventsArray, order = 'asc') => {
+                    return eventsArray.sort((a, b) => {
+                        const dateA = a.dataset.date || '';
+                        const dateB = b.dataset.date || '';
+                        if (dateA !== dateB) {
+                            return order === 'asc' ? dateA.localeCompare(dateB) : dateB.localeCompare(dateA);
+                        }
+                        const minutesA = parseTimeToMinutes(a.dataset.eventTime || '');
+                        const minutesB = parseTimeToMinutes(b.dataset.eventTime || '');
+                        return order === 'asc' ? minutesA - minutesB : minutesB - minutesA;
+                    });
+                };
+
+                const columns = [
+                    { key: 'today', title: "Today's Meetings", events: sortEvents(categories.today, 'asc') },
+                    { key: 'future', title: 'Upcoming Meetings', events: sortEvents(categories.future, 'asc') },
+                    { key: 'past', title: 'Past Meetings', events: sortEvents(categories.past, 'desc') }
+                ];
+
+                const formatDate = (dateStr) => {
+                    if (!dateStr) return '';
+                    const dateObj = new Date(dateStr + 'T00:00:00');
+                    return dateObj.toLocaleDateString('en-US', {
+                        weekday: 'long',
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                    });
+                };
+
+                const columnsWrapper = document.createElement('div');
+                columnsWrapper.className = 'meeting-columns-grid';
+
+                columns.forEach(column => {
+                    const columnEl = document.createElement('div');
+                    columnEl.className = 'meeting-column';
+                    columnEl.innerHTML = `<div class="meeting-column-title">${column.title}</div>`;
+
+                    const columnList = document.createElement('div');
+                    columnList.className = 'meeting-column-list';
+
+                    if (column.events.length === 0) {
+                        columnList.innerHTML = `<div class="meeting-column-empty">No meetings in this category.</div>`;
+                    } else {
+                        column.events.forEach(eventEl => {
+                            const eventTitle = eventEl.dataset.eventTitle || 'Untitled Meeting';
+                            const eventTime = eventEl.dataset.eventTime || '—';
+                            const eventDateStr = eventEl.dataset.date;
+                            const eventDetails = eventEl.dataset.eventDetails || '';
+                            const isPast = column.key === 'past';
+
+                            const item = document.createElement('div');
+                            item.className = `meeting-item${isPast ? ' past-meeting' : ''}`;
+                            item.innerHTML = `
+                                <div class="meeting-title">${eventTitle}</div>
+                                <div class="meeting-time">${eventTime}</div>
+                                <div class="meeting-date">${formatDate(eventDateStr)}</div>
+                            `;
+
+                            item.addEventListener('click', () => {
+                                closeModal(meetingsModal);
+                                openEventModal(eventTitle, eventTime, eventDetails, eventDateStr, eventEl);
+                            });
+
+                            columnList.appendChild(item);
+                        });
+                    }
+
+                    columnEl.appendChild(columnList);
+                    columnsWrapper.appendChild(columnEl);
+                });
+
+                parentEl.appendChild(columnsWrapper);
+            }
 
             function openMeetingsModal(topicId, topicTitle) {
                 const list = document.getElementById('meetings-modal-list');
@@ -4626,59 +4830,8 @@
                 list.innerHTML = '';
                 title.textContent = `Meetings Related to "${topicTitle}"`;
 
-                const relatedEvents = document.querySelectorAll(`.event[data-topic="${topicId}"]`);
-
-                if (relatedEvents.length > 0) {
-                    // Sort events by date
-                    const sortedEvents = Array.from(relatedEvents).sort((a, b) => {
-                        const dateA = a.dataset.date || '';
-                        const dateB = b.dataset.date || '';
-                        return dateA.localeCompare(dateB);
-                    });
-
-                    sortedEvents.forEach(eventEl => {
-                        const item = document.createElement('div');
-                        const eventDate = eventEl.dataset.date;
-                        const eventTitle = eventEl.dataset.eventTitle;
-                        const eventTime = eventEl.dataset.eventTime;
-                        const eventDetails = eventEl.dataset.eventDetails;
-
-                        // Check if event is in the past
-                        let isPast = false;
-                        if (eventDate) {
-                            const eventDateObj = new Date(eventDate + 'T00:00:00');
-                            const todayDateOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-                            isPast = eventDateObj < todayDateOnly;
-                        }
-
-                        // Format date for display
-                        let formattedDate = '';
-                        if (eventDate) {
-                            const dateObj = new Date(eventDate + 'T00:00:00');
-                            formattedDate = dateObj.toLocaleDateString('en-US', { 
-                                weekday: 'long', 
-                                year: 'numeric', 
-                                month: 'long', 
-                                day: 'numeric' 
-                            });
-                        }
-
-                        item.className = `meeting-item${isPast ? ' past-meeting' : ''}`;
-                        item.innerHTML = `
-                            <div class="meeting-title">${eventTitle}</div>
-                            <div class="meeting-time">${eventTime}</div>
-                            <div class="meeting-date">${formattedDate}</div>
-                        `;
-                        // Add click handler to open event modal (same as agenda)
-                        item.addEventListener('click', () => {
-                            closeModal(meetingsModal);
-                            openEventModal(eventTitle, eventTime, eventDetails, eventDate, eventEl);
-                        });
-                        list.appendChild(item);
-                    });
-                } else {
-                    list.innerHTML = '<p>No scheduled meetings for this topic.</p>';
-                }
+                const relatedEvents = Array.from(document.querySelectorAll(`.event[data-topic="${topicId}"]`));
+                buildMeetingColumns(relatedEvents, list);
 
                 openModal(meetingsModal);
             }
@@ -6579,7 +6732,55 @@ Keep it brief and executive-level.`;
             // Quick Actions
             document.querySelectorAll('.quick-action-btn').forEach(btn => { btn.addEventListener('click', () => { const action = btn.dataset.action; let prompt = ''; switch(action) { case 'call': showMessageModal("Voice call feature not implemented in this demo."); return; case 'agenda': prompt = "Please provide a detailed overview of my agenda for today, including all scheduled meetings and key tasks."; break; } if (prompt && chatInput) { chatInput.value = prompt; handleSendMessage(); } }); });
             // Chat "+" Action Button
-             chatActionBtn?.addEventListener('click', (e) => { e.stopPropagation(); const list = document.getElementById('meetings-modal-list'); const title = document.getElementById('meetings-modal-title'); if (!list || !title) { console.error("Meetings modal elements not found"); return; } openModal(meetingsModal); list.innerHTML = ''; title.textContent = `Discuss a Topic`; let content = '<div class="dropdown-header">Discuss a Focus Area</div><div class="modal-pills-container">'; document.querySelectorAll('.topic-card .topic-title').forEach(titleEl => { content += `<div class="modal-topic-pill chat-action-item" data-prompt="Let's discuss the focus area: ${titleEl.textContent}">${titleEl.textContent}</div>`; }); content += '</div>'; content += '<div class="dropdown-header">Discuss a Meeting</div>'; const events = document.querySelectorAll('.event[data-date]'); if (events.length > 0) { events.forEach(event => { const eventTitle = event.dataset.eventTitle || 'Unnamed Meeting'; const eventTime = event.dataset.eventTime || 'No time'; const eventDateStr = event.dataset.date; if(eventDateStr) { const eventDate = new Date(eventDateStr + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }); content += `<div class="meeting-item chat-action-item" data-prompt="What should I know about the meeting: ${eventTitle}?"><div class="meeting-title">${eventTitle}</div><div class="meeting-time">${eventDate} - ${eventTime}</div></div>`; } }); } else { content += '<p>No meetings found.</p>'; } list.innerHTML = content; list.querySelectorAll('.chat-action-item').forEach(item => { item.addEventListener('click', (ev) => { ev.preventDefault(); if (chatInput && item.dataset.prompt) { chatInput.value = item.dataset.prompt; handleSendMessage(); } closeModal(meetingsModal); }); }); });
+            // Chat "+" Action Button
+            chatActionBtn?.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const list = document.getElementById('meetings-modal-list');
+                const title = document.getElementById('meetings-modal-title');
+                if (!list || !title) {
+                    console.error("Meetings modal elements not found");
+                    return;
+                }
+
+                openModal(meetingsModal);
+                list.innerHTML = '';
+                title.textContent = `Discuss a Topic`;
+
+                const focusHeader = document.createElement('div');
+                focusHeader.className = 'dropdown-header';
+                focusHeader.textContent = 'Discuss a Focus Area';
+                list.appendChild(focusHeader);
+
+                const pillsContainer = document.createElement('div');
+                pillsContainer.className = 'modal-pills-container';
+                document.querySelectorAll('.topic-card .topic-title').forEach(titleEl => {
+                    const pill = document.createElement('div');
+                    pill.className = 'modal-topic-pill chat-action-item';
+                    pill.dataset.prompt = `Let's discuss the focus area: ${titleEl.textContent}`;
+                    pill.textContent = titleEl.textContent;
+                    pillsContainer.appendChild(pill);
+                });
+                list.appendChild(pillsContainer);
+
+                pillsContainer.querySelectorAll('.chat-action-item').forEach(item => {
+                    item.addEventListener('click', (ev) => {
+                        ev.preventDefault();
+                        if (chatInput && item.dataset.prompt) {
+                            chatInput.value = item.dataset.prompt;
+                            handleSendMessage();
+                        }
+                        closeModal(meetingsModal);
+                    });
+                });
+
+                const meetingHeader = document.createElement('div');
+                meetingHeader.className = 'dropdown-header';
+                meetingHeader.textContent = 'Discuss a Meeting';
+                list.appendChild(meetingHeader);
+
+                const allEvents = Array.from(document.querySelectorAll('.event[data-date]'));
+                buildMeetingColumns(allEvents, list);
+            });
 
              // --- News Page Event Listeners ---
             // Refresh news button
