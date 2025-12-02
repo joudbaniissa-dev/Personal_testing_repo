@@ -108,7 +108,7 @@
             --primary-teal: #148287;
             --primary-navy: #14415A;
 
-            --primary-color: var(--primary-orange);
+            --primary-color: var(--primary-blue);
             --secondary-color: var(--primary-green);
             --accent-color: var(--primary-teal);
             --dark-bg: var(--primary-navy);
@@ -121,9 +121,9 @@
             --container-bg: rgba(20, 65, 90, 0.5);
             --container-bg-light: rgba(255, 255, 255, 0.08);
 
-            --shadow-sm: 0 2px 8px rgba(245, 150, 30, 0.1);
-            --shadow-md: 0 4px 16px rgba(245, 150, 30, 0.2);
-            --shadow-lg: 0 8px 32px rgba(245, 150, 30, 0.3);
+            --shadow-sm: 0 2px 8px rgba(243, 199, 144 0.1);
+            --shadow-md: 0 4px 16px rgba(243, 199, 144, 0.2);
+            --shadow-lg: 0 8px 32px rgba(243, 199, 144, 0.3);
 
             --vh: 1vh;
         }
@@ -189,8 +189,8 @@
         }
 
         .logo-container {
-            width: 75px;
-            height: 55px;
+            width: 55px;
+            height: 45px;
             overflow: hidden;
         }
 
@@ -213,7 +213,7 @@
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            border: 2px solid var(--primary-orange);
+            border: 2px solid var(--primary-blue);
         }
 
         .header-right .user-profile span { font-weight: 500; }
@@ -230,7 +230,13 @@
             color: var(--primary-blue);
         }
 
-        .mobile-menu-btn { display: none; }
+        .mobile-menu-btn { 
+            display: none;
+            color: var(--primary-blue);
+        }
+        .mobile-menu-btn i {
+            color: var(--primary-blue);
+        }
 
         .nav-tabs-container {
             display: flex;
@@ -264,6 +270,9 @@
             position: relative;
             overflow: hidden;
         }
+        .nav-tabs button i {
+            color: var(--primary-blue);
+        }
 
         .nav-tabs button::before {
             content: '';
@@ -272,7 +281,7 @@
             left: -100%;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(0, 169, 157, 0.2), transparent);
+            background: linear-gradient(90deg, transparent, rgba(243, 199, 144 0.2), transparent);
             transition: left 0.5s;
         }
 
@@ -281,16 +290,19 @@
         }
 
         #meetings-modal-title {
-            color: var(--primary-orange);
-            text-shadow: 0 2px 10px rgba(245, 150, 30, 0.3);
+            color: var(--primary-blue);
+            text-shadow: 0 2px 10px rgba(243, 199, 144 0.3);
         }
 
         .nav-tabs button.active {
             color: var(--text-dark);
-            background: linear-gradient(135deg, var(--primary-orange), var(--secondary-orange));
+            background: linear-gradient(135deg, var(--primary-blue), #008a7e);
             font-weight: 500;
-            box-shadow: 0 4px 15px rgba(245, 150, 30, 0.4);
+            box-shadow: 0 4px 15px rgba(243, 199, 144 0.4);
             border-color: rgba(0, 169, 157, 0.3);
+        }
+        .nav-tabs button.active i {
+            color: var(--text-dark);
         }
 
         .nav-tabs button:hover:not(.active) {
@@ -326,7 +338,7 @@
             border-radius: 20px;
             border: 1px solid var(--border-color);
             backdrop-filter: blur(20px);
-			padding: 40px 0px 0px 20px;
+			padding: 28px 0px 24px 20px; /* move content slightly up from bottom, closer to top */
 			min-width: 0;
             min-height: 0;
             max-height: calc(100vh - 220px);
@@ -347,6 +359,10 @@
             backdrop-filter: blur(20px);*/
             min-height: 0;
             max-height: calc(100vh - 220px);
+            overflow-y: auto;
+            overflow-x: hidden;
+            scrollbar-gutter: stable;
+            margin: 5px;
         }
 
         /* Removed old single persona image styles - now using multi-agent selection */
@@ -376,83 +392,34 @@
             gap: 10px;
         }
         
-        /* Mode Toggle */
-        /* Mode Toggle */
         .mode-toggle-container {
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
-            padding: 12px;
-            background: rgba(0, 169, 157, 0.1);
-            border-radius: 12px;
-            margin-bottom: 15px;
-            border: 1px solid var(--border-color);
+            padding: 6px 14px;
+            margin: 0px 0 24px; /* lift status pill a bit higher, add breathing room above cards */
         }
         
-        .mode-toggle-label {
-            font-size: 0.85rem;
-            font-weight: 500;
-            color: var(--text-light);
-            opacity: 0.7;
-        }
-        
-        .mode-toggle-label.active {
-            opacity: 1;
-            color: var(--primary-blue);
+        #modeStatusLabel {
+            display: inline-block;
+            padding: 8px 18px;
+            border-radius: 999px;
+            font-size: 0.9rem;
             font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
         }
-        
-        .mode-toggle-switch {
-            position: relative;
-            width: 60px;
-            height: 30px;
+        .mode-status-single {
+            background: rgba(0, 169, 157, 0.12);
+            border: 2px solid var(--primary-blue);
+            color: var(--primary-blue);
+            box-shadow: 0 0 5px rgba(0, 169, 157, 0.25), 0 2px 8px rgba(0, 169, 157, 0.15);
         }
-        
-        .mode-toggle-switch input {
-            display: none;
-        }
-        
-        .mode-toggle-slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(255, 255, 255, 0.2);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            border-radius: 34px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-        }
-        
-        .mode-toggle-slider:before {
-            position: absolute;
-            content: "1";
-            height: 22px;
-            width: 22px;
-            left: 2px;
-            bottom: 2px;
-            background-color: white;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.7rem;
-            font-weight: 700;
-            color: var(--dark-teal);
-        }
-        
-        .mode-toggle-switch input:checked + .mode-toggle-slider {
-            background: linear-gradient(135deg, var(--primary-blue), #008a7e);
-            border-color: var(--primary-blue);
-        }
-        
-        .mode-toggle-switch input:checked + .mode-toggle-slider:before {
-            transform: translateX(30px);
-            content: "✓";
-            font-size: 0.8rem;
+        .mode-status-multi {
+            background: linear-gradient(135deg, rgba(245, 150, 32, 0.3) 0%, rgba(245, 150, 32, 0.15) 100%);
+            border: 2px solid var(--primary-blue);
+            color: var(--text-dark);
+            box-shadow: 0 0 5px rgba(245, 150, 32, 0.2), 0 2px 8px rgba(245, 150, 32, 0.1);
         }
         
         /* Single Agent Mode Styles */
@@ -576,12 +543,14 @@
         }
         
         .agent-selection-list {
-            display: flex;
+            display: flex !important;
             flex-direction: column;
             gap: 10px;
             flex: 1;
             min-height: 0;
             padding: 5px 0;
+            width: calc(100% - 6px);
+            
         }
         
         .agent-selection-list::-webkit-scrollbar {
@@ -598,6 +567,20 @@
             border-radius: 10px;
         }
         
+        .persona-display::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .persona-display::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+
+        .persona-display::-webkit-scrollbar-thumb {
+            background: var(--primary-blue);
+            border-radius: 10px;
+        }
+        
         .agent-select-item {
             display: flex;
             align-items: center;
@@ -608,6 +591,9 @@
             cursor: pointer;
             transition: all 0.3s ease;
             position: relative;
+            box-sizing: border-box;
+            max-width: calc(100% - 8px);
+            width: 100%;
         }
         
         .agent-select-item::before {
@@ -630,7 +616,8 @@
         
         .agent-select-item:hover {
             border-color: rgba(0, 169, 157, 0.3);
-            transform: translateX(3px);
+            transform: translateX(2px);
+            max-width: calc(100% - 3px);
         }
         
         .agent-select-item.selected {
@@ -647,6 +634,59 @@
         
         .agent-select-item.selected .agent-select-name {
             color: var(--primary-blue);
+        }
+        
+        .agent-info-btn {
+            position: flex;
+            top: 10px;
+            right: 10px;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            border: 1px solid var(--primary-blue);
+            background: rgba(0, 169, 157, 0.08);
+            color: var(--primary-blue);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            z-index: 2;
+        }
+        .agent-info-btn i {
+            pointer-events: none;
+            color: var(--primary-blue);
+        }
+        .agent-info-btn:hover {
+            background: var(--primary-blue);
+            color: var(--text-dark);
+            border-color: var(--primary-blue);
+            transform: scale(1.1);
+        }
+        .agent-info-btn:hover i {
+            color: var(--text-dark);
+        }
+        
+        .agent-info-modal-body {
+            text-align: center;
+            padding: 10px 0 0;
+        }
+        .agent-info-modal-body img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--primary-blue);
+            box-shadow: 0 6px 20px rgba(0, 169, 157, 0.4);
+            margin-bottom: 15px;
+        }
+        .agent-info-modal-body h3 {
+            margin: 0 0 8px 0;
+            color: var(--primary-blue);
+        }
+        .agent-info-modal-body p {
+            margin: 4px 0;
         }
         
         @keyframes agentSelected {
@@ -869,12 +909,12 @@
         }
         
         .chat-messages::-webkit-scrollbar-thumb {
-            background: var(--primary-orange);
+            background: var(--primary-blue);
             border-radius: 10px;
         }
 
         .chat-messages::-webkit-scrollbar-thumb:hover {
-            background: var(--secondary-orange);
+            background: #008a7e;
         }
 
         .message-bubble {
@@ -896,7 +936,9 @@
             }
         }
 
-        .message-bubble.user { justify-content: flex-end; }
+        .message-bubble.user { 
+            justify-content: flex-end;
+        }
         .message-bubble .avatar {
             width: 40px;
             height: 40px;
@@ -915,7 +957,7 @@
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
         }
         .message-bubble.user .content {
-            background: linear-gradient(135deg, var(--primary-orange), var(--secondary-orange));
+            background: linear-gradient(135deg, var(--primary-blue), #008a7e);
             color: #fff;
             border-bottom-right-radius: 5px;
         }
@@ -945,7 +987,7 @@
         .message-bubble.agent .content h1,
         .message-bubble.agent .content h2,
         .message-bubble.agent .content h3 {
-            color: var(--primary-orange);
+            color: var(--primary-blue);
             margin-top: 1em;
             margin-bottom: 0.5em;
             border-bottom: 1px solid var(--border-color);
@@ -982,7 +1024,7 @@
             text-decoration: underline;
         }
         .message-bubble.agent .content blockquote {
-            border-left: 4px solid var(--primary-orange);
+            border-left: 4px solid var(--primary-blue);
             padding-left: 15px;
             margin-left: 0;
             font-style: italic;
@@ -1022,7 +1064,7 @@
             background: rgba(0, 0, 0, 0.1);
             /*margin: 0 -20px -20px -20px;*/
             padding: 15px 20px;
-            border-radius: 0 0 20px 0; /* Only bottom-right corner of chat-area */
+            border-radius: 32px; /* Curve both left and right edges */
             flex-shrink: 0;
             overflow: visible; /* Allow dropdowns to overflow */
             position: relative; /* For absolute positioned children */
@@ -1055,20 +1097,29 @@
             align-items: center;
             justify-content: center;
         }
+        .chat-input-controls button i {
+            color: var(--primary-blue);
+        }
         .chat-input-controls button:hover {
             color: var(--text-dark);
             background: var(--primary-blue);
             border-color: var(--primary-blue);
             transform: scale(1.1);
         }
+        .chat-input-controls button:hover i {
+            color: var(--text-dark);
+        }
         .send-btn {
             background: linear-gradient(135deg, var(--primary-blue), #008a7e) !important;
             color: white !important;
             border: none !important;
-            box-shadow: 0 4px 15px rgba(0, 169, 157, 0.4);
+            box-shadow: 0 4px 15px rgba(243, 199, 144 0.4);
+        }
+        .send-btn i {
+            color: white !important;
         }
         .send-btn:hover {
-            box-shadow: 0 6px 20px rgba(0, 169, 157, 0.6) !important;
+            box-shadow: 0 6px 20px rgba(243, 199, 144 0.6) !important;
             transform: scale(1.1) !important;
         }
 
@@ -1120,12 +1171,18 @@
             align-items: center;
             gap: 8px;
         }
+        .summary-header button i {
+            color: var(--primary-blue);
+        }
         .summary-header button:hover {
             background: linear-gradient(135deg, var(--primary-blue), #008a7e);
             color: #fff;
             border-color: var(--primary-blue);
             transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0, 169, 157, 0.4);
+            box-shadow: 0 4px 15px rgba(245, 150, 32, 0.4);
+        }
+        .summary-header button:hover i {
+            color: #fff;
         }
         .summary-content { font-size: 0.95rem; line-height: 1.7; color: var(--text-light); overflow-y: auto; flex: 1; min-height: 0; }
         .summary-content h4 {
@@ -1143,12 +1200,15 @@
         .summary-content ul li { position: relative; padding-left: 20px; margin-bottom: 8px; }
         .summary-content ul li::before { content: '▶'; position: absolute; left: 0; top: 0; color: var(--primary-blue); font-size: 0.8em; }
         .summary-content ul li strong { color: var(--text-dark); }
+        .agenda-summary-item { cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease; border-radius: 12px; }
+        .agenda-summary-item:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25); }
+        .agenda-summary-item.past-event { opacity: 0.6; }
         .key-topics-pills { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 15px; }
         .key-topic-pill { background: var(--container-bg-light); border: 1px solid var(--border-color); color: var(--text-light); padding: 5px 12px; border-radius: 15px; font-size: 0.85rem; cursor: pointer; transition: all 0.2s; }
         .key-topic-pill:hover { background: var(--primary-blue); color: var(--text-dark); border-color: var(--primary-blue); }
-        .urgent-meeting-highlight { background: linear-gradient(135deg, rgba(245, 150, 32, 0.3) 0%, rgba(245, 150, 32, 0.15) 100%); border: 3px solid var(--primary-orange); border-radius: 12px; padding: 18px; margin: 15px 0; box-shadow: 0 0 5px rgba(245, 150, 32, 0.2), 0 2px 8px rgba(245, 150, 32, 0.1); position: relative; overflow: hidden; }
+        .urgent-meeting-highlight { background: linear-gradient(135deg, rgba(245, 150, 32, 0.3) 0%, rgba(245, 150, 32, 0.15) 100%); border: 3px solid var(--primary-blue); border-radius: 12px; padding: 18px; margin: 15px 0; box-shadow: 0 0 5px rgba(245, 150, 32, 0.2), 0 2px 8px rgba(245, 150, 32, 0.1); position: relative; overflow: hidden; }
         @keyframes pulseUrgent { 0%, 100% { box-shadow: 0 0 5px rgba(245, 150, 32, 0.2), 0 2px 8px rgba(245, 150, 32, 0.1); } 50% { box-shadow: 0 0 8px rgba(245, 150, 32, 0.3), 0 2px 10px rgba(245, 150, 32, 0.15); } }
-        .urgent-meeting-highlight h4 { color: var(--primary-orange) !important; border-bottom: 2px solid var(--primary-orange) !important; margin-top: 0 !important; font-size: 1.2rem !important; text-shadow: none; }
+        .urgent-meeting-highlight h4 { color: var(--primary-blue) !important; border-bottom: 2px solid var(--primary-blue) !important; margin-top: 0 !important; font-size: 1.2rem !important; text-shadow: none; }
         .urgent-meeting-highlight p { color: var(--text-light); font-size: 0.95rem; line-height: 1.6; }
 
         .typing-indicator { display: flex; align-items: center; }
@@ -1195,7 +1255,7 @@
         }
         .tool-card:hover .tool-icon {
             transform: scale(1.1);
-            text-shadow: 0 2px 15px rgba(0, 169, 157, 0.4);
+            text-shadow: 0 2px 15px #008a7e;
         }
         .tool-title {
             color: var(--text-dark);
@@ -1272,12 +1332,17 @@
             transition: all 0.3s;
             font-size: 0.9rem;
         }
-        
+        .calendar-nav-btn i {
+            color: var(--primary-blue);
+        }
         .calendar-nav-btn:hover {
             background: linear-gradient(135deg, var(--primary-blue), #008a7e);
             color: var(--text-dark);
-            box-shadow: 0 2px 10px rgba(0, 169, 157, 0.4);
+            box-shadow: 0 2px 10px #008a7e;
             transform: scale(1.1);
+        }
+        .calendar-nav-btn:hover i {
+            color: var(--text-dark);
         }
         
         .calendar-nav-btn:active {
@@ -1315,12 +1380,20 @@
             transition: all 0.3s;
             font-weight: 500;
         }
+        .view-toggle button i,
+        .mobile-view-btn i {
+            color: var(--primary-blue);
+        }
 
         .view-toggle button.active,
         .mobile-view-btn.active {
             background: linear-gradient(135deg, var(--primary-blue), #008a7e);
             color: var(--text-dark);
-            box-shadow: 0 2px 10px rgba(0, 169, 157, 0.4);
+            box-shadow: 0 2px 10px rgba(243, 199, 144 0.4);
+        }
+        .view-toggle button.active i,
+        .mobile-view-btn.active i {
+            color: var(--text-dark);
         }
 
         .view-toggle button:hover:not(.active),
@@ -1581,7 +1654,7 @@
         }
         .event {
             background: linear-gradient(135deg, rgba(0, 169, 157, 0.15), rgba(0, 169, 157, 0.25));
-            border-left: 4px solid var(--primary-orange);
+            border-left: 4px solid var(--primary-blue);
             padding: 12px;
             border-radius: 8px;
             margin-bottom: 10px;
@@ -1598,7 +1671,7 @@
         .event-title { font-weight: 600; color: var(--text-dark); font-size: 0.95rem; }
         .event-milestone {
             background: linear-gradient(135deg, rgba(255, 193, 7, 0.15), rgba(255, 193, 7, 0.25));
-            border-left-color: #ffc107;
+            border-left-color: #008a7e;
         }
         .event-milestone:hover {
             background: linear-gradient(135deg, rgba(255, 193, 7, 0.3), rgba(255, 193, 7, 0.4));
@@ -1631,7 +1704,7 @@
         }
         .topic-card:hover .topic-icon {
             transform: scale(1.1) rotate(5deg);
-            text-shadow: 0 4px 20px rgba(0, 169, 157, 0.5);
+            text-shadow: 0 4px 20px #008a7e;
         }
         .topic-title {
             color: var(--text-dark);
@@ -1736,6 +1809,10 @@
             overflow-y: auto;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
         }
+        #focus-modal-content {
+            width: 950px;
+            max-width: 95%;
+        }
         @keyframes slideInModal { /* Renamed animation */
             from {
                 transform: translateY(-50px) scale(0.9);
@@ -1747,7 +1824,7 @@
             }
         }
         .close-button {
-            color: #aaa;
+            color: var(--primary-blue);
             position: absolute;
             top: 15px;
             right: 25px;
@@ -1764,7 +1841,7 @@
         }
         .close-button:hover {
             color: #fff;
-            background: rgba(255, 255, 255, 0.1);
+            background: var(--primary-blue);
             transform: rotate(90deg);
         }
         .modal-content h2 {
@@ -1802,12 +1879,18 @@
             gap: 8px;
             font-weight: 500;
         }
+        .event-actions button i, .day-actions button i {
+            color: var(--primary-blue);
+        }
         .event-actions button:hover, .day-actions button:hover {
             background: linear-gradient(135deg, var(--primary-blue), #008a7e);
             color: var(--text-dark);
             border-color: transparent;
             transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0, 169, 157, 0.4);
+            box-shadow: 0 4px 15px #008a7e;
+        }
+        .event-actions button:hover i, .day-actions button:hover i {
+            color: var(--text-dark);
         }
 
         .persona-options { display: flex; flex-direction: column; gap: 15px; }
@@ -1886,7 +1969,7 @@
 
         .meeting-columns-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr); /* Always 3 columns on desktop */
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 20px;
             margin-top: 15px;
         }
@@ -1930,7 +2013,7 @@
             padding: 18px;
             border-radius: 12px;
             margin-bottom: 12px;
-            border-left: 4px solid var(--primary-orange);
+            border-left: 4px solid var(--primary-blue);
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
         #meetings-modal-list .meeting-item:hover {
@@ -2091,7 +2174,7 @@
                 width: 100% !important;
                 max-width: 100% !important;
                 margin: 20px auto 0 auto !important;
-                padding: 20px !important;
+                padding: 2px !important;
                 order: 2 !important;
                 border-radius: 20px 20px 20px 20px !important;
             }
@@ -2701,19 +2784,6 @@
 
         /* ===== 1. HEADER & NAVIGATION FIXES ===== */
         @media (max-width: 768px) {
-            /* Logo container responsive */
-            .logo-container {
-                width: 60px;
-                height: 45px;
-                flex-shrink: 0;
-            }
-            
-            .logo-container img {
-                width: 100%;
-                height: 100%;
-                object-fit: contain;
-            }
-            
             /* Header spacing */
             .header {
                 padding: 12px 15px;
@@ -3234,11 +3304,6 @@
                 padding: 10px 12px;
             }
             
-            .logo-container {
-                width: 50px;
-                height: 40px;
-            }
-            
             .header-right .user-profile img {
                 width: 30px;
                 height: 30px;
@@ -3460,7 +3525,6 @@
             object-fit: contain;
         }
 
-        .logo-container img,
         .agent-mini-avatar,
         .single-agent-avatar,
         .persona-option img {
@@ -3645,8 +3709,12 @@
     <header class="header">
         <div class="header-left">
             <div class="logo-container">
-                <img src="https://www.hrsd.gov.sa/themes/custom/hrsd_saud/logo_en.svg" alt="Logo" />
-            </div>
+  <img 
+    src="logo.jpg"
+    alt="Logo"
+  />
+</div>
+
             <span>AI Executive Office</span>
         </div>
         <div class="header-right">
@@ -3667,6 +3735,7 @@
             <button class="nav-button" data-target="tools-page"><i class="fas fa-cogs"></i> AI Tools</button>
             <button class="nav-button" data-target="news-page"><i class="fas fa-newspaper"></i> News</button>
             <button class="nav-button" data-target="templates-page"><i class="fas fa-file-alt"></i> Templates</button>
+            <button class="nav-button" data-target="mandate-page"><i class="fas fa-th-large"></i> Mandate</button>
         </nav>
     </div>
 
@@ -3679,12 +3748,7 @@
                 <div class="persona-display">
                     <!-- Mode Toggle -->
                     <div class="mode-toggle-container">
-                        <span class="mode-toggle-label" id="singleModeLabel">Single Agent</span>
-                        <label class="mode-toggle-switch">
-                            <input type="checkbox" id="modeToggle">
-                            <span class="mode-toggle-slider"></span>
-                        </label>
-                        <span class="mode-toggle-label active" id="multiModeLabel">Multi-Agent</span>
+                        <span id="modeStatusLabel">Single Agent Mode</span>
                     </div>
                     
                     <!-- Single Agent Display (for single mode) -->
@@ -3746,7 +3810,7 @@
                 <!-- Chat Interaction Area -->
                 <div class="chat-interaction-area">
                     <button class="section-control-btn" id="centerSectionToggle" title="Maximize"
-                        style="position: absolute; top: 20px; right: 20px; background: linear-gradient(135deg, rgba(20, 65, 90, 0.95), rgba(20, 130, 135, 0.95)); border: 2px solid #F59620; color: white; width: 36px; height: 36px; border-radius: 8px; cursor: pointer; font-size: 0.95rem; display: flex; align-items: center; justify-content: center; z-index: 200; backdrop-filter: blur(20px); box-shadow: 0 4px 15px rgba(245, 150, 30, 0.3); transition: all 0.3s ease;">
+                        style="position: absolute; top: 20px; right: 20px; background: linear-gradient(135deg, rgba(20, 65, 90, 0.95), rgba(20, 130, 135, 0.95)); border: 2px solid #008a7e; color: white; width: 36px; height: 36px; border-radius: 8px; cursor: pointer; font-size: 0.95rem; display: flex; align-items: center; justify-content: center; z-index: 200; backdrop-filter: blur(20px); box-shadow: 0 4px 15px #008a7e; transition: all 0.3s ease;">
                         <i class="fas fa-expand" style="pointer-events: none;"></i>
                     </button>
                     <div class="chat-messages" id="chatMessages">
@@ -3754,7 +3818,7 @@
                             <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Hakim" alt="Agent Avatar" class="avatar" data-persona-avatar="">
                             <div class="content">Welcome Your Excellency. As-salāmu 'alaykum. I am Hakim, your AI Executive Office Agent. How may I assist you today?</div>
                         </div>
-                    <div class="message-bubble user"><img src="https://ui-avatars.com/api/?name=Ahmad&background=00A99D&color=fff&size=128" alt="user Avatar" class="avatar"><div class="content">Can you dig deeper into the topic of "Empowering Society &amp; Individuals" for me? Provide key details and current status.</div></div><div class="message-bubble agent"><img src="https://api.dicebear.com/7.x/bottts/svg?seed=Hakim" alt="agent Avatar" class="avatar" data-persona-avatar=""><div class="content"><span class="agent-name-tag">Hakim Nüruddin</span><div><p><strong>To Your Excellency,</strong></p>
+                    <div class="message-bubble user"><div class="content">Can you dig deeper into the topic of "Empowering Society &amp; Individuals" for me? Provide key details and current status.</div><img src="https://pbs.twimg.com/profile_images/1902451967101636610/TQ-VQEPY_400x400.jpg" alt="user Avatar" class="avatar"></div><div class="message-bubble agent"><img src="https://api.dicebear.com/7.x/bottts/svg?seed=Hakim" alt="agent Avatar" class="avatar" data-persona-avatar=""><div class="content"><span class="agent-name-tag">Hakim Nüruddin</span><div><p><strong>To Your Excellency,</strong></p>
 <p>The topic of "Empowering Society &amp; Individuals" is a central axis of the National Transformation Program and HRSD’s mandate. It moves beyond mere provision of services toward <em>sustainable enablement</em> and the cultivation of a productive, self-reliant citizenry.</p>
 <p>Here is a strategic summary detailing the key focus areas and current status as of Q4 2025.</p>
 <hr>
@@ -4004,9 +4068,9 @@
                 <div class="event" data-event-title="Community Empowerment Briefing" data-event-time="02:00 PM" data-event-details="Briefing on the results of the recent community empowerment programs and future plans." data-topic="empowerment" data-date="2025-10-23"></div>
                 <div class="event" data-event-title="Evening Strategy Session" data-event-time="09:00 PM" data-event-details="Critical evening strategy session to review Q4 objectives and finalize key decisions." data-topic="strategic-partnerships" data-date="2025-11-25"></div>
                 <div class="event" data-event-title="Executive Review Meeting" data-event-time="10:00 PM" data-event-details="Executive review meeting with leadership team to discuss upcoming initiatives." data-topic="labor-market" data-date="2025-11-25"></div>
-                <div class="event" data-event-title="Late Night Planning Session" data-event-time="11:00 PM" data-event-details="Late night planning session for next quarter's strategic roadmap." data-topic="empowerment" data-date="2025-11-25"></div>
-                <div class="event" data-event-title="Afternoon Team Sync" data-event-time="01:00 PM" data-event-details="Team synchronization meeting to align on current projects and priorities." data-topic="strategic-partnerships" data-date="2025-11-26"></div>
-                <div class="event" data-event-title="Quarterly Review Meeting" data-event-time="04:00 PM" data-event-details="Quarterly performance review and strategic planning discussion with key stakeholders." data-topic="labor-market" data-date="2025-11-26"></div>
+                <div class="event" data-event-title="Late Night Planning Session" data-event-time="11:00 PM" data-event-details="Late night planning session for next quarter's strategic roadmap." data-topic="empowerment" data-date="2025-11-28"></div>
+                <div class="event" data-event-title="Afternoon Team Sync" data-event-time="11:40 AM" data-event-details="Team synchronization meeting to align on current projects and priorities." data-topic="strategic-partnerships" data-date="2025-11-27"></div>
+                <div class="event" data-event-title="Quarterly Review Meeting" data-event-time="04:00 PM" data-event-details="Quarterly performance review and strategic planning discussion with key stakeholders." data-topic="labor-market" data-date="2025-11-27"></div>
                 <div class="event" data-event-title="Evening Board Meeting" data-event-time="08:00 PM" data-event-details="Evening board meeting to review strategic initiatives and make key decisions." data-topic="empowerment" data-date="2025-11-26"></div>
                 <div class="event" data-event-title="Labor Compliance Workshop" data-event-time="11:30 AM" data-event-details="Workshop with regional directors to review recent compliance audits and correct course." data-topic="labor-market" data-date="2025-10-10"></div>
                 <div class="event" data-event-title="Workforce Metrics Stand-Up" data-event-time="08:30 AM" data-event-details="Early KPI check-in to align on week 2 labor-market dashboard metrics and blockers." data-topic="labor-market" data-date="2025-10-14"></div>
@@ -4014,6 +4078,7 @@
                 <div class="event" data-event-title="Community Empowerment Progress Review" data-event-time="02:30 PM" data-event-details="Review the December activation of community empowerment grants and assess beneficiary readiness metrics." data-topic="empowerment" data-date="2025-12-05"></div>
                 <div class="event" data-event-title="Non-Profit Impact Forum" data-event-time="11:00 AM" data-event-details="Roundtable with leading NGOs to align 2026 funding cycles and performance indicators." data-topic="non-profit" data-date="2025-12-07"></div>
                 <div class="event" data-event-title="Global Partnership Council" data-event-time="03:30 PM" data-event-details="Strategic partnership council to finalize cross-border collaborations for 2026 initiatives." data-topic="strategic-partnerships" data-date="2025-12-09"></div>
+                
             </div>
         </div>
 
@@ -4110,10 +4175,193 @@
                 </div>
             </div>
         </div>
-        <div id="templates-page" class="page-content"> <div class="placeholder-page" style="width: 100%;"> <h2><i class="fas fa-file-alt"></i> Templates</h2> <p>Access a library of pre-built templates for various documents, including meeting minutes, project proposals, and executive summaries, to streamline your workflow.</p> </div> </div>
+        <div id="templates-page" class="page-content"> 
+            <div class="tools-container">
+                <!-- Tool Card 1: Data Visualization -->
+                <div class="tool-card">
+                    <div class="tool-icon"><i class="fa-regular fa-newspaper"></i></div>
+                    <h3 class="tool-title">Official Press Release Template</h3>
+                    <p class="tool-description">Automatically generates insightful charts and dashboards from ministry data, highlighting key trends, anomalies, and performance metrics without manual setup.</p>
+                    <button class="tool-action-btn" data-tool-action="visualize"><i class="fas fa-eye"></i> Explore Tool</button>
+                </div>
+                <!-- Tool Card 2: Predictive Analytics -->
+                <div class="tool-card">
+                    <div class="tool-icon"><i class="fa-solid fa-file-lines"></i></div>
+                    <h3 class="tool-title">Internal Memo</h3>
+                    <p class="tool-description">Simulates the potential impact of proposed policies on key indicators (e.g., employment, social welfare) using AI to forecast outcomes and risks.</p>
+                    <button class="tool-action-btn" data-tool-action="predict"><i class="fas fa-cogs"></i> Run Simulation</button>
+                </div>
+                <!-- Tool Card 3: Report Generation -->
+                <div class="tool-card">
+                    <div class="tool-icon"><i class="fa-solid fa-building-columns"></i></div>
+                    <h3 class="tool-title">Interministerial Request</h3>
+                    <p class="tool-description">Condenses lengthy reports, research papers, and meeting transcripts into concise executive summaries, extracting key findings and action items.</p>
+                    <button class="tool-action-btn" data-tool-action="summarize"><i class="fas fa-align-left"></i> Generate Summary</button>
+                </div>
+                 <!-- Tool Card 4: Sentiment Analysis -->
+                <div class="tool-card">
+                    <div class="tool-icon"><i class="fas fa-comments"></i></div>
+                    <h3 class="tool-title">Speech Template</h3>
+                    <p class="tool-description">Act as a top-tier speechwriter specializing in impactful, ministry-related communication. Your goal is to draft a speech that [state event type, e.g., weekly sermon, youth group meeting, community outreach presentation].
+                        **Audience Details:**
+                        *   **Who:** [Describe your audience, e.g., mixed-age congregation, church leadership, youth]
+                        *   **Size:** [Insert number or range, e.g., 50 people, large crowd]
+                        *   **Their likely concerns/emotions:** [e.g., concerns about current events, feeling inspired after a recent event]
+
+                        **Speech Specifications:**
+                        *   **Goal:** The primary objective is to [e.g., inspire action on a new initiative, provide comfort during a difficult time, educate on a biblical passage].
+                        *   **Key Message/Theme:** The single most important takeaway is "[Insert your core message or theme]".
+                        *   **Tone:** The speech should be [e.g., empathetic and professional, inspirational and encouraging, serious yet hopeful, slightly humorous but sincere].
+                        *   **Length:** [Specify length, e.g., 10 minutes, 1500 words, short 5-minute talk].
+                        *   **Style Notes:** [e.g., Use the ESV Bible translation. Incorporate one personal anecdote. Avoid overly complex theological jargon].
+
+                        **Content Requirements:**
+                        *   **Introduction:** Start with a strong hook, maybe a quote or a short anecdote, to grab attention.
+                        *   **Main Points:** Structure the speech with 3 key points, using bullet points in your response for clarity.
+                            1.  [Insert Point 1 idea]
+                            2.  [Insert Point 2 idea]
+                            3.  [Insert Point 3 idea]
+                        *   **Evidence/Examples:** Where possible, include relevant biblical references or real-world examples to support each point.
+                        *   **Conclusion:** End with a powerful closing statement and a clear call to action.
+
+                        Please provide a full, structured draft of the speech based on the details above.
+                        </p>
+                    <button class="tool-action-btn" data-tool-action="sentiment"><i class="fas fa-search"></i> View Sentiment</button>
+                </div>
+                 <!-- Tool Card 5: Smart Scheduling -->
+                 <div class="tool-card">
+                    <div class="tool-icon"><i class="fa-solid fa-landmark-flag"></i></div>
+                    <h3 class="tool-title">Diplomatic Communication Template</h3>
+                    <p class="tool-description">"Act as a seasoned diplomat and communications specialist for a Ministry of Foreign Affairs.
+Objective: [Clearly state the goal, e.g., "Draft a press release," "Compose a formal letter," "Create talking points for a meeting."]
+Context: [Provide all relevant background information, key policy points, involved countries/entities, and the specific situation.]
+Audience: [Specify the target audience, e.g., "The general public," "Foreign dignitaries," "Internal staff," "A specific ambassador."]
+Tone/Style: [Define the required tone, e.g., "Formal yet engaging," "Confidential and objective," "Firm but respectful," "Neutral and informative."]
+Key Messages: [List 2-3 mandatory points that must be included.]
+Constraints: [Mention any length limits, specific formatting requirements, or details to omit.]
+Desired Output: [e.g., "A final draft ready for review."]</p>
+                    <button class="tool-action-btn" data-tool-action="schedule"><i class="fas fa-calendar-plus"></i> Schedule Meeting</button>
+                </div>
+            </div> 
+        </div>
+        
+        <!-- Mandate -->
+        <div id="mandate-page" class="page-content">
+            <div class="topics-container" style="width: 100%;">
+                <!-- Topic Card 1 -->
+                <div class="topic-card" data-topic-id="labor-market">
+                    <div class="topic-icon"><i class="fas fa-briefcase"></i></div>
+                    <div class="topic-content">
+                        <h3 class="topic-title">Strengthening Labor Market</h3>
+                        <p class="topic-description">Developing policies to create an attractive, inclusive, and safe labor market that empowers Saudi nationals and aligns with global standards.</p>
+                    </div>
+                    <div class="topic-kpis">
+                        <div class="kpi-item">
+                            <span class="kpi-value">4</span>
+                            <span class="kpi-label">Strategic KPIs</span>
+                        </div>
+                        <div class="kpi-item">
+                            <span class="kpi-value">7</span>
+                            <span class="kpi-label">Related Initiatives</span>
+                        </div>
+                    </div>
+                    <div class="topic-actions">
+                        <button class="topic-action-btn" data-action="meetings"><i class="fas fa-calendar-days"></i> Related Meetings</button>
+                        <button class="topic-action-btn" data-action="deeper"><i class="fas fa-magnifying-glass"></i> Dig Deeper</button>
+                        <button class="topic-action-btn" data-action="references"><i class="fas fa-file-alt"></i> View References</button>
+                        <button class="topic-action-btn" data-action="news"><i class="fas fa-newspaper"></i> Related News</button>
+                    </div>
+                </div>
+                <!-- Topic Card 2 -->
+                <div class="topic-card" data-topic-id="empowerment">
+                     <div class="topic-icon"><i class="fas fa-users"></i></div>
+                    <div class="topic-content">
+                        <h3 class="topic-title">Empowering Society &amp; Individuals</h3>
+                        <p class="topic-description">Enhancing social development, empowering individuals and communities, and promoting self-reliance through targeted programs and support.</p>
+                    </div>
+                     <div class="topic-kpis">
+                        <div class="kpi-item">
+                            <span class="kpi-value">5</span>
+                            <span class="kpi-label">Strategic KPIs</span>
+                        </div>
+                        <div class="kpi-item">
+                            <span class="kpi-value">9</span>
+                            <span class="kpi-label">Related Initiatives</span>
+                        </div>
+                    </div>
+                    <div class="topic-actions">
+                        <button class="topic-action-btn" data-action="meetings"><i class="fas fa-calendar-days"></i> Related Meetings</button>
+                        <button class="topic-action-btn" data-action="deeper"><i class="fas fa-magnifying-glass"></i> Dig Deeper</button>
+                        <button class="topic-action-btn" data-action="references"><i class="fas fa-file-alt"></i> View References</button>
+                        <button class="topic-action-btn" data-action="news"><i class="fas fa-newspaper"></i> Related News</button>
+                    </div>
+                </div>
+                <!-- Topic Card 3 -->
+                <div class="topic-card" data-topic-id="non-profit">
+                     <div class="topic-icon"><i class="fas fa-hand-holding-heart"></i></div>
+                    <div class="topic-content">
+                        <h3 class="topic-title">Enabling the Non-Profit Sector</h3>
+                        <p class="topic-description">Fostering the growth and impact of the non-profit sector to expand its contribution to the economy and social development.</p>
+                    </div>
+                     <div class="topic-kpis">
+                        <div class="kpi-item">
+                            <span class="kpi-value">3</span>
+                            <span class="kpi-label">Strategic KPIs</span>
+                        </div>
+                        <div class="kpi-item">
+                            <span class="kpi-value">4</span>
+                            <span class="kpi-label">Related Initiatives</span>
+                        </div>
+                    </div>
+                    <div class="topic-actions">
+                        <button class="topic-action-btn" data-action="meetings"><i class="fas fa-calendar-days"></i> Related Meetings</button>
+                        <button class="topic-action-btn" data-action="deeper"><i class="fas fa-magnifying-glass"></i> Dig Deeper</button>
+                        <button class="topic-action-btn" data-action="references"><i class="fas fa-file-alt"></i> View References</button>
+                        <button class="topic-action-btn" data-action="news"><i class="fas fa-newspaper"></i> Related News</button>
+                    </div>
+                </div>
+                <!-- Topic Card 4 -->
+                <div class="topic-card" data-topic-id="strategic-partnerships">
+                     <div class="topic-icon"><i class="fas fa-handshake"></i></div>
+                    <div class="topic-content">
+                        <h3 class="topic-title">Strategic Partnerships</h3>
+                        <p class="topic-description">Building effective and sustainable partnerships with public, private, and non-profit entities to achieve shared national goals.</p>
+                    </div>
+                     <div class="topic-kpis">
+                        <div class="kpi-item">
+                            <span class="kpi-value">2</span>
+                            <span class="kpi-label">Strategic KPIs</span>
+                        </div>
+                        <div class="kpi-item">
+                            <span class="kpi-value">6</span>
+                            <span class="kpi-label">Related Initiatives</span>
+                        </div>
+                    </div>
+                    <div class="topic-actions">
+                        <button class="topic-action-btn" data-action="meetings"><i class="fas fa-calendar-days"></i> Related Meetings</button>
+                        <button class="topic-action-btn" data-action="deeper"><i class="fas fa-magnifying-glass"></i> Dig Deeper</button>
+                        <button class="topic-action-btn" data-action="references"><i class="fas fa-file-alt"></i> View References</button>
+                        <button class="topic-action-btn" data-action="news"><i class="fas fa-newspaper"></i> Related News</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    
     </div>
 
     <!-- Modals -->
+    <div id="agentInfoModal" class="modal">
+        <div class="modal-content" style="max-width: 420px;">
+            <span class="close-button">×</span>
+            <div class="agent-info-modal-body">
+                <img id="agent-info-avatar" src="" alt="Agent Avatar">
+                <h3 id="agent-info-name">Agent Name</h3>
+                <p id="agent-info-role" style="font-weight: 600; color: var(--primary-blue);"></p>
+                <p id="agent-info-description" style="opacity: 0.85;"></p>
+            </div>
+        </div>
+    </div>
+
     <div id="personaModal" class="modal">
         <div class="modal-content">
             <span class="close-button">×</span>
@@ -4187,11 +4435,11 @@
         document.addEventListener('DOMContentLoaded', () => {
             // --- DATA ---
             const personaData = [
-                { id: 'hakim', name: 'Hakim Nüruddin', title: 'AI Executive Office Agent', largeImg: 'https://hams.ai/images/ai-voice-agent.png', smallImg: 'https://hams.ai/images/ai-voice-agent.png', description: 'As your strategic partner, I provide high-level summaries, executive advice, and focus on strategic alignment for your key decisions.', systemPrompt: 'You are Hakim Nüruddin, an AI Executive Office Agent for HRSD in Saudi Arabia. You coordinate a team of specialized AI agents to support Your Excellency.\n\nAvailable Team Members:\n- Hakim Nüruddin (yourself): AI Executive Office Agent - Strategic insights, executive summaries, high-level decisions, leadership advice, policy alignment with Vision 2030\n- Layla Al-Farsi: Data Analytics Agent - Data analysis, charts, statistics, metrics, trends, quantitative insights, KPI monitoring\n- Omar Mansour: AI Coordinator - Operational coordination, task management, scheduling, workflow optimization, resource allocation\n- Nouf Al-Jafali: AI Strategy Consultant - In-depth analysis and consulting on specific strategic focus areas (labor market, empowerment, non-profit sector, strategic partnerships)\n\nWhen asked about agents, team members, or their roles, provide accurate information about all four agents listed above. Do not invent or mention agents that do not exist. Be concise, professional, and insightful. Provide strategic advice and summaries.' },
+                { id: 'hakim', name: 'Hakim Nüruddin', title: 'AI Executive Office Agent', largeImg: 'https://hams.ai/images/ai-voice-agent.png', smallImg: 'https://hams.ai/images/ai-voice-agent.png', description: 'As your strategic partner, I provide high-level summaries, executive advice, and focus on strategic alignment for your key decisions.', systemPrompt: 'You are Hakim Nüruddin, an AI Executive Office Agent for HRSD in Saudi Arabia. You coordinate a team of specialized AI agents to support Your Excellency.\n\nAvailable Team Members:\n- Hakim Nüruddin (yourself): AI Executive Office Agent - Strategic insights, executive summaries, high-level decisions, leadership advice, policy alignment with Vision 2030\n- Layla Al-Farsi: Data Analytics Agent - Data analysis, charts, statistics, metrics, trends, quantitative insights, KPI monitoring\n- Omar Mansour: AI Coordinator - Operational coordination, task management, scheduling, workflow optimization, resource allocation\n- Nouf Al-Jafali: AI Strategy Consultant - In-depth analysis and consulting on specific strategic focus areas (labor market, empowerment, non-profit sector, strategic partnerships)\n\nWhen asked about agents, team members, or their roles, provide accurate information about all four agents listed above. Do not invent or mention agents that do not exist. Be concise, professional, and insightful. Provide strategic advice and summaries.', responderSystemPrompt: 'You are Hakim Nüruddin, an executive AI agent. Provide a concise strategic answer or executive summary. DO NOT attempt to re-orchestrate or route to other agents; answer directly and clearly, focusing on recommendations, high-level reasoning, and next steps.', capabilities: ['executive summary', 'direction', 'leadership', 'overview', 'vision']},
                 // Update Layla's systemPrompt for insights/charts
-                { id: 'layla', name: 'Layla Al-Farsi', title: 'Data Analytics Agent', largeImg: 'https://easy-peasy.ai/cdn-cgi/image/quality=80,format=auto,width=700/https://media.easy-peasy.ai/27feb2bb-aeb4-4a83-9fb6-8f3f2a15885e/3f6fb035-158b-47f1-8c69-5fe9a407d4f2.png', smallImg: 'https://easy-peasy.ai/cdn-cgi/image/quality=80,format=auto,width=700/https://media.easy-peasy.ai/27feb2bb-aeb4-4a83-9fb6-8f3f2a15885e/3f6fb035-158b-47f1-8c69-5fe9a407d4f2.png', description: 'As your data expert, I provide Your Excellency with key insights from around HRSD, identify trends, and offer detailed analytical support for your objectives.', systemPrompt: 'You are Layla Al-Farsi, a Data Analytics Agent for HRSD in Saudi Arabia. Your Excellency requires data-driven insights. ALWAYS respond with concise analysis, key findings, and data points. When a visualization is appropriate (e.g., trends, comparisons), provide the necessary data in a Chart.js-compatible JSON format strictly enclosed within `[CHART_DATA:{...}]`. The JSON MUST be complete and valid. It MUST contain "type" (e.g., "bar", "line", "pie"), "labels" (array of strings), and "datasets" (array of objects, each with "label" and "data" properties). Example: `[CHART_DATA:{"type": "bar", "labels": ["Q1", "Q2"], "datasets": [{"label": "Metric A", "data": [10, 15]}]}]` Always include a brief textual explanation of the chart\'s insights immediately following the chart data marker. Focus strictly on providing analytical insights derived from data. Avoid conversational filler unless specifically asked.' }, // Added "MUST be complete and valid"
-                { id: 'omar', name: 'Omar Mansour', title: 'AI Coordinator', largeImg: 'https://easy-peasy.ai/cdn-cgi/image/quality=80,format=auto,width=700/https://media.easy-peasy.ai/2f8cd8b2-88d5-4865-b07e-cafd6403b72b/bd99faca-67c4-4cc3-895e-06bed59a08d2.png', smallImg: 'https://easy-peasy.ai/cdn-cgi/image/quality=80,format=auto,width=700/https://media.easy-peasy.ai/2f8cd8b2-88d5-4865-b07e-cafd6403b72b/bd99faca-67c4-4cc3-895e-06bed59a08d2.png', description: 'As your operational specialist, I manage schedules, coordinate between departments, and provide logistical support to ensure operational smoothness.', systemPrompt: 'You are Omar Mansour, an AI Coordinator for HRSD... Focus on logistics, scheduling, action items, and ensuring operational smoothness.' },
-                { id: 'nouf', name: 'Nouf Al-Jafali',  title: 'AI strategic consultant', largeImg: 'https://img.freepik.com/premium-photo/arab-abaya-woman-happy-using-mobile-phone-excited-smile-saudi-emirati-businesswoman_1022426-10277.jpg', smallImg: 'https://img.freepik.com/premium-photo/arab-abaya-woman-happy-using-mobile-phone-excited-smile-saudi-emirati-businesswoman_1022426-10277.jpg', description: 'As your dedicated consultant for strategic focus areas, I provide in-depth analysis, policy recommendations, and detailed briefings on the key topics you are exploring.', systemPrompt: 'You are Nouf Al-Jafali, an AI Strategy Consultant for HRSD in Saudi Arabia. Your Excellency will ask you to provide deep dives into specific strategic topics like "Strengthening Labor Market" or "Empowering Society & Individuals" or "Enabling the Non-Profit Sector" or "Strategic Partnerships". Your responses should be comprehensive, insightful, and structured, providing detailed analysis, current status, and strategic recommendations related to the specific topic at hand.'}			];
+                { id: 'layla', name: 'Layla Al-Farsi', title: 'Data Analytics Agent', largeImg: 'https://easy-peasy.ai/cdn-cgi/image/quality=80,format=auto,width=700/https://media.easy-peasy.ai/27feb2bb-aeb4-4a83-9fb6-8f3f2a15885e/3f6fb035-158b-47f1-8c69-5fe9a407d4f2.png', smallImg: 'https://easy-peasy.ai/cdn-cgi/image/quality=80,format=auto,width=700/https://media.easy-peasy.ai/27feb2bb-aeb4-4a83-9fb6-8f3f2a15885e/3f6fb035-158b-47f1-8c69-5fe9a407d4f2.png', description: 'As your data expert, I provide Your Excellency with key insights from around HRSD, identify trends, and offer detailed analytical support for your objectives.', systemPrompt: 'You are Layla Al-Farsi, a Data Analytics Agent for HRSD in Saudi Arabia. Your Excellency requires data-driven insights. ALWAYS respond with concise analysis, key findings, and data points. When a visualization is appropriate (e.g., trends, comparisons), provide the necessary data in a Chart.js-compatible JSON format strictly enclosed within `[CHART_DATA:{...}]`. The JSON MUST be complete and valid. It MUST contain "type" (e.g., "bar", "line", "pie"), "labels" (array of strings), and "datasets" (array of objects, each with "label" and "data" properties). Example: `[CHART_DATA:{"type": "bar", "labels": ["Q1", "Q2"], "datasets": [{"label": "Metric A", "data": [10, 15]}]}]` Always include a brief textual explanation of the chart\'s insights immediately following the chart data marker. Focus strictly on providing analytical insights derived from data. Avoid conversational filler unless specifically asked.', capabilities: ['data', 'metrics', 'charts', 'statistics', 'analysis', 'kpis', 'reports'] }, // Added "MUST be complete and valid"
+                { id: 'omar', name: 'Omar Mansour', title: 'AI Coordinator', largeImg: 'https://easy-peasy.ai/cdn-cgi/image/quality=80,format=auto,width=700/https://media.easy-peasy.ai/2f8cd8b2-88d5-4865-b07e-cafd6403b72b/bd99faca-67c4-4cc3-895e-06bed59a08d2.png', smallImg: 'https://easy-peasy.ai/cdn-cgi/image/quality=80,format=auto,width=700/https://media.easy-peasy.ai/2f8cd8b2-88d5-4865-b07e-cafd6403b72b/bd99faca-67c4-4cc3-895e-06bed59a08d2.png', description: 'As your operational specialist, I manage schedules, coordinate between departments, and provide logistical support to ensure operational smoothness.', systemPrompt: 'You are Omar Mansour, an AI Coordinator for HRSD... Focus on logistics, scheduling, action items, and ensuring operational smoothness.', capabilities: ['meetings', 'coordination', 'scheduling', 'workflow', 'logistics', 'tasks']},
+                { id: 'nouf', name: 'Nouf Al-Jafali',  title: 'AI strategic consultant', largeImg: 'https://img.freepik.com/premium-photo/arab-abaya-woman-happy-using-mobile-phone-excited-smile-saudi-emirati-businesswoman_1022426-10277.jpg', smallImg: 'https://img.freepik.com/premium-photo/arab-abaya-woman-happy-using-mobile-phone-excited-smile-saudi-emirati-businesswoman_1022426-10277.jpg', description: 'As your dedicated consultant for strategic focus areas, I provide in-depth analysis, policy recommendations, and detailed briefings on the key topics you are exploring.', systemPrompt: 'You are Nouf Al-Jafali, an AI Strategy Consultant for HRSD in Saudi Arabia. Your Excellency will ask you to provide deep dives into specific strategic topics like "Strengthening Labor Market" or "Empowering Society & Individuals" or "Enabling the Non-Profit Sector" or "Strategic Partnerships". Your responses should be comprehensive, insightful, and structured, providing detailed analysis, current status, and strategic recommendations related to the specific topic at hand.', capabilities: ['strategy', 'consulting', 'policy', 'planning', 'recommendations', 'risks']}			];
             let currentPersonaId = 'hakim';
             let selectedAgents = ['hakim']; // Multi-agent: Array of selected agent IDs
             let isMultiAgentMode = false; // Mode: false = single agent, true = multi-agent
@@ -4208,6 +4456,12 @@
             const meetingsModal = document.getElementById("meetingsModal");
             const dayActionModal = document.getElementById("dayActionModal");
             const messageModal = document.getElementById("messageModal"); // New modal
+            const agentInfoModal = document.getElementById("agentInfoModal");
+            const agentInfoAvatar = document.getElementById("agent-info-avatar");
+            const agentInfoName = document.getElementById("agent-info-name");
+            const agentInfoRole = document.getElementById("agent-info-role");
+            const agentInfoDescription = document.getElementById("agent-info-description");
+            const modeStatusLabel = document.getElementById("modeStatusLabel");
             const closeModalBtns = document.querySelectorAll('.close-button');
             const personaOptionsContainer = document.getElementById('personaOptions');
             const navButtons = document.querySelectorAll('.nav-tabs .nav-button'); // More specific selector
@@ -4286,7 +4540,18 @@
                             <div class="agent-select-name">${agent.name}</div>
                             <div class="agent-select-title">${agent.title}</div>
                         </div>
+                        <button class="agent-info-btn" data-agent-id="${agent.id}" title="More about ${agent.name}">
+                            <i class="fas fa-info"></i>
+                        </button>
                     `;
+                    
+                    const infoBtn = div.querySelector('.agent-info-btn');
+                    if (infoBtn) {
+                        infoBtn.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            showAgentInfo(agent.id);
+                        });
+                    }
                     
                     // Handle checkbox change
                     const checkbox = div.querySelector('.agent-checkbox');
@@ -4312,6 +4577,8 @@
                 if (countBadge) {
                     countBadge.textContent = selectedAgents.length;
                 }
+                
+                updateModeStatusLabel();
             }
             
             function toggleAgentSelection(agentId) {
@@ -4329,7 +4596,21 @@
                     // Select
                     selectedAgents.push(agentId);
                 }
+                // Update multi-agent mode based on number of selected agents
+                isMultiAgentMode = selectedAgents.length > 1;
                 renderAgentSelection();
+                updateModeStatusLabel();
+            }
+            
+            function showAgentInfo(agentId) {
+                if (!agentInfoModal) return;
+                const agent = personaData.find(p => p.id === agentId);
+                if (!agent) return;
+                if (agentInfoAvatar) agentInfoAvatar.src = agent.largeImg || agent.smallImg;
+                if (agentInfoName) agentInfoName.textContent = agent.name;
+                if (agentInfoRole) agentInfoRole.textContent = agent.title;
+                if (agentInfoDescription) agentInfoDescription.textContent = agent.description;
+                openModal(agentInfoModal);
             }
             
             function getSelectedAgentsInfo() {
@@ -4337,32 +4618,24 @@
             }
             
             // --- Mode Toggle Functions ---
-            function toggleMode(multiMode) {
-                isMultiAgentMode = multiMode;
+            function toggleMode() {
+                isMultiAgentMode = true;
                 
                 const singleAgentDisplay = document.getElementById('singleAgentDisplay');
                 const multiAgentContent = document.getElementById('multiAgentContent');
-                const agentSelectorBtn = document.getElementById('agentSelectorBtn');
-                const singleModeLabel = document.getElementById('singleModeLabel');
-                const multiModeLabel = document.getElementById('multiModeLabel');
                 
-                if (isMultiAgentMode) {
-                    // Multi-agent mode
-                    if (singleAgentDisplay) singleAgentDisplay.classList.remove('active');
-                    if (multiAgentContent) multiAgentContent.classList.remove('hidden');
-                    if (agentSelectorBtn) agentSelectorBtn.classList.remove('active');
-                    if (singleModeLabel) singleModeLabel.classList.remove('active');
-                } else {
-                    // Single agent mode
-                    if (singleAgentDisplay) singleAgentDisplay.classList.add('active');
-                    if (multiAgentContent) multiAgentContent.classList.add('hidden');
-                    if (agentSelectorBtn) agentSelectorBtn.classList.add('active');
-                    if (multiModeLabel) multiModeLabel.classList.remove('active');
-                    if (singleModeLabel) singleModeLabel.classList.add('active');
-                    
-                    // Update single agent display
-                    updateSingleAgentDisplay(currentPersonaId);
-                }
+                if (singleAgentDisplay) singleAgentDisplay.classList.remove('active');
+                if (multiAgentContent) multiAgentContent.classList.remove('hidden');
+                
+                updateModeStatusLabel();
+            }
+            
+            function updateModeStatusLabel() {
+                if (!modeStatusLabel) return;
+                const isMulti = selectedAgents.length > 1;
+                modeStatusLabel.textContent = isMulti ? 'Multi Agent Mode' : 'Single Agent Mode';
+                modeStatusLabel.classList.toggle('mode-status-multi', isMulti);
+                modeStatusLabel.classList.toggle('mode-status-single', !isMulti);
             }
             
             function updateSingleAgentDisplay(agentId) {
@@ -4647,19 +4920,21 @@
 
                 if (!summarizeBtn || !prepareBtn) return;
 
-                // Check if event is in the past
-                let isPast = false;
-                if (dateStr) {
-                    const eventDate = new Date(dateStr + 'T00:00:00');
-                    const todayDateOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-                    isPast = eventDate < todayDateOnly;
-                }
+                // Check if event is in the past (date + time)
+                const isPast = dateStr ? isEventInPast(dateStr, time) : false;
 
                 // Clone and replace buttons to remove old event listeners
                 const newSummarizeBtn = summarizeBtn.cloneNode(true);
                 summarizeBtn.parentNode.replaceChild(newSummarizeBtn, summarizeBtn);
                 const newPrepareBtn = prepareBtn.cloneNode(true);
                 prepareBtn.parentNode.replaceChild(newPrepareBtn, prepareBtn);
+
+                // Summaries only for completed meetings
+                if (isPast) {
+                    newSummarizeBtn.style.display = '';
+                } else {
+                    newSummarizeBtn.style.display = 'none';
+                }
 
                 // Hide prepare button for past meetings
                 if (isPast) {
@@ -4674,10 +4949,26 @@
                         : `Please provide a brief summary for my upcoming event: "${title}".`;
                     switchToAgentAndSendPrompt(prompt);
                 });
-                newPrepareBtn.addEventListener('click', () => {
+				
+				newPrepareBtn.addEventListener('click', () => {
                     const prompt = `What preparations do I need for my event: "${title}"? Please consult and advise.`;
-                    switchToAgentAndSendPrompt(prompt);
-                });
+                    switchToAgentAndSendPrompt(prompt, 'nouf');
+
+					// Route
+				    const { leadAgent, activeAgents } = selectLeadAgent(
+				        prompt,
+				        ['nouf', 'omar', 'layla', 'hakim']
+				    );
+				
+				    isMultiAgentMode = true;
+				
+				    // Agents respond (UI already ready)
+				    activeAgents.forEach(aid => {
+				        sendMessageToAgent(prompt, aid, { silent: aid !== leadAgent });
+				    });
+				
+				    closeModal(document.getElementById('event-modal'));
+								});
 
                 openModal(eventModal);
             }
@@ -4709,42 +5000,42 @@
             }
 
             function buildMeetingColumns(eventsArray, parentEl) {
-                const todayDateOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+                const now = getRiyadhDate();
+                const todayDateOnly = new Date(now.getFullYear(), now.getMonth(), now.getDate());
                 const categories = {
                     today: [],
                     future: [],
                     past: []
                 };
 
-                const parseTimeToMinutes = (timeStr) => {
-                    if (!timeStr) return 24 * 60;
-                    if (timeStr === 'EOD') return 17 * 60;
-                    const parts = timeStr.match(/(\d+):(\d+)\s*(AM|PM)?/i);
-                    if (parts) {
-                        let hours = parseInt(parts[1]);
-                        const minutes = parseInt(parts[2]);
-                        const period = parts[3] ? parts[3].toUpperCase() : '';
-                        if (period === 'PM' && hours !== 12) hours += 12;
-                        if (period === 'AM' && hours === 12) hours = 0;
-                        return hours * 60 + minutes;
-                    }
-                    return 24 * 60;
-                };
-
+                const deduped = [];
+                const seen = new Set();
                 eventsArray.forEach(eventEl => {
+                    if (!eventEl || !eventEl.dataset) return;
+                    const key = `${eventEl.dataset.date}-${eventEl.dataset.eventTitle}-${eventEl.dataset.eventTime}`;
+                    if (seen.has(key)) return;
+                    seen.add(key);
+                    deduped.push(eventEl);
+                });
+
+                deduped.forEach(eventEl => {
                     const eventDateStr = eventEl.dataset.date;
-                    let bucket = 'future';
-                    if (eventDateStr) {
-                        const eventDate = new Date(eventDateStr + 'T00:00:00');
-                        if (eventDate.toDateString() === todayDateOnly.toDateString()) {
-                            bucket = 'today';
-                        } else if (eventDate < todayDateOnly) {
-                            bucket = 'past';
-                        } else {
-                            bucket = 'future';
-                        }
+                    if (!eventDateStr) {
+                        categories.future.push(eventEl);
+                        return;
                     }
-                    categories[bucket].push(eventEl);
+
+                    if (isEventInPast(eventDateStr, eventEl.dataset.eventTime, now)) {
+                        categories.past.push(eventEl);
+                        return;
+                    }
+
+                    const eventDate = new Date(eventDateStr + 'T00:00:00');
+                    if (eventDate.toDateString() === todayDateOnly.toDateString()) {
+                        categories.today.push(eventEl);
+                    } else {
+                        categories.future.push(eventEl);
+                    }
                 });
 
                 const sortEvents = (eventsArray, order = 'asc') => {
@@ -4754,8 +5045,8 @@
                         if (dateA !== dateB) {
                             return order === 'asc' ? dateA.localeCompare(dateB) : dateB.localeCompare(dateA);
                         }
-                        const minutesA = parseTimeToMinutes(a.dataset.eventTime || '');
-                        const minutesB = parseTimeToMinutes(b.dataset.eventTime || '');
+                        const minutesA = parseEventTimeToMinutes(a.dataset.eventTime || '');
+                        const minutesB = parseEventTimeToMinutes(b.dataset.eventTime || '');
                         return order === 'asc' ? minutesA - minutesB : minutesB - minutesA;
                     });
                 };
@@ -4821,6 +5112,60 @@
 
                 parentEl.appendChild(columnsWrapper);
             }
+				
+			function selectLeadAgent(prompt, allowedAgents) {
+			    const lower = prompt.toLowerCase();
+			
+			    // Filter to only active agents you passed in
+			    const active = personaData
+			        .filter(a => allowedAgents.includes(a.id) && a.isActive)
+			        .map(a => a.id);
+			
+			    // PRIORITY ROUTING LOGIC
+			    // 1. Consulting / preparation / strategy → Nouf
+			    if (lower.includes("prepare") ||
+			        lower.includes("preparation") ||
+			        lower.includes("consult") ||
+			        lower.includes("advise") ||
+			        lower.includes("guidance") ||
+			        lower.includes("analysis") ||
+			        lower.includes("insight")) {
+			        if (active.includes("nouf")) {
+			            return { leadAgent: "nouf", activeAgents: active };
+			        }
+			    }
+			
+			    // 2. Operations / scheduling → Omar
+			    if (lower.includes("schedule") ||
+			        lower.includes("meeting") && !lower.includes("prepare") ||
+			        lower.includes("coordinate") ||
+			        lower.includes("arrange")) {
+			        if (active.includes("omar")) {
+			            return { leadAgent: "omar", activeAgents: active };
+			        }
+			    }
+			
+			    // 3. Data / charts → Layla
+			    if (lower.includes("chart") ||
+			        lower.includes("data") ||
+			        lower.includes("graph") ||
+			        lower.includes("statistics") ||
+			        lower.includes("report")) {
+			        if (active.includes("layla")) {
+			            return { leadAgent: "layla", activeAgents: active };
+			        }
+			    }
+			
+			    // 4. Fallback → Hakim (executive reasoning)
+			    if (active.includes("hakim")) {
+			        return { leadAgent: "hakim", activeAgents: active };
+			    }
+			
+			    // Safety fallback (should never happen)
+			    return { leadAgent: active[0], activeAgents: active };
+			}
+
+
 
             function openMeetingsModal(topicId, topicTitle) {
                 const list = document.getElementById('meetings-modal-list');
@@ -4858,13 +5203,13 @@
                 const personaId = agentId || currentPersonaId;
                 const persona = personaData.find(p => p.id === personaId);
                 const avatarSrc = sender === 'user'
-                    ? 'https://placehold.co/40x40/28a745/ffffff?text=A'
+                    ? 'https://pbs.twimg.com/profile_images/1902451967101636610/TQ-VQEPY_400x400.jpg'
                     : (persona ? persona.smallImg : 'https://placehold.co/40x40/00A99D/ffffff?text=AI');
 
                 const messageBubble = document.createElement('div');
                 messageBubble.className = `message-bubble ${sender}`;
 
-                // Create and append avatar image
+                // Create avatar image
                 const avatarImg = document.createElement('img');
                 avatarImg.src = avatarSrc;
                 avatarImg.alt = `${sender} Avatar`;
@@ -4872,7 +5217,6 @@
                 if (sender === 'agent') {
                     avatarImg.setAttribute('data-persona-avatar', '');
                 }
-                messageBubble.appendChild(avatarImg); // Append image first
 
                 const contentDiv = document.createElement('div');
                 contentDiv.className = 'content';
@@ -4948,8 +5292,15 @@
                     contentDiv.textContent = textContent;
                 }
 
-                 // Append contentDiv to messageBubble
-                 messageBubble.appendChild(contentDiv);
+                // For user messages, append content first, then avatar (so avatar appears on right)
+                // For agent messages, append avatar first, then content (so avatar appears on left)
+                if (sender === 'user') {
+                    messageBubble.appendChild(contentDiv);
+                    messageBubble.appendChild(avatarImg);
+                } else {
+                    messageBubble.appendChild(avatarImg);
+                    messageBubble.appendChild(contentDiv);
+                }
 
                  // Append the complete bubble to chatMessages
                 if (chatMessages) { // Ensure chatMessages exists
@@ -5089,11 +5440,8 @@
                 const typingBubble = document.createElement('div');
                 typingBubble.id = 'typing-indicator';
                 typingBubble.className = 'message-bubble agent';
-                 const persona = personaData.find(p => p.id === currentPersonaId);
-                 const avatarSrc = persona ? persona.smallImg : 'https://placehold.co/40x40/00A99D/ffffff?text=AI'; // Fallback
 
                 typingBubble.innerHTML = `
-                    <img src="${avatarSrc}" alt="Agent Avatar" class="avatar" data-persona-avatar>
                     <div class="content">
                        <div class="typing-indicator">
                             <span></span><span></span><span></span>
@@ -5123,137 +5471,148 @@
                     // Multi-agent mode: Hakim orchestrates and routes to appropriate agents
                     await orchestrateMultiAgentResponse(userMessage);
                 } else {
-                    // Single agent mode: send to current persona only
+                    // Single agent mode: send to the selected agent (use selectedAgents[0] instead of currentPersonaId)
+                    const selectedAgent = selectedAgents.length > 0 ? selectedAgents[0] : currentPersonaId;
                     showTypingIndicator();
-                    await sendMessageToAgent(userMessage, currentPersonaId);
+                    await sendMessageToAgent(userMessage, selectedAgent);
                 }
             }
             
             // Smart agent orchestration: Hakim analyzes prompt and routes to appropriate agents
+            // Replace existing orchestrateMultiAgentResponse with this improved version
             async function orchestrateMultiAgentResponse(userMessage) {
                 const agents = getSelectedAgentsInfo();
-                
-                // If only one agent selected, just send to that agent
+
                 if (agents.length === 1) {
                     showTypingIndicator();
                     await sendMessageToAgent(userMessage, agents[0].id);
                     return;
                 }
-                
-                // Multi-agent orchestration: Hakim decides who should respond
+
+                // Stronger orchestration prompt -- discourage including Hakim unless strictly necessary.
                 const orchestrationPrompt = `You are Hakim Nüruddin, the AI Executive Office Agent coordinating a team of specialists. Analyze this user request and determine which agents should respond:
 
-User Request: "${userMessage}"
+            User Request: "${userMessage}"
 
-Available Agents:
-${agents.map(a => `- ${a.name} (${a.id}): ${a.title}`).join('\n')}
+            Available Agents:
+            ${agents.map(a => `- ${a.name} (${a.id}): ${a.title}`).join('\n')}
 
-Agent Specializations:
-- Hakim (hakim): Strategic insights, executive summaries, high-level decisions, leadership advice
-- Layla (layla): Data analysis, charts, statistics, metrics, trends, quantitative insights
-- Omar (omar): Operational coordination, task management, scheduling, workflow optimization
-- Nouf (nouf): In-depth analysis and consulting on specific strategic focus areas 
+            Agent Specializations:
+            - Hakim (hakim): Strategic insights, executive summaries, high-level decisions, leadership advice
+            - Layla (layla): Data analysis, charts, statistics, metrics, trends, quantitative insights
+            - Omar (omar): Operational coordination, task management, scheduling, workflow optimization
+            - Nouf (nouf): In-depth analysis and consulting on specific strategic focus areas
 
-Instructions:
-1. Analyze the user's request carefully
-2. Determine which agent(s) are MOST appropriate to answer
-3. Respond with ONLY a JSON object in this format:
-{
-  "agents": ["agent_id1", "agent_id2"],
-  "reasoning": "Brief explanation of why these agents"
-}
+            Instructions:
+            1. Analyze the user's request carefully.
+            2. Determine which agent(s) are MOST appropriate to answer.
+            3. IMPORTANT: Do NOT include yourself (hakim) in the "agents" list unless the user explicitly requires a strategic/executive answer that only Hakim can deliver. Prefer specialists for concrete tasks (Layla/Omar/Nouf).
+            4. Respond with ONLY a JSON object in this format:
+            {
+            "agents": ["agent_id1", "agent_id2"],
+            "reasoning": "Brief explanation of why these agents"
+            }
 
-Rules:
-- Include Hakim if the query needs strategic/executive perspective
-- Include Layla if the query needs data analysis, charts, or metrics
-- Include Omar if the query needs operational/task coordination
-- Can include 1, 2, or all 3 agents depending on the request
-- Choose agents that add unique value, not redundant perspectives
-- Include Nouf if the query asks for a deep dive into a specific strategic focus area (e.g., "labor market", "non-profit sector", "empowerment").
-
-RESPOND ONLY WITH VALID JSON. NO OTHER TEXT.`;
+            RESPOND ONLY WITH VALID JSON. NO OTHER TEXT.`;
 
                 try {
                     showTypingIndicator();
-                    
-                    // Send orchestration request to Hakim
                     const orchestrationResponse = await sendOrchestrationRequest(orchestrationPrompt);
                     removeTypingIndicator();
-                    
+
                     if (!orchestrationResponse) {
-                        // Fallback: use all selected agents
                         console.warn("Orchestration failed, using all selected agents");
                         for (let i = 0; i < agents.length; i++) {
                             showTypingIndicator();
                             if (i > 0) await new Promise(resolve => setTimeout(resolve, 500));
-                            await sendMessageToAgent(userMessage, agents[i].id);
+                            // silent true so unsuccessful agents don't spam error messages
+                            await sendMessageToAgent(userMessage, agents[i].id, 3, 1000, { silent: true });
                         }
                         return;
                     }
-                    
+
                     // Parse orchestration response
                     let routingDecision;
                     try {
                         let jsonText = orchestrationResponse.trim();
-                        // Remove markdown code blocks if present
                         jsonText = jsonText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
                         routingDecision = JSON.parse(jsonText);
                     } catch (e) {
                         console.error("Failed to parse orchestration JSON:", e, orchestrationResponse);
-                        // Fallback: use all selected agents
+                        // Fallback: use all selected agents (silent)
                         for (let i = 0; i < agents.length; i++) {
                             showTypingIndicator();
                             if (i > 0) await new Promise(resolve => setTimeout(resolve, 500));
-                            await sendMessageToAgent(userMessage, agents[i].id);
+                            await sendMessageToAgent(userMessage, agents[i].id, 3, 1000, { silent: true });
                         }
                         return;
                     }
-                    
-                    // Show orchestration decision (optional - can be removed for cleaner UX)
+                    // Filter to only active agents
+                    const activeOnly = routingDecision.agents.filter(id =>
+                        agents.some(a => a.id === id)   // agents = active agents
+                    );
+
+                    // Show routing note to the user (non-noisy)
                     const orchestrationNote = document.createElement('div');
                     orchestrationNote.className = 'agent-discussion-indicator';
                     orchestrationNote.style.fontSize = '0.85rem';
-                    orchestrationNote.style.opacity = '0.8';
-                    orchestrationNote.innerHTML = `<i class="fas fa-route"></i> Hakim routing to: ${routingDecision.agents.map(id => {
+                    orchestrationNote.style.opacity = '0.85';
+
+                    orchestrationNote.innerHTML = `<i class="fas fa-route"></i> Hakim routing to: ${activeOnly.map(id => {
                         const agent = personaData.find(p => p.id === id);
                         return agent ? agent.name.split(' ')[0] : id;
                     }).join(', ')}`;
+
                     if (chatMessages) {
                         chatMessages.appendChild(orchestrationNote);
                         chatMessages.scrollTop = chatMessages.scrollHeight;
                     }
-                    
-                    // Send to selected agents
-                    const selectedAgentIds = routingDecision.agents.filter(id => 
+
+
+                    // Filter only agents actually selected by the user
+                    const selectedAgentIds = routingDecision.agents.filter(id =>
                         agents.some(a => a.id === id)
                     );
-                    
+
                     if (selectedAgentIds.length === 0) {
-                        // Fallback if no valid agents selected
+                        // fallback: use the first selected agent
                         selectedAgentIds.push(agents[0].id);
                     }
-                    
+
+                    // Send to chosen agents. Use silent: true so non-responses don't become user-facing errors.
                     for (let i = 0; i < selectedAgentIds.length; i++) {
                         showTypingIndicator();
                         if (i > 0) await new Promise(resolve => setTimeout(resolve, 500));
-                        await sendMessageToAgent(userMessage, selectedAgentIds[i]);
+
+                        const aid = selectedAgentIds[i];
+
+                        // If Hakim is included, pass the safe responderSystemPrompt if defined
+                        if (aid === 'hakim') {
+                            const hakimPersona = personaData.find(p => p.id === 'hakim');
+                            const override = (hakimPersona && hakimPersona.responderSystemPrompt) ? hakimPersona.responderSystemPrompt : null;
+                            await sendMessageToAgent(userMessage, 'hakim', 3, 1000, { systemPromptOverride: override, silent: true });
+                        } else {
+                            await sendMessageToAgent(userMessage, aid, 3, 1000, { silent: true });
+                        }
                     }
-                    
+
                 } catch (error) {
                     console.error("Orchestration error:", error);
                     removeTypingIndicator();
-                    // Fallback: send to all selected agents
+                    // Fallback: send to all selected agents (silent)
                     for (let i = 0; i < agents.length; i++) {
                         showTypingIndicator();
                         if (i > 0) await new Promise(resolve => setTimeout(resolve, 500));
-                        await sendMessageToAgent(userMessage, agents[i].id);
+                        await sendMessageToAgent(userMessage, agents[i].id, 3, 1000, { silent: true });
                     }
                 }
             }
+
             
             // Special function for orchestration requests (no display, just return response)
             async function sendOrchestrationRequest(prompt, retries = 2) {
-                const apiKey = "AIzaSyAjp8CltKCJXv7OXhZ6GIArcO_1DhUO_gs";
+                //const apiKey = "AIzaSyCRFXs-Ysnoy2swH1yjqZYoRMNC4HTpv_c";
+				const apiKey = "AIzaSyCYSpPX4S9OYLmBfhfBliKeIegolUacFw4";
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
 
                 const payload = {
@@ -5293,7 +5652,8 @@ RESPOND ONLY WITH VALID JSON. NO OTHER TEXT.`;
             }
             
             async function sendMessageToAgent(message, agentId, retries = 3, delay = 1000) {
-                const apiKey = "AIzaSyAjp8CltKCJXv7OXhZ6GIArcO_1DhUO_gs";
+                // const apiKey = "AIzaSyCRFXs-Ysnoy2swH1yjqZYoRMNC4HTpv_c";
+				const apiKey = "AIzaSyCYSpPX4S9OYLmBfhfBliKeIegolUacFw4";
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
 
                 const persona = personaData.find(p => p.id === agentId);
@@ -5340,31 +5700,31 @@ RESPOND ONLY WITH VALID JSON. NO OTHER TEXT.`;
                     const candidate = result.candidates?.[0];
                     const agentResponseText = candidate?.content?.parts?.[0]?.text;
 
-                    if (agentResponseText) {
-                        displayMessage('agent', agentResponseText, agentId);
-                        // Add successful AI response to history
-                        chatHistory.push({ role: 'model', parts: [{ text: agentResponseText }] });
-                    } else {
-                        // In multi-agent mode, silently skip empty responses (agent wasn't selected to respond)
-                        if (isMultiAgentMode && !candidate?.finishReason && !result?.promptFeedback?.blockReason) {
-                            // Silently skip - this agent wasn't meant to respond
-                            console.log(`Agent ${agentId} returned empty response in multi-agent mode - skipping`);
-                            return;
-                        }
-                        
-                        let errorText = "I apologize, but I couldn't process that request fully. Please try rephrasing.";
-                        if (candidate && candidate.finishReason && candidate.finishReason !== 'STOP') {
-                            errorText = `I'm sorry, my response was stopped due to: ${candidate.finishReason.toLowerCase().replace(/_/g, ' ')}.`;
-                            console.warn("Gemini finishReason:", candidate.finishReason, candidate.safetyRatings);
-                        } else if (result.promptFeedback && result.promptFeedback.blockReason) {
-                            errorText = `I'm sorry, your prompt could not be processed due to: ${result.promptFeedback.blockReason.toLowerCase().replace(/_/g, ' ')}.`;
-                            console.warn("Gemini promptFeedback:", result.promptFeedback);
-                        } else if (!agentResponseText) {
-                            console.warn("Gemini response missing text content:", result);
-                            errorText = "I received an empty response. Could you please try asking in a different way?";
-                        }
-                        displayMessage('agent', errorText, agentId);
+                if (agentResponseText) {
+                    displayMessage('agent', agentResponseText, agentId);
+                    // Add successful AI response to history
+                    chatHistory.push({ role: 'model', parts: [{ text: agentResponseText }] });
+                } else {
+                    // In multi-agent mode, silently skip empty responses (agent wasn't selected to respond)
+                    if (isMultiAgentMode && !candidate?.finishReason && !result?.promptFeedback?.blockReason) {
+                        // Silently skip - this agent wasn't meant to respond
+                        console.log(`Agent ${agentId} returned empty response in multi-agent mode - skipping`);
+                        return;
                     }
+                    
+                    let errorText = "I apologize, but I couldn't process that request fully. Please try rephrasing.";
+                    if (candidate && candidate.finishReason && candidate.finishReason !== 'STOP') {
+                        errorText = `I'm sorry, my response was stopped due to: ${candidate.finishReason.toLowerCase().replace(/_/g, ' ')}.`;
+                        console.warn("Gemini finishReason:", candidate.finishReason, candidate.safetyRatings);
+                    } else if (result.promptFeedback && result.promptFeedback.blockReason) {
+                        errorText = `I'm sorry, your prompt could not be processed due to: ${result.promptFeedback.blockReason.toLowerCase().replace(/_/g, ' ')}.`;
+                        console.warn("Gemini promptFeedback:", result.promptFeedback);
+                    } else if (!agentResponseText) {
+                        console.warn("Gemini response missing text content:", result);
+                        //errorText = "I received an empty response. Could you please try asking in a different way?";
+                    }
+                    displayMessage('agent', errorText, agentId);
+                }
                 } catch (error) {
                     console.error('Error fetching from Gemini API:', error.message);
                     removeTypingIndicator();
@@ -5450,34 +5810,27 @@ RESPOND ONLY WITH VALID JSON. NO OTHER TEXT.`;
             }
             
             // New function for agent discussion with separate context
-            async function sendMessageToAgentDiscussion(prompt, agentId, previousContext = [], retries = 3, delay = 1000) {
-                const apiKey = "AIzaSyAjp8CltKCJXv7OXhZ6GIArcO_1DhUO_gs";
+            // Replace your existing sendMessageToAgent with this updated function
+            async function sendMessageToAgent(message, agentId, retries = 3, delay = 1000, options = {}) {
+                // options: { systemPromptOverride: string|null, silent: boolean }
+                options = Object.assign({ systemPromptOverride: null, silent: false }, options);
+
+                // const apiKey = "AIzaSyCRFXs-Ysnoy2swH1yjqZYoRMNC4HTpv_c";
+				const apiKey = "AIzaSyCYSpPX4S9OYLmBfhfBliKeIegolUacFw4";
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
 
                 const persona = personaData.find(p => p.id === agentId);
-                let systemPromptText = persona ? persona.systemPrompt : 'You are a helpful assistant.';
-                
-                // Modify Layla's system prompt for discussions to avoid Chart.js conflicts
-                if (agentId === 'layla') {
-                    systemPromptText = 'You are Layla Al-Farsi, a Data Analytics Agent for HRSD in Saudi Arabia. In this discussion, provide data-driven insights and key analytical observations. Focus on strategic insights rather than detailed visualizations. Be concise and collaborative.';
-                }
-                
-                // Simplify prompts for discussions
-                systemPromptText += ' This is a collaborative discussion with other agents. Be concise (2-3 paragraphs maximum) and focus on your unique perspective.';
+                // Prefer override if provided (this is the critical bit).
+                const systemPromptText = options.systemPromptOverride || (persona ? persona.systemPrompt : 'You are a helpful assistant.');
 
-                // Build conversation history for this agent
-                const conversationHistory = [
-                    { role: 'user', parts: [{ text: prompt }] }
-                ];
-
+                // Build payload - reuse chatHistory but keep it explicit
                 const payload = {
-                    contents: conversationHistory,
+                    contents: chatHistory,
                     systemInstruction: {
                         parts: [{ text: `${systemPromptText} Your user is a high-level executive ("Your Excellency"). The current date and time is ${new Date().toLocaleString('en-US', { timeZone: 'Asia/Riyadh' })}.` }]
                     },
                     generationConfig: {
-                        maxOutputTokens: 1024, // Shorter for discussions
-                        temperature: 0.8, // Slightly higher for variety
+                        maxOutputTokens: 8192,
                     },
                     safetySettings: [
                         { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
@@ -5498,11 +5851,11 @@ RESPOND ONLY WITH VALID JSON. NO OTHER TEXT.`;
 
                     if (!response.ok) {
                         if (!(response.status === 429 || response.status >= 500)) {
-                           console.error(`API Error for ${agentId}:`, response.status, response.statusText);
+                        console.error(`API Error: ${response.status} ${response.statusText}`, await response.text());
                         }
                         if ((response.status === 429 || response.status >= 500) && retries > 0) {
                             await new Promise(resolve => setTimeout(resolve, delay));
-                            return sendMessageToAgentDiscussion(prompt, agentId, previousContext, retries - 1, delay * 2);
+                            return sendMessageToAgent(message, agentId, retries - 1, delay * 2, options);
                         }
                         throw new Error(`API error: ${response.status} ${response.statusText}`);
                     }
@@ -5513,50 +5866,107 @@ RESPOND ONLY WITH VALID JSON. NO OTHER TEXT.`;
 
                     if (agentResponseText) {
                         displayMessage('agent', agentResponseText, agentId);
-                        return agentResponseText;
+                        chatHistory.push({ role: 'model', parts: [{ text: agentResponseText }] });
                     } else {
-                        let errorText = `I apologize, but I couldn't contribute to the discussion at this time.`;
+                        // If multi-agent mode orchestrated this call and caller set silent, skip noisy error
+                        if (isMultiAgentMode && options.silent) {
+                            console.log(`Agent ${agentId} returned empty response in multi-agent mode - silent skip`);
+                            return;
+                        }
+
+                        // previous heuristics retained but cleaned up
+                        let errorText = "I apologize, but I couldn't process that request fully. Please try rephrasing.";
                         if (candidate && candidate.finishReason && candidate.finishReason !== 'STOP') {
-                            console.warn(`${agentId} finishReason:`, candidate.finishReason);
-                            errorText = `My response was blocked: ${candidate.finishReason.toLowerCase().replace(/_/g, ' ')}.`;
+                            errorText = `I'm sorry, my response was stopped due to: ${candidate.finishReason.toLowerCase().replace(/_/g, ' ')}.`;
+                            console.warn("Gemini finishReason:", candidate.finishReason, candidate.safetyRatings);
+                        } else if (result.promptFeedback && result.promptFeedback.blockReason) {
+                            errorText = `I'm sorry, your prompt could not be processed due to: ${result.promptFeedback.blockReason.toLowerCase().replace(/_/g, ' ')}.`;
+                            console.warn("Gemini promptFeedback:", result.promptFeedback);
+                        } else if (!agentResponseText) {
+                            console.warn("Gemini response missing text content:", result);
                         }
                         displayMessage('agent', errorText, agentId);
-                        return null;
                     }
                 } catch (error) {
-                    console.error(`Error in discussion for ${agentId}:`, error.message);
+                    console.error('Error fetching from Gemini API:', error.message);
                     removeTypingIndicator();
-                    displayMessage('agent', "I'm having trouble connecting. Please try the discussion again.", agentId);
-                    return null;
+                    // Only display the network/connection bubble when NOT silent
+                    if (!options.silent) {
+                        displayMessage('agent', "I'm experiencing network difficulties connecting to my services. Please check your connection or try again shortly.", agentId);
+                    } else {
+                        // Silent mode: log only
+                        console.warn(`Silent-mode network error for ${agentId}:`, error.message);
+                    }
                 }
             }
+
 
 
             // --- UI & Event Listeners ---
             function updateTodaysAgendaPanel() {
                  if (!summaryContent) return;
-                const now = today;
+                const now = getRiyadhDate();
+                today = now;
                 const todayStr = now.toISOString().split('T')[0];
-                const allEvents = Array.from(document.querySelectorAll('.event'));
+                const allEvents = Array.from(document.querySelectorAll('.event[data-date]'));
                 const todaysEvents = allEvents.filter(eventEl => eventEl.dataset.date === todayStr);
-                const upcomingEvents = todaysEvents.filter(eventEl => { /* ... time filtering logic ... */
-                    const eventTimeStr = eventEl.dataset.eventTime; let eventHour = 99; let eventMinute = 0;
-                    if (eventTimeStr === 'EOD') { eventHour = 17; } else if (eventTimeStr.includes(':')) { const parts = eventTimeStr.match(/(\d+):(\d+)\s*(AM|PM)?/i); if (parts) { eventHour = parseInt(parts[1]); eventMinute = parseInt(parts[2]); const isPM = parts[3] && parts[3].toUpperCase() === 'PM'; if (isPM && eventHour !== 12) eventHour += 12; if (!isPM && eventHour === 12) eventHour = 0; } }
-                    return now.getHours() < eventHour || (now.getHours() === eventHour && now.getMinutes() < eventMinute);
-                });
-                upcomingEvents.sort((a, b) => { /* ... time sorting logic ... */
-                    const timeStrToMinutes = (timeStr) => { if (timeStr === 'EOD') return 17 * 60; const parts = timeStr.match(/(\d+):(\d+)\s*(AM|PM)?/i); if (parts) { let hours = parseInt(parts[1]); const minutes = parseInt(parts[2]); const isPM = parts[3] && parts[3].toUpperCase() === 'PM'; if (isPM && hours !== 12) hours += 12; if (!isPM && hours === 12) hours = 0; return hours * 60 + minutes; } return 24 * 60; }; return timeStrToMinutes(a.dataset.eventTime) - timeStrToMinutes(b.dataset.eventTime);
+
+                const seen = new Set();
+                const uniqueEvents = [];
+                todaysEvents.forEach(eventEl => {
+                    const key = `${eventEl.dataset.eventTitle}-${eventEl.dataset.eventTime}`;
+                    if (!seen.has(key)) {
+                        seen.add(key);
+                        uniqueEvents.push(eventEl);
+                    }
                 });
 
-                if (upcomingEvents.length > 0) { /* ... populate with next/later events ... */
-                    const nextEvent = upcomingEvents[0]; const laterEvents = upcomingEvents.slice(1);
-                    // Wrap the most upcoming meeting in urgent highlight
-                    summaryContent.innerHTML = `<div class="urgent-meeting-highlight"><h4>Next Up: ${nextEvent.dataset.eventTitle} (${nextEvent.dataset.eventTime})</h4> <p>${nextEvent.dataset.eventDetails}</p></div>`;
-                    if (laterEvents.length > 0) { summaryContent.innerHTML += '<h4>Later Today</h4><ul>'; laterEvents.forEach(eventEl => { summaryContent.innerHTML += `<li><strong>${eventEl.dataset.eventTitle}</strong> (${eventEl.dataset.eventTime})</li>`; }); summaryContent.innerHTML += '</ul>'; }
-                } else { /* ... show completed / look ahead ... */
-                     summaryContent.innerHTML = `<h4>Today's Agenda</h4><p>No further meetings or milestones scheduled for today.</p>`;
-                    const tomorrow = new Date(now); tomorrow.setDate(now.getDate() + 1); const tomorrowStr = tomorrow.toISOString().split('T')[0]; const tomorrowsEvents = allEvents.filter(eventEl => eventEl.dataset.date === tomorrowStr); tomorrowsEvents.sort((a, b) => { /* Add sorting if needed */ });
-                    if (tomorrowsEvents.length > 0) { summaryContent.innerHTML += `<h4>Tomorrow's First Item: ${tomorrowsEvents[0].dataset.eventTitle} (${tomorrowsEvents[0].dataset.eventTime})</h4>`; }
+                const upcomingEvents = uniqueEvents.filter(eventEl => !isEventInPast(eventEl.dataset.date, eventEl.dataset.eventTime, now));
+                upcomingEvents.sort((a, b) => parseEventTimeToMinutes(a.dataset.eventTime || '') - parseEventTimeToMinutes(b.dataset.eventTime || ''));
+
+                summaryContent.innerHTML = '';
+
+                const attachAgendaClick = (element, eventEl) => {
+                    element.classList.add('agenda-summary-item');
+                    element.addEventListener('click', () => {
+                        openEventModal(eventEl.dataset.eventTitle, eventEl.dataset.eventTime, eventEl.dataset.eventDetails, eventEl.dataset.date, eventEl);
+                    });
+                };
+
+                if (upcomingEvents.length > 0) {
+                    const nextEvent = upcomingEvents[0];
+                    const laterEvents = upcomingEvents.slice(1);
+
+                    const highlight = document.createElement('div');
+                    highlight.className = 'urgent-meeting-highlight agenda-summary-item';
+                    highlight.innerHTML = `<h4>Next Up: ${nextEvent.dataset.eventTitle} (${nextEvent.dataset.eventTime || ''})</h4><p>${nextEvent.dataset.eventDetails || ''}</p>`;
+                    attachAgendaClick(highlight, nextEvent);
+                    summaryContent.appendChild(highlight);
+
+                    if (laterEvents.length > 0) {
+                        const header = document.createElement('h4');
+                        header.textContent = 'Later Today';
+                        summaryContent.appendChild(header);
+
+                        const list = document.createElement('ul');
+                        laterEvents.forEach(eventEl => {
+                            const item = document.createElement('li');
+                            item.innerHTML = `<strong>${eventEl.dataset.eventTitle}</strong> (${eventEl.dataset.eventTime || ''})`;
+                            attachAgendaClick(item, eventEl);
+                            list.appendChild(item);
+                        });
+                        summaryContent.appendChild(list);
+                    }
+                } else {
+                    summaryContent.innerHTML = `<h4>Today's Agenda</h4><p>No further meetings or milestones scheduled for today.</p>`;
+                    const tomorrow = new Date(now);
+                    tomorrow.setDate(now.getDate() + 1);
+                    const tomorrowStr = tomorrow.toISOString().split('T')[0];
+                    const tomorrowsEvents = allEvents.filter(eventEl => eventEl.dataset.date === tomorrowStr);
+                    tomorrowsEvents.sort((a, b) => parseEventTimeToMinutes(a.dataset.eventTime || '') - parseEventTimeToMinutes(b.dataset.eventTime || ''));
+                    if (tomorrowsEvents.length > 0) {
+                        summaryContent.innerHTML += `<h4>Tomorrow's First Item: ${tomorrowsEvents[0].dataset.eventTitle} (${tomorrowsEvents[0].dataset.eventTime || ''})</h4>`;
+                    }
                 }
             }
 
@@ -5659,6 +6069,34 @@ RESPOND ONLY WITH VALID JSON. NO OTHER TEXT.`;
             
             // Initialize today (will be refreshed when agenda is opened)
             let today = getRiyadhDate();
+
+            function parseEventTimeToMinutes(timeStr) {
+                if (!timeStr || typeof timeStr !== 'string') return 24 * 60;
+                if (timeStr.trim().toUpperCase() === 'EOD') return 17 * 60;
+                const parts = timeStr.match(/(\d+):(\d+)\s*(AM|PM)?/i);
+                if (parts) {
+                    let hours = parseInt(parts[1]);
+                    const minutes = parseInt(parts[2]);
+                    const period = parts[3] ? parts[3].toUpperCase() : '';
+                    if (period === 'PM' && hours !== 12) hours += 12;
+                    if (period === 'AM' && hours === 12) hours = 0;
+                    return hours * 60 + minutes;
+                }
+                return 24 * 60;
+            }
+
+            function isEventInPast(dateStr, timeStr, referenceDate = null) {
+                if (!dateStr) return false;
+                const now = referenceDate || getRiyadhDate();
+                const currentDateOnly = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                const eventDate = new Date(dateStr + 'T00:00:00');
+                if (eventDate < currentDateOnly) return true;
+                if (eventDate > currentDateOnly) return false;
+                if (!timeStr) return false;
+                const eventMinutes = parseEventTimeToMinutes(timeStr);
+                const currentMinutes = now.getHours() * 60 + now.getMinutes();
+                return eventMinutes < currentMinutes;
+            }
             
             // State for calendar navigation
             let currentWeekStart = new Date(today);
@@ -5713,7 +6151,7 @@ RESPOND ONLY WITH VALID JSON. NO OTHER TEXT.`;
                             const isMilestone = eventEl.classList.contains('event-milestone') || eventEl.dataset.eventTime === 'EOD';
                             const eventTitle = eventEl.dataset.eventTitle || '';
                             const eventTime = eventEl.dataset.eventTime || '';
-                            const pastClass = isPast ? ' past-event' : '';
+                            const pastClass = isEventInPast(dateStr, eventTime) ? ' past-event' : '';
                             cellHtml += `<div class="month-event-dot ${isMilestone ? 'milestone' : ''}${pastClass}" title="${eventTitle} - ${eventTime}"><span class="event-time">${eventTime}</span><span class="event-title-text">${eventTitle}</span></div>`;
                         });
                     }
@@ -5833,7 +6271,8 @@ RESPOND ONLY WITH VALID JSON. NO OTHER TEXT.`;
 
             // Desktop Today View Rendering
             function renderTodayView() {
-                 const todayList = document.getElementById('today-events-list'); 
+                 today = getRiyadhDate();
+                const todayList = document.getElementById('today-events-list'); 
                  const todayDateEl = document.querySelector('#today-view .today-date'); 
                  if (!todayList || !todayDateEl) return;
                  
@@ -5862,11 +6301,18 @@ RESPOND ONLY WITH VALID JSON. NO OTHER TEXT.`;
                          }
                      });
                      
-                    uniqueEvents.forEach(eventEl => { 
+                    uniqueEvents.sort((a, b) => {
+                        const minutesA = parseEventTimeToMinutes(a.dataset.eventTime || '');
+                        const minutesB = parseEventTimeToMinutes(b.dataset.eventTime || '');
+                        return minutesA - minutesB;
+                    }).forEach(eventEl => { 
                         const eventDiv = document.createElement('div');
                         eventDiv.className = 'event';
                         if (eventEl.classList.contains('event-milestone')) {
                             eventDiv.classList.add('event-milestone');
+                        }
+                        if (isEventInPast(eventEl.dataset.date, eventEl.dataset.eventTime)) {
+                            eventDiv.classList.add('past-event');
                         }
                         
                         // Create visible event rectangle with title and time
@@ -5953,9 +6399,11 @@ RESPOND ONLY WITH VALID JSON. NO OTHER TEXT.`;
                     
                     // Add events for this day - create visible rectangles with titles
                     if (eventsByDate.has(dateStr)) {
-                        eventsByDate.get(dateStr).forEach(eventEl => {
+                        const dayEvents = eventsByDate.get(dateStr);
+                        dayEvents.forEach(eventEl => {
                             const eventDiv = document.createElement('div');
-                            eventDiv.className = `event${isPast ? ' past-event' : ''}`;
+                            const eventPast = isEventInPast(dateStr, eventEl.dataset.eventTime);
+                            eventDiv.className = `event${eventPast ? ' past-event' : ''}`;
                             if (eventEl.classList.contains('event-milestone')) {
                                 eventDiv.classList.add('event-milestone');
                             }
@@ -6112,318 +6560,140 @@ RESPOND ONLY WITH VALID JSON. NO OTHER TEXT.`;
                 'strategic-partnerships': 'Strategic Partnerships'
             };
             
-            // RSS Feed sources for Saudi Arabia news (Saudi sources only)
-            // Using only the most reliable feeds to avoid rate limiting
-            const rssFeeds = [
-                // Saudi News Websites (most reliable)
-                'https://www.arabnews.com/rss.xml'
-                // Removed other feeds due to:
-                // - Nitter feeds: All failing with CORS/rate limit errors
-                // - Saudi Gazette: Returning HTML instead of XML
-                // - SPA: HTTP/2 protocol errors
-                // Can add more reliable feeds later
-            ];
+            // --- Twitter / X configuration for topic-specific news ---
+            // API key and per-topic advanced search URLs come from focus_areas_curl_commands.txt
+            const TWITTER_API_KEY = 'new1_1090c45c2b1041479b49b9062fe7b994';
             
-            // CORS proxy services (multiple fallback options, free, no API key needed)
-            const corsProxies = [
-                'https://api.allorigins.win/get?url=',
-                'https://corsproxy.io/?',
-                'https://api.codetabs.com/v1/proxy?quest='
-            ];
+            const twitterSearchConfig = {
+                'labor-market': {
+                    url: 'https://api.twitterapi.io/twitter/tweet/advanced_search?query=%28from%3AAlArabiya_Eng%20OR%20from%3Aarabnews%20OR%20from%3AalekhbariyaEN%29%20AND%20%28Saudi%20labor%20OR%20labor%20market%20OR%20Saudi%20jobs%20OR%20employment%20OR%20workforce%29&queryType=Latest&limit=20'
+                },
+                'empowerment': {
+                    url: 'https://api.twitterapi.io/twitter/tweet/advanced_search?query=%28from%3AAlArabiya_Eng%20OR%20from%3Aarabnews%20OR%20from%3AalekhbariyaEN%29%20AND%20%28saudi%20society%20OR%20saudi%20community%20OR%20saudi%20social%20development%29&queryType=Latest&limit=25'
+                },
+                'non-profit': {
+                    url: 'https://api.twitterapi.io/twitter/tweet/advanced_search?query=%28from%3AAlArabiya_Eng%20OR%20from%3Aarabnews%20OR%20from%3AalekhbariyaEN%29%20AND%20%28saudi%20donation%20OR%20saudi%20volunteer%20OR%20saudi%20non-profit%20OR%20saudi%20non-profit%20sector%20OR%20saudi%20charity%29&queryType=Latest&limit=25'
+                },
+                'strategic-partnerships': {
+                    url: 'https://api.twitterapi.io/twitter/tweet/advanced_search?query=%28from%3AAlArabiya_Eng%20OR%20from%3Aarabnews%20OR%20from%3AalekhbariyaEN%29%20AND%20%28saudi%20strategic%20partnerships%20OR%20saudi%20strategic%20agreements%20OR%20saudi%20mou%20OR%20saudi%20collaboration%29&queryType=Latest&limit=25'
+                }
+            };
             
-            // Parse RSS XML to extract articles
-            function parseRSS(xmlText) {
+            // Gemini API key for executive summaries of tweets
+            const geminiApiKey = 'AIzaSyCYSpPX4S9OYLmBfhfBliKeIegolUacFw4';
+            
+            // Fetch and summarize tweets for a given topic
+            async function fetchNewsForTopic(topicId, usedTweetUrls = []) {
+                const topicName = topicMapping[topicId] || 'HRSD initiatives';
+                const config = twitterSearchConfig[topicId];
+                
+                if (!config || !config.url) {
+                    return [];
+                }
+                
                 try {
-                    // Additional validation
-                    if (!xmlText || typeof xmlText !== 'string') {
+                    const response = await fetch(config.url, {
+                        method: 'GET',
+                        headers: {
+                            'X-API-Key': TWITTER_API_KEY,
+                            'Accept': 'application/json'
+                        }
+                    });
+                    
+                    if (!response.ok) {
+                        console.warn('Twitter API request failed for topic:', topicId, response.status);
                         return [];
                     }
                     
-                    const parser = new DOMParser();
-                    const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
+                    const data = await response.json();
                     
-                    // Check for parsing errors
-                    const parseError = xmlDoc.querySelector('parsererror');
-                    if (parseError) {
-                        // Try to extract some info even if there are minor errors
-                        const errorText = parseError.textContent || '';
-                        if (errorText.includes('async')) {
-                            // This is likely HTML, not XML - skip it
-                            return [];
-                        }
-                        console.warn('RSS parsing warning:', errorText.substring(0, 100));
+                    // The service returns an object with an array of tweets; support common field names
+                    const rawTweets = Array.isArray(data?.data)
+                        ? data.data
+                        : Array.isArray(data?.tweets)
+                            ? data.tweets
+                            : Array.isArray(data)
+                                ? data
+                                : [];
+                    
+                    if (!rawTweets.length) {
+                        return [];
                     }
                     
-                    // Try both 'item' (RSS 2.0) and 'entry' (Atom) formats
-                    const items = xmlDoc.querySelectorAll('item, entry');
-                    const articles = [];
+                    // Normalise tweets and build canonical URLs, filter out ones we've already used
+                    const availableTweets = rawTweets
+                        .map(tweet => {
+                            const tweetId = tweet.id || tweet.tweet_id || tweet.tweetId;
+                            const author = tweet.author || tweet.user || {};
+                            const username = author.userName || author.username || author.screen_name || '';
+                            const createdAt = tweet.createdAt || tweet.created_at || null;
+                            const text = tweet.text || tweet.full_text || '';
+                            const url = (username && tweetId)
+                                ? `https://twitter.com/${username}/status/${tweetId}`
+                                : '#';
+                            
+                            return {
+                                tweetId,
+                                username,
+                                displayName: author.name || username || 'Source',
+                                createdAt,
+                                text,
+                                url
+                            };
+                        })
+                        .filter(t => t.text && t.url && !usedTweetUrls.includes(t.url));
                     
-                    items.forEach(item => {
-                        const title = item.querySelector('title')?.textContent || '';
-                        const link = item.querySelector('link')?.textContent || 
-                                    item.querySelector('link')?.getAttribute('href') ||
-                                    item.querySelector('guid')?.textContent || '';
-                        const description = item.querySelector('description')?.textContent || 
-                                          item.querySelector('content')?.textContent ||
-                                          item.querySelector('summary')?.textContent ||
-                                          item.querySelector('content\\:encoded')?.textContent || '';
-                        const pubDate = item.querySelector('pubDate')?.textContent || 
-                                      item.querySelector('published')?.textContent ||
-                                      item.querySelector('updated')?.textContent || '';
-                        const source = item.querySelector('source')?.textContent || 
-                                     xmlDoc.querySelector('channel > title')?.textContent ||
-                                     xmlDoc.querySelector('feed > title')?.textContent ||
-                                     'News Source';
-                        
-                        // Clean HTML tags from description
-                        const cleanDescription = description.replace(/<[^>]*>/g, '').trim();
-                        
-                        if (title && link) {
-                            articles.push({
-                                title: title.trim(),
-                                url: link.trim(),
-                                description: cleanDescription,
-                                publishedAt: pubDate,
-                                source: source.trim()
-                            });
-                        }
+                    if (!availableTweets.length) {
+                        return [];
+                    }
+                    
+                    // Take the most recent tweets first; Twitter API is already latest-first but we sort defensively
+                    availableTweets.sort((a, b) => {
+                        const aTime = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+                        const bTime = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+                        return bTime - aTime;
                     });
                     
-                    return articles;
-                } catch (error) {
-                    console.error('Error parsing RSS:', error);
-                    return [];
-                }
-            }
-            
-            // Fetch RSS feed using CORS proxy with fallback options and rate limit handling
-            async function fetchRSSFeed(feedUrl, retryCount = 0) {
-                const maxRetries = 2;
-                
-                // Try each CORS proxy in order
-                for (const proxy of corsProxies) {
-                    try {
-                        // Add delay to avoid rate limiting (especially for retries)
-                        if (retryCount > 0) {
-                            await new Promise(resolve => setTimeout(resolve, 2000 * retryCount));
-                        }
-                        
-                        const proxyUrl = proxy + encodeURIComponent(feedUrl);
-                        const response = await fetch(proxyUrl, {
-                            method: 'GET',
-                            headers: {
-                                'Accept': 'application/xml, text/xml, */*'
-                            }
-                        });
-                        
-                        // Handle rate limiting
-                        if (response.status === 429) {
-                            if (retryCount < maxRetries) {
-                                await new Promise(resolve => setTimeout(resolve, 5000)); // Wait 5 seconds
-                                return fetchRSSFeed(feedUrl, retryCount + 1);
-                            }
-                            continue; // Try next proxy
-                        }
-                        
-                        if (!response.ok) {
-                            continue; // Try next proxy
-                        }
-                        
-                        let xmlText;
-                        
-                        // Handle different proxy response formats
-                        if (proxy.includes('allorigins.win')) {
-                            const data = await response.json();
-                            xmlText = data.contents || '';
-                        } else if (proxy.includes('codetabs.com')) {
-                            xmlText = await response.text();
-                        } else {
-                            xmlText = await response.text();
-                        }
-                        
-                        // Validate that we got XML, not HTML
-                        if (!xmlText || xmlText.trim().length === 0) {
-                            continue; // Try next proxy
-                        }
-                        
-                        // Check if response is actually XML (not HTML)
-                        if (xmlText.includes('<!DOCTYPE html') || xmlText.includes('<html')) {
-                            console.warn('Received HTML instead of XML for:', feedUrl);
-                            continue; // Try next proxy
-                        }
-                        
-                        // Check if it looks like RSS/XML
-                        if (!xmlText.includes('<?xml') && !xmlText.includes('<rss') && !xmlText.includes('<feed')) {
-                            console.warn('Response does not appear to be RSS/XML for:', feedUrl);
-                            continue; // Try next proxy
-                        }
-                        
-                        const articles = parseRSS(xmlText);
-                        if (articles.length > 0) {
-                            return articles; // Success!
-                        }
-                    } catch (error) {
-                        // Try next proxy
-                        continue;
-                    }
-                }
-                
-                // All proxies failed
-                if (retryCount < maxRetries) {
-                    await new Promise(resolve => setTimeout(resolve, 3000));
-                    return fetchRSSFeed(feedUrl, retryCount + 1);
-                }
-                
-                console.warn('All CORS proxies failed for RSS feed:', feedUrl);
-                return [];
-            }
-            
-            // Fetch all RSS feeds and combine articles (sequential to avoid rate limits)
-            async function fetchAllRSSArticles() {
-                const allArticles = [];
-                
-                // Fetch sequentially with delays to avoid rate limiting
-                for (let i = 0; i < rssFeeds.length; i++) {
-                    const feed = rssFeeds[i];
-                    try {
-                        const articles = await fetchRSSFeed(feed);
-                        if (articles && articles.length > 0) {
-                            allArticles.push(...articles);
-                        }
-                        
-                        // Add delay between requests to avoid rate limiting (except for last feed)
-                        if (i < rssFeeds.length - 1) {
-                            await new Promise(resolve => setTimeout(resolve, 1000)); // 1 second delay
-                        }
-                    } catch (error) {
-                        console.warn(`Failed to fetch RSS feed ${i}:`, feed, error);
-                    }
-                }
-                
-                // Remove duplicates based on URL
-                const uniqueArticles = [];
-                const seenUrls = new Set();
-                
-                allArticles.forEach(article => {
-                    if (article.url && !seenUrls.has(article.url)) {
-                        seenUrls.add(article.url);
-                        uniqueArticles.push(article);
-                    }
-                });
-                
-                return uniqueArticles;
-            }
-            
-            // Cache for RSS articles to avoid refetching
-            let cachedRSSArticles = [];
-            let rssCacheTime = 0;
-            const RSS_CACHE_DURATION = 30 * 60 * 1000; // 30 minutes (increased to reduce API calls)
-            
-            async function fetchNewsForTopic(topicId, usedArticleUrls = []) {
-                const geminiApiKey = "AIzaSyAjp8CltKCJXv7OXhZ6GIArcO_1DhUO_gs";
-                const topicName = topicMapping[topicId] || 'HRSD initiatives';
-                
-                try {
-                    // Step 1: Fetch RSS articles (use cache if available)
-                    const now = Date.now();
-                    if (cachedRSSArticles.length === 0 || (now - rssCacheTime) > RSS_CACHE_DURATION) {
-                        cachedRSSArticles = await fetchAllRSSArticles();
-                        rssCacheTime = now;
-                    }
+                    // Limit to a small number per topic to keep summaries fast
+                    const tweetsForAnalysis = availableTweets.slice(0, 5);
+                    const selectedTweets = tweetsForAnalysis.slice(0, 3); // up to 3 tweets per topic
                     
-                    if (cachedRSSArticles.length === 0) {
-                        return []; // No articles available
-                    }
-                    
-                    // Sort articles by date (most recent first) and filter out used ones
-                    const availableArticles = cachedRSSArticles
-                        .filter(article => !usedArticleUrls.includes(article.url))
-                        .sort((a, b) => {
-                            // Sort by published date (most recent first)
-                            const dateA = a.publishedAt ? new Date(a.publishedAt).getTime() : 0;
-                            const dateB = b.publishedAt ? new Date(b.publishedAt).getTime() : 0;
-                            return dateB - dateA; // Descending order (newest first)
-                        });
-                    
-                    if (availableArticles.length === 0) {
-                        return []; // No unused articles available
-                    }
-                    
-                    // Step 2: Select 2 articles for this topic
-                    const articlesForAnalysis = availableArticles.slice(0, 20); // Check up to 20 most recent
-                    const selectedArticles = [];
-                    
-                    // Simple keyword-based selection first (faster, no API call)
-                    const topicKeywords = {
-                        'labor-market': ['labor', 'employment', 'job', 'workforce', 'saudization', 'worker', 'employee', 'hiring'],
-                        'empowerment': ['empowerment', 'society', 'social', 'community', 'individual', 'support', 'development', 'program'],
-                        'non-profit': ['non-profit', 'charity', 'ngo', 'organization', 'sector', 'volunteer', 'donation'],
-                        'strategic-partnerships': ['partnership', 'mou', 'agreement', 'collaboration', 'cooperation', 'alliance', 'deal']
-                    };
-                    
-                    const keywords = topicKeywords[topicId] || [];
-                    
-                    // Find articles matching keywords (prioritize recent ones)
-                    const keywordMatches = articlesForAnalysis.filter(article => {
-                        const text = (article.title + ' ' + article.description).toLowerCase();
-                        return keywords.some(keyword => text.includes(keyword));
-                    });
-                    
-                    // Select up to 2 articles
-                    if (keywordMatches.length >= 2) {
-                        selectedArticles.push(keywordMatches[0], keywordMatches[1]);
-                    } else if (keywordMatches.length === 1) {
-                        selectedArticles.push(keywordMatches[0]);
-                        // Get the next most recent unused article
-                        const nextArticle = articlesForAnalysis.find(a => 
-                            !selectedArticles.includes(a) && !usedArticleUrls.includes(a.url)
-                        );
-                        if (nextArticle) selectedArticles.push(nextArticle);
-                    } else {
-                        // No keyword matches - use 2 most recent articles
-                        selectedArticles.push(articlesForAnalysis[0]);
-                        if (articlesForAnalysis.length > 1) {
-                            selectedArticles.push(articlesForAnalysis[1]);
-                        }
-                    }
-                    
-                    // Step 3: Summarize each selected article with Gemini
                     const newsItems = [];
                     
-                    for (let i = 0; i < selectedArticles.length; i++) {
-                        const selectedArticle = selectedArticles[i];
+                    for (let i = 0; i < selectedTweets.length; i++) {
+                        const t = selectedTweets[i];
                         
-                        // Add delay before Gemini API call to avoid rate limits
+                        // Add small delay between Gemini calls to reduce rate limit risk
                         if (i > 0) {
                             await new Promise(resolve => setTimeout(resolve, 1000));
                         }
                         
-                        let aiSummary = selectedArticle.description || 'No summary available.';
+                        let aiSummary = t.text || 'No summary available.';
                         
+                        // Try to generate a concise executive summary with Gemini
                         try {
                             const geminiApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${geminiApiKey}`;
                             
-                            const summaryPrompt = `Provide a 2-3 sentence summary of this news article for HRSD executive, focusing on "${topicName}":
+                            const summaryPrompt = `Provide a 2-3 sentence executive summary of this tweet for HRSD leadership, focusing on "${topicName}":
 
-Title: ${selectedArticle.title || 'No title'}
-Description: ${selectedArticle.description?.substring(0, 400) || 'No description available'}
+Tweet text: ${t.text?.substring(0, 500) || 'No text available'}
 
-Keep it brief and executive-level.`;
-
+Keep it brief, neutral, and decision-oriented.`;
+                            
                             const summaryPayload = {
                                 contents: [{ role: 'user', parts: [{ text: summaryPrompt }] }],
                                 systemInstruction: {
-                                    parts: [{ text: 'You are Layla Al-Farsi. Provide concise executive summaries. Be brief.' }]
+                                    parts: [{ text: 'You are Layla Al-Farsi. Provide concise, neutral executive summaries of public tweets.' }]
                                 },
                                 generationConfig: {
                                     maxOutputTokens: 200,
-                                    temperature: 0.7,
+                                    temperature: 0.7
                                 },
                                 safetySettings: [
                                     { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
                                     { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
                                     { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
-                                    { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
+                                    { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' }
                                 ]
                             };
                             
@@ -6440,21 +6710,19 @@ Keep it brief and executive-level.`;
                                     aiSummary = summaryText.trim();
                                 }
                             } else if (summaryResponse.status === 429) {
-                                // Rate limited - use description as fallback
-                                console.warn('Gemini API rate limited, using article description');
+                                console.warn('Gemini API rate limited, using tweet text as summary');
                             }
                         } catch (summaryError) {
-                            // Silently fail - use description
+                            // On any error, fall back to raw tweet text
                         }
                         
-                        // Format and add the news item
                         const newsItem = {
                             id: `news-${Date.now()}-${Math.random().toString(36).substr(2, 9)}-${i}`,
-                            title: selectedArticle.title || 'News Update',
+                            title: t.text.length > 90 ? `${t.text.substring(0, 87)}...` : t.text || 'Tweet update',
                             summary: aiSummary,
-                            source: selectedArticle.source || 'News Source',
-                            url: selectedArticle.url || '#',
-                            publishedAt: selectedArticle.publishedAt || new Date().toISOString(),
+                            source: t.username ? `X / @${t.username}` : 'X (Twitter)',
+                            url: t.url || '#',
+                            publishedAt: t.createdAt || new Date().toISOString(),
                             topic: topicId,
                             timestamp: new Date().toISOString()
                         };
@@ -6463,40 +6731,43 @@ Keep it brief and executive-level.`;
                     }
                     
                     return newsItems;
-                    
                 } catch (error) {
-                    console.error('Error fetching news for topic:', topicId, error);
+                    console.error('Error fetching news for topic from Twitter API:', topicId, error);
                     return [];
                 }
             }
             
-            async function loadAllNews() {
+            async function loadAllNews(showLoading = true) {
                 const newsFeed = document.getElementById('news-feed');
                 const newsLoading = document.getElementById('news-loading');
                 const newsEmpty = document.getElementById('news-empty');
+                const newsPage = document.getElementById('news-page');
                 
                 if (!newsFeed || !newsLoading) return;
                 
-                // Show loading state
-                newsFeed.style.display = 'none';
-                newsEmpty.style.display = 'none';
-                newsLoading.style.display = 'block';
+                // Only show loading state if news page is active or explicitly requested
+                const isNewsPageActive = newsPage && newsPage.classList.contains('active');
+                if (showLoading && isNewsPageActive) {
+                    newsFeed.style.display = 'none';
+                    newsEmpty.style.display = 'none';
+                    newsLoading.style.display = 'block';
+                }
                 
                 try {
                     // Fetch news for all topics sequentially to avoid rate limits
                     const allTopics = ['labor-market', 'empowerment', 'non-profit', 'strategic-partnerships'];
                     newsData = [];
-                    const usedArticleUrls = []; // Track which articles have been used
+                    const usedTweetUrls = []; // Track which tweet URLs have been used
                     
                     for (let i = 0; i < allTopics.length; i++) {
                         const topicId = allTopics[i];
-                        const topicNews = await fetchNewsForTopic(topicId, usedArticleUrls);
+                        const topicNews = await fetchNewsForTopic(topicId, usedTweetUrls);
                         if (topicNews && topicNews.length > 0) {
                             newsData.push(...topicNews);
-                            // Mark these articles as used
+                            // Mark these tweets as used
                             topicNews.forEach(item => {
                                 if (item.url) {
-                                    usedArticleUrls.push(item.url);
+                                    usedTweetUrls.push(item.url);
                                 }
                             });
                         }
@@ -6528,8 +6799,14 @@ Keep it brief and executive-level.`;
                     console.error('Error loading news:', error);
                     showMessageModal('Failed to load news. Please try again.', 'Error');
                 } finally {
-                    newsLoading.style.display = 'none';
-                    newsFeed.style.display = 'grid';
+                    // Only hide loading if it was shown
+                    if (showLoading && isNewsPageActive && newsLoading) {
+                        newsLoading.style.display = 'none';
+                    }
+                    // Always show the feed (it will display news if loaded, or empty state if not)
+                    if (newsFeed) {
+                        newsFeed.style.display = 'grid';
+                    }
                 }
             }
             
@@ -6683,16 +6960,23 @@ Keep it brief and executive-level.`;
                 }
             }
             
-            // Auto-load news when news page is opened
+            // Auto-load news when news page is opened (fallback - news should already be loading on page load)
             function initializeNewsPage() {
                 const newsPage = document.getElementById('news-page');
                 if (!newsPage) return;
                 
-                // Check if news page is visible and news hasn't been loaded
+                // This is now just a fallback - news should already be loading on page load
+                // Only load if news page is active and news hasn't been loaded yet
+                if (newsPage.classList.contains('active') && newsData.length === 0) {
+                    loadAllNews();
+                }
+                
+                // Observer for when user navigates to news page (fallback case)
                 const observer = new MutationObserver((mutations) => {
                     mutations.forEach((mutation) => {
                         if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
                             if (newsPage.classList.contains('active') && newsData.length === 0) {
+                                // Only load if somehow news wasn't loaded on page load
                                 loadAllNews();
                             }
                         }
@@ -6700,11 +6984,6 @@ Keep it brief and executive-level.`;
                 });
                 
                 observer.observe(newsPage, { attributes: true });
-                
-                // Also check on initial load
-                if (newsPage.classList.contains('active')) {
-                    loadAllNews();
-                }
             }
 
             // --- Event Listeners & Initialization ---
@@ -6723,6 +7002,7 @@ Keep it brief and executive-level.`;
             if (chatInput) { chatInput.addEventListener('keydown', (event) => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); handleSendMessage(); } }); }
             // Topic card actions
             document.querySelectorAll('.topic-action-btn').forEach(button => { button.addEventListener('click', () => { const action = button.dataset.action; const card = button.closest('.topic-card'); if (!card) return; const topicId = card.dataset.topicId; const topicTitleEl = card.querySelector('.topic-title'); if (!topicTitleEl) return; const topicTitle = topicTitleEl.textContent; if (action === 'meetings') { openMeetingsModal(topicId, topicTitle); } else if (action === 'deeper') { const prompt = `Please provide a detailed briefing on the focus area: "${topicTitle}". Include key details, current status, and strategic recommendations.`; switchToAgentAndSendPrompt(prompt, 'nouf');} else if (action === 'references') { const prompt = `Please pull up the latest references and documents from my team regarding "${topicTitle}".`; takeActionFromTopic(prompt); } else if (action === 'news') { viewRelatedNews(topicId, topicTitle); } }); });
+
             // "Ask Agent" on text selection
              document.addEventListener('mouseup', (e) => { if (!askAgentBtn) return; const targetElement = e.target; if (targetElement.tagName === 'INPUT' || targetElement.tagName === 'TEXTAREA' || targetElement.closest('.modal') || targetElement.closest('#ask-agent-btn')) { askAgentBtn.style.display = 'none'; return; } setTimeout(() => { const text = window.getSelection().toString().trim(); if (text.length > 1) { selectedText = text; const rect = window.getSelection().getRangeAt(0).getBoundingClientRect(); askAgentBtn.style.left = `${rect.right + window.scrollX + 5}px`; askAgentBtn.style.top = `${rect.bottom + window.scrollY + 5}px`; askAgentBtn.style.display = 'block'; } else { askAgentBtn.style.display = 'none'; } }, 10); });
             document.addEventListener('mousedown', (e) => { if (askAgentBtn && e.target.id !== 'ask-agent-btn') { askAgentBtn.style.display = 'none'; } });
@@ -6817,7 +7097,13 @@ Keep it brief and executive-level.`;
                 });
             });
             
-            // Initialize news page
+            // Load news immediately on page load in the background (fetch from the beginning)
+            // Use setTimeout to ensure it runs asynchronously without blocking page initialization
+            setTimeout(() => {
+                loadAllNews(false); // Don't show loading state until user visits news page
+            }, 0);
+            
+            // Initialize news page observer (for edge cases/fallback)
             initializeNewsPage();
 
             // --- Updated Tool Card Actions ---
@@ -7107,18 +7393,16 @@ Keep it brief and executive-level.`;
             renderTodayView();
             updateWeekHeader();
             
-            // Initialize UI based on mode (start in single agent mode)
-            toggleMode(false);
+            // Always show multi-agent content
+            const multiAgentContent = document.getElementById('multiAgentContent');
+            if (multiAgentContent) multiAgentContent.classList.remove('hidden');
+            
             renderAgentSelection();
             updateSingleAgentDisplay(currentPersonaId);
+            updateModeStatusLabel();
             
             // Mode Toggle
-            const modeToggle = document.getElementById('modeToggle');
-            if (modeToggle) {
-                modeToggle.addEventListener('change', (e) => {
-                    toggleMode(e.target.checked);
-                });
-            }
+            // Mode status text updates automatically via selection changes
             
             // Agent Selector Button (for single mode)
             const agentSelectorBtn = document.getElementById('agentSelectorBtn');
@@ -7166,15 +7450,15 @@ Keep it brief and executive-level.`;
                     centerBtn.style.display = 'flex';
 
                     centerBtn.addEventListener('mouseenter', function () {
-                        this.style.background = 'linear-gradient(135deg, #F59620, #FAB414)';
+                        this.style.background = 'linear-gradient(135deg, #008a7e, #008a98)';
                         this.style.transform = 'translateY(-2px) scale(1.08)';
-                        this.style.boxShadow = '0 6px 25px rgba(245, 150, 30, 0.6), 0 0 0 3px rgba(245, 150, 30, 0.2)';
+                        this.style.boxShadow = '0 6px 20px #008a7e, 0 0 0 1px #008a7e';
                     });
 
                     centerBtn.addEventListener('mouseleave', function () {
                         this.style.background = 'linear-gradient(135deg, rgba(20, 65, 90, 0.95), rgba(20, 130, 135, 0.95))';
                         this.style.transform = '';
-                        this.style.boxShadow = '0 4px 15px rgba(245, 150, 30, 0.3)';
+                        this.style.boxShadow = '0 4px 15px #008a7e';
                     });
 
                     function resetAll() {
@@ -7228,7 +7512,7 @@ Keep it brief and executive-level.`;
 
                             personaDisplay.style.display = 'none';
                             chatArea.style.flex = '1';
-                            chatArea.style.paddingTop = '70px';
+                            chatArea.style.paddingTop = '40px';
                             summarySection.style.display = 'none';
                             centerBtn.querySelector('i').className = 'fas fa-compress';
                             centerBtn.title = 'Minimize';
@@ -7245,7 +7529,273 @@ Keep it brief and executive-level.`;
             })();
 
         });
-    </script>
+    
+
+/* === BEGIN PATCH: Conversation ownership + improved routing & agent handlers === */
+
+// Conversation ownership lock: which agent currently owns follow-ups (e.g., after agent asked a question)
+let conversationLead = null;
+
+/**
+ * selectLeadAgent(prompt)
+ * Reusable capability-driven lead selector.
+ */
+function selectLeadAgent(prompt, candidates = ['nouf','omar','layla','hakim']) {
+    const activeAgents = (typeof getSelectedAgentsInfo === 'function')
+        ? getSelectedAgentsInfo().map(a => a.id)
+        : (typeof selectedAgents !== 'undefined' ? selectedAgents.slice() : []);
+
+    // Filter candidates to active ones (order preserved)
+    const available = candidates.filter(id => activeAgents.includes(id));
+
+    const p = (prompt || '').toLowerCase();
+
+    const capabilityKeywords = {
+        nouf: ['consult', 'prepare', 'preparations', 'advice', 'advise', 'strategy', 'briefing', 'risk', 'analysis', 'prepare'],
+        omar: ['schedule', 'meeting', 'coordinate', 'logistic', 'arrange', 'calendar', 'task', 'coordinate'],
+        layla: ['data', 'chart', 'charts', 'statistics', 'analysis', 'metrics', 'visualization', 'visual'],
+        hakim: ['overview', 'summary', 'strategy', 'executive', 'brief']
+    };
+
+    const scores = {};
+    for (const id of available) scores[id] = 0;
+
+    for (const id of available) {
+        const keywords = capabilityKeywords[id] || [];
+        for (const kw of keywords) {
+            if (p.includes(kw)) scores[id] += 10;
+        }
+    }
+
+    if (Object.values(scores).every(s => s === 0)) {
+        for (const id of ['nouf','omar','layla','hakim']) {
+            if (available.includes(id)) {
+                return { leadAgent: id, activeAgents: available };
+            }
+        }
+    }
+
+    let leadAgent = available[0];
+    let bestScore = -1;
+    for (const id of available) {
+        if (scores[id] > bestScore) {
+            bestScore = scores[id];
+            leadAgent = id;
+        }
+    }
+
+    return { leadAgent, activeAgents: available };
+}
+
+/**
+ * Overridden handleSendMessage()
+ * Intercepts continuation replies (yes/ok/continue) and routes them to conversationLead.
+ * Replaces previous handler behavior by being declared later in the file (overrides earlier definitions).
+ */
+async function handleSendMessage() {
+    if (!chatInput) return;
+    const userMessage = chatInput.value.trim();
+    if (!userMessage) return;
+
+    // Continuation intercept must run first
+    const shortReply = userMessage.toLowerCase();
+    const continuationReplies = [
+        "yes","yep","sure","ok","okay","please","proceed","go ahead","continue","confirm","please do","please proceed"
+    ];
+
+    if (conversationLead && continuationReplies.includes(shortReply)) {
+        // Continue with the same agent who previously asked a question
+        displayMessage('user', userMessage);
+        chatHistory.push({ role: 'user', parts: [{ text: userMessage }] });
+        chatInput.value = '';
+
+        const leadAgent = conversationLead;
+        const activeAgents = (typeof getSelectedAgentsInfo === 'function')
+            ? getSelectedAgentsInfo().map(a => a.id)
+            : (typeof selectedAgents !== 'undefined' ? selectedAgents.slice() : []);
+
+        showTypingIndicator();
+
+        for (const aid of activeAgents) {
+            // ensure ordering; silent flag for non-lead agents
+            await sendMessageToAgent(userMessage, aid, { silent: aid !== leadAgent });
+        }
+
+        return; // do not run normal routing
+    }
+
+    // Normal flow
+    displayMessage('user', userMessage);
+    chatHistory.push({ role: 'user', parts: [{ text: userMessage }] });
+    chatInput.value = '';
+
+    // Reset previous lead for a fresh question
+    conversationLead = null;
+
+    if (isMultiAgentMode) {
+        showTypingIndicator();
+        await orchestrateMultiAgentResponse(userMessage);
+    } else {
+        const selectedAgent = (typeof selectedAgents !== 'undefined' && selectedAgents.length > 0)
+            ? selectedAgents[0]
+            : currentPersonaId;
+        showTypingIndicator();
+        await sendMessageToAgent(userMessage, selectedAgent, { silent: false });
+    }
+}
+
+/**
+ * Overridden sendMessageToAgent - modernized and safe
+ * Keeps your existing API key + url pattern; adjusts options argument handling.
+ */
+async function sendMessageToAgent(message, agentId, options = {}) {
+    const { silent = false, retries = 3, delay = 1000 } = options || {};
+
+    // Use API key that was in the file; if you want to change it centrally, update here.
+    const apiKey = "AIzaSyDRtLqR7wHRu8Y1pQm4ge8_knbzlm_RHnc";
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+
+    const persona = (typeof personaData !== 'undefined') ? personaData.find(p => p.id === agentId) : null;
+    const systemPromptText = persona ? persona.systemPrompt : 'You are a helpful assistant.';
+
+    const payload = {
+        contents: chatHistory,
+        systemInstruction: {
+            parts: [{ text: `${systemPromptText} Your user is a high-level executive ("Your Excellency"). The current date and time is ${new Date().toLocaleString('en-US', { timeZone: 'Asia/Riyadh' })}.` }]
+        },
+        generationConfig: { maxOutputTokens: 8192 },
+        safetySettings: [
+            { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
+            { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
+            { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
+            { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' }
+        ]
+    };
+
+    try {
+        const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        removeTypingIndicator();
+
+        if (!response.ok) {
+            if ((response.status === 429 || response.status >= 500) && retries > 0) {
+                await new Promise(r => setTimeout(r, delay));
+                return sendMessageToAgent(message, agentId, { silent, retries: retries - 1, delay: delay * 2 });
+            }
+            // On non-retryable errors show a bubble unless silent
+            if (!silent) {
+                displayMessage('agent', `I'm experiencing connectivity issues (${response.status}).`, agentId);
+            } else {
+                console.warn(`Silent-mode API error for ${agentId}: ${response.status}`);
+            }
+            return;
+        }
+
+        const result = await response.json();
+        const candidate = result.candidates?.[0];
+        const agentResponseText = candidate?.content?.parts?.[0]?.text;
+
+        if (agentResponseText) {
+
+            // if agent asked the user a question, lock conversation lead
+            if (agentResponseText.trim().endsWith("?")) {
+                conversationLead = agentId;
+            }
+
+            if (!silent) {
+                displayMessage('agent', agentResponseText, agentId);
+            } else {
+                // silent: do not display, but keep history for context
+                console.log(`Agent ${agentId} returned (silent):`, agentResponseText.substring(0,120));
+            }
+
+            // push to history
+            chatHistory.push({ role: 'model', parts: [{ text: agentResponseText }] });
+
+        } else {
+            // handle empty or blocked responses
+            if (isMultiAgentMode && silent) {
+                console.log(`Agent ${agentId} returned empty response in multi-agent silent mode - skipping`);
+                return;
+            }
+
+            let errorText = "I apologize, but I couldn't process that request fully. Please try rephrasing.";
+            if (candidate && candidate.finishReason && candidate.finishReason !== 'STOP') {
+                errorText = `I'm sorry, my response was stopped due to: ${candidate.finishReason.toLowerCase().replace(/_/g, ' ')}.`;
+            } else if (result?.promptFeedback && result.promptFeedback.blockReason) {
+                errorText = `I'm sorry, your prompt could not be processed due to: ${result.promptFeedback.blockReason.toLowerCase().replace(/_/g, ' ')}.`;
+            } else if (!agentResponseText) {
+                console.warn("Gemini response missing text content:", result);
+            }
+
+            if (!silent) {
+                displayMessage('agent', errorText, agentId);
+            } else {
+                console.warn(`Silent-mode: agent ${agentId} error: ${errorText}`);
+            }
+        }
+
+    } catch (err) {
+        console.error('Error fetching agent:', err);
+        removeTypingIndicator();
+        if (!silent) {
+            displayMessage('agent', "I'm experiencing network difficulties connecting to my services. Please check your connection or try again shortly.", agentId);
+        } else {
+            console.warn(`Silent-mode network error for ${agentId}:`, err.message);
+        }
+    }
+}
+
+/**
+ * Deterministic / capability-aware orchestrator.
+ * Uses selectLeadAgent() and ONLY active agents.
+ */
+async function orchestrateMultiAgentResponse(userMessage) {
+    const agentsInfo = (typeof getSelectedAgentsInfo === 'function') ? getSelectedAgentsInfo() : [];
+    const activeIds = agentsInfo.map(a => a.id);
+
+    if (activeIds.length === 0) {
+        await sendMessageToAgent(userMessage, 'hakim', { silent: false });
+        return;
+    }
+
+    const { leadAgent, activeAgents } = selectLeadAgent(userMessage, ['nouf','omar','layla','hakim']);
+    const effectiveLead = leadAgent || activeAgents[0] || activeIds[0];
+
+    // show routing note (filtered to active agents only)
+    if (typeof chatMessages !== 'undefined' && chatMessages) {
+        const orchestrationNote = document.createElement('div');
+        orchestrationNote.className = 'agent-discussion-indicator';
+        orchestrationNote.style.fontSize = '0.85rem';
+        orchestrationNote.style.opacity = '0.95';
+        const routed = (activeAgents && activeAgents.length) ? activeAgents : activeIds;
+        const routedNames = routed.map(id => {
+            const p = (typeof personaData !== 'undefined') ? personaData.find(x => x.id === id) : null;
+            return p ? p.name.split(' ')[0] : id;
+        });
+        orchestrationNote.innerHTML = `<i class="fas fa-route"></i> Hakim routing to: ${routedNames.join(', ')}`;
+        chatMessages.appendChild(orchestrationNote);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    showTypingIndicator();
+
+    for (const aid of activeAgents) {
+        const silent = (aid !== effectiveLead);
+        await sendMessageToAgent(userMessage, aid, { silent });
+    }
+
+    // lock conversation to the lead for follow-ups
+    conversationLead = effectiveLead;
+}
+
+/* === END PATCH === */
+
+</script>
 
 
 
