@@ -4432,6 +4432,7 @@ Desired Output: [e.g., "A final draft ready for review."]</p>
     <div id="ask-agent-btn" style="display: none;"><i class="fas fa-comment-dots"></i> Ask Agent</div>
 
     <script>
+        const GEMINI_PROXY_URL = 'https://backend-vercel-repo-git-main-jouds-projects-8f56041e.vercel.app/api/gemini-api';
         document.addEventListener('DOMContentLoaded', () => {
             // --- DATA ---
             const personaData = [
@@ -5611,14 +5612,19 @@ Desired Output: [e.g., "A final draft ready for review."]</p>
             
             // Special function for orchestration requests (no display, just return response)
             async function sendOrchestrationRequest(prompt, retries = 2) {
-                //const apiKey = "AIzaSyCRFXs-Ysnoy2swH1yjqZYoRMNC4HTpv_c";
-				const apiKey = "AIzaSyD8P04zV8XS2GwQNx6wGGYsThlbkQ4Ac0c";
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+                const apiUrl = GEMINI_PROXY_URL;
 
                 const payload = {
                     contents: [{ role: 'user', parts: [{ text: prompt }] }],
                     systemInstruction: {
-                        parts: [{ text: 'You are an AI orchestrator. Respond ONLY with valid JSON. No explanations, no markdown, no extra text.' }]
+                        // keep your existing routing instructions as-is
+                        parts: [{
+                            text: 'You are an AI orchestration router for a multi-agent HRSD assistant. ' +
+                                'You take the user input and decide which agent(s) should respond. ' +
+                                'You MUST ONLY return a valid JSON object with this shape: ' +
+                                '{"primary_agent": "<agent_id>", "secondary_agents": ["<agent_id>", ...]}. ' +
+                                'No explanations, no markdown, no extra text.'
+                        }]
                     },
                     generationConfig: {
                         maxOutputTokens: 512,
@@ -5629,41 +5635,46 @@ Desired Output: [e.g., "A final draft ready for review."]</p>
                 try {
                     const response = await fetch(apiUrl, {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(payload),
                     });
 
                     if (!response.ok) {
-                        if (response.status === 429 && retries > 0) {
-                            await new Promise(resolve => setTimeout(resolve, 1000));
-                            return sendOrchestrationRequest(prompt, retries - 1);
-                        }
-                        throw new Error(`API error: ${response.status}`);
+                        console.error('Orchestration Gemini error:', await response.text());
+                        throw new Error('Gemini orchestration request failed');
                     }
 
-                    const result = await response.json();
-                    const responseText = result.candidates?.[0]?.content?.parts?.[0]?.text;
-                    return responseText || null;
-                    
+                    const data = await response.json();
+                    return data;
                 } catch (error) {
-                    console.error("Orchestration request error:", error);
-                    return null;
+                    console.error('Error in sendOrchestrationRequest:', error);
+
+                    if (retries > 0) {
+                        await new Promise(resolve => setTimeout(resolve, 1000));
+                        return sendOrchestrationRequest(prompt, retries - 1);
+                    }
+
+                    throw error;
                 }
             }
+
             
             async function sendMessageToAgent(message, agentId, retries = 3, delay = 1000) {
-                // const apiKey = "AIzaSyCRFXs-Ysnoy2swH1yjqZYoRMNC4HTpv_c";
-				const apiKey = "AIzaSyD8P04zV8XS2GwQNx6wGGYsThlbkQ4Ac0c";
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+                const apiUrl = GEMINI_PROXY_URL;
 
                 const persona = personaData.find(p => p.id === agentId);
                 const systemPromptText = persona ? persona.systemPrompt : 'You are a helpful assistant.';
 
-                // Send the current, complete history
+                // Send the current, complete history as Gemini-style contents
                 const payload = {
                     contents: chatHistory,
                     systemInstruction: {
-                        parts: [{ text: `${systemPromptText} Your user is a high-level executive ("Your Excellency"). The current date and time is ${new Date().toLocaleString('en-US', { timeZone: 'Asia/Riyadh' })}.` }]
+                        parts: [{
+                            text: `${systemPromptText} You are answering as agent "${agentId}". ` +
+                                `Current local time in Riyadh is ${new Date().toLocaleString('en-US', { timeZone: 'Asia/Riyadh' })}.`
+                        }]
                     },
                     generationConfig: {
                         maxOutputTokens: 8192,
@@ -5673,64 +5684,54 @@ Desired Output: [e.g., "A final draft ready for review."]</p>
                         { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
                         { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
                         { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
-                    ]
+                    ],
                 };
 
                 try {
                     const response = await fetch(apiUrl, {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(payload),
                     });
 
-                    removeTypingIndicator();
-
                     if (!response.ok) {
-                        if (!(response.status === 429 || response.status >= 500)) {
-                           console.error(`API Error: ${response.status} ${response.statusText}`, await response.text());
-                        }
-                        if ((response.status === 429 || response.status >= 500) && retries > 0) {
-                            await new Promise(resolve => setTimeout(resolve, delay));
-                            return sendMessageToAgent(message, agentId, retries - 1, delay * 2);
-                        }
-                        throw new Error(`API error: ${response.status} ${response.statusText}`);
+                        const errText = await response.text();
+                        console.error(`Gemini chat error for agent ${agentId}:`, errText);
+                        throw new Error(`Gemini chat request failed for agent ${agentId}`);
                     }
 
                     const result = await response.json();
                     const candidate = result.candidates?.[0];
                     const agentResponseText = candidate?.content?.parts?.[0]?.text;
 
-                if (agentResponseText) {
-                    displayMessage('agent', agentResponseText, agentId);
-                    // Add successful AI response to history
-                    chatHistory.push({ role: 'model', parts: [{ text: agentResponseText }] });
-                } else {
-                    // In multi-agent mode, silently skip empty responses (agent wasn't selected to respond)
-                    if (isMultiAgentMode && !candidate?.finishReason && !result?.promptFeedback?.blockReason) {
-                        // Silently skip - this agent wasn't meant to respond
-                        console.log(`Agent ${agentId} returned empty response in multi-agent mode - skipping`);
-                        return;
+                    if (agentResponseText) {
+                        displayMessage('agent', agentResponseText, agentId);
+                        // Add successful AI response to history
+                        chatHistory.push({ role: 'model', parts: [{ text: agentResponseText }] });
+                    } else {
+                        // In multi-agent mode, silently skip empty responses
+                        if (isMultiAgentMode && !candidate?.finishReason && !result?.promptFeedback?.blockReason) {
+                            console.log(`Agent ${agentId} returned empty response in multi-agent mode - skipping`);
+                        } else {
+                            console.warn(`Empty response from agent ${agentId}`, result);
+                        }
                     }
-                    
-                    let errorText = "I apologize, but I couldn't process that request fully. Please try rephrasing.";
-                    if (candidate && candidate.finishReason && candidate.finishReason !== 'STOP') {
-                        errorText = `I'm sorry, my response was stopped due to: ${candidate.finishReason.toLowerCase().replace(/_/g, ' ')}.`;
-                        console.warn("Gemini finishReason:", candidate.finishReason, candidate.safetyRatings);
-                    } else if (result.promptFeedback && result.promptFeedback.blockReason) {
-                        errorText = `I'm sorry, your prompt could not be processed due to: ${result.promptFeedback.blockReason.toLowerCase().replace(/_/g, ' ')}.`;
-                        console.warn("Gemini promptFeedback:", result.promptFeedback);
-                    } else if (!agentResponseText) {
-                        console.warn("Gemini response missing text content:", result);
-                        //errorText = "I received an empty response. Could you please try asking in a different way?";
-                    }
-                    displayMessage('agent', errorText, agentId);
-                }
+
+                    return agentResponseText || '';
                 } catch (error) {
-                    console.error('Error fetching from Gemini API:', error.message);
-                    removeTypingIndicator();
-                    displayMessage('agent', "I'm experiencing network difficulties connecting to my services. Please check your connection or try again shortly.", agentId);
+                    console.error(`Error in sendMessageToAgent for agent ${agentId}:`, error);
+
+                    if (retries > 0) {
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                        return sendMessageToAgent(message, agentId, retries - 1, delay * 2);
+                    }
+
+                    throw error;
                 }
             }
+
             
             async function startAgentDiscussion() {
                 if (selectedAgents.length < 2) {
@@ -5815,9 +5816,7 @@ Desired Output: [e.g., "A final draft ready for review."]</p>
                 // options: { systemPromptOverride: string|null, silent: boolean }
                 options = Object.assign({ systemPromptOverride: null, silent: false }, options);
 
-                // const apiKey = "AIzaSyCRFXs-Ysnoy2swH1yjqZYoRMNC4HTpv_c";
-				const apiKey = "AIzaSyD8P04zV8XS2GwQNx6wGGYsThlbkQ4Ac0c";
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+                const apiUrl = GEMINI_PROXY_URL;
 
                 const persona = personaData.find(p => p.id === agentId);
                 // Prefer override if provided (this is the critical bit).
@@ -6577,8 +6576,8 @@ Desired Output: [e.g., "A final draft ready for review."]</p>
                 }
             };
             
-            // Gemini API key for executive summaries of tweets
-            const geminiApiKey = 'AIzaSyD8P04zV8XS2GwQNx6wGGYsThlbkQ4Ac0c';
+            // Gemini proxy endpoint for executive summaries of tweets
+            const geminiSummaryEndpoint = GEMINI_PROXY_URL;
             
             // Fetch and summarize tweets for a given topic
             async function fetchNewsForTopic(topicId, usedTweetUrls = []) {
@@ -6668,7 +6667,7 @@ Desired Output: [e.g., "A final draft ready for review."]</p>
                         
                         // Try to generate a concise executive summary with Gemini
                         try {
-                            const geminiApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${geminiApiKey}`;
+                            const geminiApiUrl = geminiSummaryEndpoint;
                             
                             const summaryPrompt = `Provide a 2-3 sentence executive summary of this tweet for HRSD leadership, focusing on "${topicName}":
 
@@ -7647,9 +7646,9 @@ async function handleSendMessage() {
 async function sendMessageToAgent(message, agentId, options = {}) {
     const { silent = false, retries = 3, delay = 1000 } = options || {};
 
-    // Use API key that was in the file; if you want to change it centrally, update here.
-    const apiKey = "AIzaSyD8P04zV8XS2GwQNx6wGGYsThlbkQ4Ac0c";
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+    const apiUrl = (typeof GEMINI_PROXY_URL !== 'undefined')
+        ? GEMINI_PROXY_URL
+        : 'https://backend-vercel-repo-git-main-jouds-projects-8f56041e.vercel.app/api/gemini-api';
 
     const persona = (typeof personaData !== 'undefined') ? personaData.find(p => p.id === agentId) : null;
     const systemPromptText = persona ? persona.systemPrompt : 'You are a helpful assistant.';
@@ -7796,5 +7795,4 @@ async function orchestrateMultiAgentResponse(userMessage) {
 
 
 </body></html>
-
 
