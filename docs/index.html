@@ -6663,60 +6663,11 @@ Desired Output: [e.g., "A final draft ready for review."]</p>
                     
                     for (let i = 0; i < selectedTweets.length; i++) {
                         const t = selectedTweets[i];
-                        
-                        // Add small delay between Gemini calls to reduce rate limit risk
-                        if (i > 0) {
-                            await new Promise(resolve => setTimeout(resolve, 1000));
-                        }
-                        
-                        let aiSummary = t.text || 'No summary available.';
-                        
-                        // Try to generate a concise executive summary with Gemini
-                        try {
-                            const geminiApiUrl = geminiSummaryEndpoint;
-                            
-                            const summaryPrompt = `Provide a 2-3 sentence executive summary of this tweet for HRSD leadership, focusing on "${topicName}":
 
-Tweet text: ${t.text?.substring(0, 500) || 'No text available'}
+                        // NOTE: Gemini summarizer disabled for now to avoid extra API calls / rate limits.
+                        // We simply use the tweet text itself as the summary.
+                        const aiSummary = t.text || 'No summary available.';
 
-Keep it brief, neutral, and decision-oriented.`;
-                            
-                            const summaryPayload = {
-                                contents: [{ role: 'user', parts: [{ text: summaryPrompt }] }],
-                                systemInstruction: {
-                                    parts: [{ text: 'You are Layla Al-Farsi. Provide concise, neutral executive summaries of public tweets.' }]
-                                },
-                                generationConfig: {
-                                    maxOutputTokens: 200,
-                                    temperature: 0.7
-                                },
-                                safetySettings: [
-                                    { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
-                                    { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
-                                    { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
-                                    { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' }
-                                ]
-                            };
-                            
-                            const summaryResponse = await fetch(geminiApiUrl, {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify(summaryPayload)
-                            });
-                            
-                            if (summaryResponse.ok) {
-                                const summaryResult = await summaryResponse.json();
-                                const summaryText = summaryResult.candidates?.[0]?.content?.parts?.[0]?.text;
-                                if (summaryText) {
-                                    aiSummary = summaryText.trim();
-                                }
-                            } else if (summaryResponse.status === 429) {
-                                console.warn('Gemini API rate limited, using tweet text as summary');
-                            }
-                        } catch (summaryError) {
-                            // On any error, fall back to raw tweet text
-                        }
-                        
                         const newsItem = {
                             id: `news-${Date.now()}-${Math.random().toString(36).substr(2, 9)}-${i}`,
                             title: t.text.length > 90 ? `${t.text.substring(0, 87)}...` : t.text || 'Tweet update',
