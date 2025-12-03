@@ -6622,27 +6622,37 @@ Desired Output: [e.g., "A final draft ready for review."]</p>
                     }
                     
                     // Normalise tweets and build canonical URLs, filter out ones we've already used
+                    const allowedSources = new Set([
+                        'arabnews',
+                        'alarabiya_eng',
+                        'alekhbariyaen'
+                        ]);
+
                     const availableTweets = rawTweets
                         .map(tweet => {
                             const tweetId = tweet.id || tweet.tweet_id || tweet.tweetId;
                             const author = tweet.author || tweet.user || {};
-                            const username = author.userName || author.username || author.screen_name || '';
+                            const username = (author.userName || author.username || author.screen_name || '').toLowerCase();
                             const createdAt = tweet.createdAt || tweet.created_at || null;
                             const text = tweet.text || tweet.full_text || '';
                             const url = (username && tweetId)
-                                ? `https://twitter.com/${username}/status/${tweetId}`
-                                : '#';
-                            
+                            ? `https://twitter.com/${username}/status/${tweetId}`
+                            : '#';
+
                             return {
-                                tweetId,
-                                username,
-                                displayName: author.name || username || 'Source',
-                                createdAt,
-                                text,
-                                url
+                            tweetId,
+                            username,
+                            displayName: author.name || username || 'Source',
+                            createdAt,
+                            text,
+                            url
                             };
                         })
-                        .filter(t => t.text && t.url && !usedTweetUrls.includes(t.url));
+                        // 🔥 ORIGINAL FILTERING
+                        .filter(t => t.text && t.url && !usedTweetUrls.includes(t.url))
+                        // 🔥 NEW SAFETY FILTER (this ensures ONLY the 3 official accounts)
+                        .filter(t => allowedSources.has(t.username));
+
                     
                     if (!availableTweets.length) {
                         return [];
@@ -7750,4 +7760,3 @@ async function orchestrateMultiAgentResponse(userMessage) {
 
 
 </body></html>
-
