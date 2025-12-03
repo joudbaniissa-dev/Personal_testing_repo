@@ -4432,7 +4432,10 @@ Desired Output: [e.g., "A final draft ready for review."]</p>
     <div id="ask-agent-btn" style="display: none;"><i class="fas fa-comment-dots"></i> Ask Agent</div>
 
     <script>
-        const GEMINI_PROXY_URL = 'https://backend-vercel-repo-git-main-jouds-projects-8f56041e.vercel.app/api/gemini-api';
+        // Hardcoded Gemini API key and endpoint (used instead of Vercel proxy)
+        // NOTE: This file is for local / demo purposes only; do NOT deploy a hardcoded key publicly.
+        const GEMINI_API_KEY = 'AIzaSyCVTUgYEEAs42wg1pFTLJFVxzQI3wh1wYI';
+        const GEMINI_MODEL_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${GEMINI_API_KEY}`;
         document.addEventListener('DOMContentLoaded', () => {
             // --- DATA ---
             const personaData = [
@@ -5612,7 +5615,7 @@ Desired Output: [e.g., "A final draft ready for review."]</p>
             
             // Special function for orchestration requests (no display, just return response)
             async function sendOrchestrationRequest(prompt, retries = 2) {
-                const apiUrl = GEMINI_PROXY_URL;
+                const apiUrl = GEMINI_MODEL_URL;
 
                 const payload = {
                     contents: [{ role: 'user', parts: [{ text: prompt }] }],
@@ -5816,7 +5819,7 @@ Desired Output: [e.g., "A final draft ready for review."]</p>
                 // options: { systemPromptOverride: string|null, silent: boolean }
                 options = Object.assign({ systemPromptOverride: null, silent: false }, options);
 
-                const apiUrl = GEMINI_PROXY_URL;
+                const apiUrl = GEMINI_MODEL_URL;
 
                 const persona = personaData.find(p => p.id === agentId);
                 // Prefer override if provided (this is the critical bit).
@@ -6577,7 +6580,7 @@ Desired Output: [e.g., "A final draft ready for review."]</p>
             };
             
             // Gemini proxy endpoint for executive summaries of tweets
-            const geminiSummaryEndpoint = GEMINI_PROXY_URL;
+            const geminiSummaryEndpoint = GEMINI_MODEL_URL;
             
             // Fetch and summarize tweets for a given topic
             async function fetchNewsForTopic(topicId, usedTweetUrls = []) {
@@ -7641,14 +7644,12 @@ async function handleSendMessage() {
 
 /**
  * Overridden sendMessageToAgent - modernized and safe
- * Keeps your existing API key + url pattern; adjusts options argument handling.
+ * In this hardcoded version we call Gemini directly (no Vercel proxy).
  */
 async function sendMessageToAgent(message, agentId, options = {}) {
     const { silent = false, retries = 3, delay = 1000 } = options || {};
 
-    const apiUrl = (typeof GEMINI_PROXY_URL !== 'undefined')
-        ? GEMINI_PROXY_URL
-        : 'https://backend-vercel-repo-git-main-jouds-projects-8f56041e.vercel.app/api/gemini-api';
+    const apiUrl = GEMINI_MODEL_URL;
 
     const persona = (typeof personaData !== 'undefined') ? personaData.find(p => p.id === agentId) : null;
     const systemPromptText = persona ? persona.systemPrompt : 'You are a helpful assistant.';
@@ -7795,5 +7796,4 @@ async function orchestrateMultiAgentResponse(userMessage) {
 
 
 </body></html>
-
 
