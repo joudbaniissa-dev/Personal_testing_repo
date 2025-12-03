@@ -4434,8 +4434,11 @@ Desired Output: [e.g., "A final draft ready for review."]</p>
     <script>
         // Hardcoded Gemini API key and endpoint (used instead of Vercel proxy)
         // NOTE: This file is for local / demo purposes only; do NOT deploy a hardcoded key publicly.
-        const GEMINI_API_KEY = 'AIzaSyCVTUgYEEAs42wg1pFTLJFVxzQI3wh1wYI';
+        const GEMINI_API_KEY = 'AIzaSyCVTUgYEEAs42wg1pFTLJFVxzQI3wh1wYI'; // main agents
         const GEMINI_MODEL_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${GEMINI_API_KEY}`;
+        // Separate key just for tweet summarization to spread load
+        const GEMINI_SUMMARY_API_KEY = 'AIzaSyAjZ6GmrhsbnILf2ZTfJaYxO3xUpjYvzAo';
+        const GEMINI_SUMMARY_MODEL_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${GEMINI_SUMMARY_API_KEY}`;
         document.addEventListener('DOMContentLoaded', () => {
             // --- DATA ---
             const personaData = [
@@ -6579,8 +6582,8 @@ Desired Output: [e.g., "A final draft ready for review."]</p>
                 }
             };
             
-            // Gemini proxy endpoint for executive summaries of tweets
-            const geminiSummaryEndpoint = GEMINI_MODEL_URL;
+            // Gemini endpoint for executive summaries of tweets (use separate key to reduce rate limiting)
+            const geminiSummaryEndpoint = GEMINI_SUMMARY_MODEL_URL;
             
             // Fetch and summarize tweets for a given topic
             async function fetchNewsForTopic(topicId, usedTweetUrls = []) {
