@@ -5612,7 +5612,7 @@ Desired Output: [e.g., "A final draft ready for review."]</p>
             // Special function for orchestration requests (no display, just return response)
             async function sendOrchestrationRequest(prompt, retries = 2) {
                 //const apiKey = "AIzaSyCRFXs-Ysnoy2swH1yjqZYoRMNC4HTpv_c";
-				const apiKey = "AIzaSyCYSpPX4S9OYLmBfhfBliKeIegolUacFw4";
+				const apiKey = "AIzaSyD8P04zV8XS2GwQNx6wGGYsThlbkQ4Ac0c";
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
 
                 const payload = {
@@ -5816,7 +5816,7 @@ Desired Output: [e.g., "A final draft ready for review."]</p>
                 options = Object.assign({ systemPromptOverride: null, silent: false }, options);
 
                 // const apiKey = "AIzaSyCRFXs-Ysnoy2swH1yjqZYoRMNC4HTpv_c";
-				const apiKey = "AIzaSyCYSpPX4S9OYLmBfhfBliKeIegolUacFw4";
+				const apiKey = "AIzaSyD8P04zV8XS2GwQNx6wGGYsThlbkQ4Ac0c";
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
 
                 const persona = personaData.find(p => p.id === agentId);
@@ -6578,7 +6578,7 @@ Desired Output: [e.g., "A final draft ready for review."]</p>
             };
             
             // Gemini API key for executive summaries of tweets
-            const geminiApiKey = 'AIzaSyCYSpPX4S9OYLmBfhfBliKeIegolUacFw4';
+            const geminiApiKey = 'AIzaSyD8P04zV8XS2GwQNx6wGGYsThlbkQ4Ac0c';
             
             // Fetch and summarize tweets for a given topic
             async function fetchNewsForTopic(topicId, usedTweetUrls = []) {
@@ -7648,7 +7648,7 @@ async function sendMessageToAgent(message, agentId, options = {}) {
     const { silent = false, retries = 3, delay = 1000 } = options || {};
 
     // Use API key that was in the file; if you want to change it centrally, update here.
-    const apiKey = "AIzaSyDRtLqR7wHRu8Y1pQm4ge8_knbzlm_RHnc";
+    const apiKey = "AIzaSyD8P04zV8XS2GwQNx6wGGYsThlbkQ4Ac0c";
     const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
 
     const persona = (typeof personaData !== 'undefined') ? personaData.find(p => p.id === agentId) : null;
@@ -7796,3 +7796,4 @@ async function orchestrateMultiAgentResponse(userMessage) {
 
 
 </body></html>
+
