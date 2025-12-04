@@ -1098,7 +1098,7 @@
             padding: 15px 20px;
             border-radius: 32px; /* Curve both left and right edges */
             flex-shrink: 0;
-            overflow: visible; /* Allow dropdowns to overflow */
+            overflow: hidden; /* Allow dropdowns to overflow */
             position: relative; /* For absolute positioned children */
             height: auto !important;
             max-height: 160px !important;
@@ -1115,6 +1115,8 @@
             font-size: 1rem;
             padding: 12px 0;
             font-family: 'Poppins', sans-serif;
+			resize: none;
+			overflow: hidden !important;
         }
         #chatInput::placeholder { color: var(--text-light); opacity: 0.6; }
         .chat-input-controls button {
@@ -8964,6 +8966,7 @@ document.querySelectorAll(".topic-card").forEach(card => {
 
 </script>
 </body></html>
+
 
 
 
