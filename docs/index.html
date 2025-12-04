@@ -6588,6 +6588,7 @@ Desired Output: [e.g., "A final draft ready for review."]</p>
             // Fetch and summarize tweets for a given topic
             // Fetch and summarize tweets for a given topic (EN + AR combined, balanced)
             // Fetch and summarize tweets for a given topic (EN + AR combined, balanced by source)
+            // Fetch and summarize tweets for a given topic (25 EN + 25 AR, balanced)
             async function fetchNewsForTopic(topicId, usedTweetUrls = []) {
                 const topicName = topicMapping[topicId] || 'HRSD initiatives';
 
@@ -6609,6 +6610,7 @@ Desired Output: [e.g., "A final draft ready for review."]</p>
                             ? data.data
                             : [];
 
+                    console.log(`[NEWS] ${topicId} (${lang}) – raw tweets from backend:`, rawTweets.length);
                     return rawTweets;
                 }
 
@@ -6632,7 +6634,7 @@ Desired Output: [e.g., "A final draft ready for review."]</p>
                         'aawsat_news'
                     ]);
 
-                    const normalize = (tweet) => {
+                    const normalize = (tweet, sourceLang) => {
                         const tweetId = tweet.id || tweet.tweet_id || tweet.tweetId;
                         const author = tweet.author || tweet.user || {};
                         const username = (author.userName || author.username || author.screen_name || '').toLowerCase();
@@ -6641,7 +6643,7 @@ Desired Output: [e.g., "A final draft ready for review."]</p>
                         const url = (username && tweetId)
                             ? `https://twitter.com/${username}/status/${tweetId}`
                             : '#';
-                        const lang = tweet.lang || tweet.language || null;
+                        const lang = tweet.lang || tweet.language || sourceLang || null;
 
                         return {
                             tweetId,
@@ -6650,79 +6652,55 @@ Desired Output: [e.g., "A final draft ready for review."]</p>
                             createdAt,
                             text,
                             url,
-                            lang
+                            lang,
+                            _sourceLang: sourceLang
                         };
                     };
 
                     // Normalize EN and AR separately, and filter by accounts + used URLs
                     const englishTweetsNorm = englishTweets
-                        .map(normalize)
+                        .map(t => normalize(t, 'en'))
                         .filter(t => t.text && t.url && !usedTweetUrls.includes(t.url))
                         .filter(t => allowedSources.has(t.username));
 
                     const arabicTweetsNorm = arabicTweets
-                        .map(normalize)
+                        .map(t => normalize(t, 'ar'))
                         .filter(t => t.text && t.url && !usedTweetUrls.includes(t.url))
                         .filter(t => allowedSources.has(t.username));
+
+                    console.log(`[NEWS] ${topicId} – normalized EN: ${englishTweetsNorm.length}, AR: ${arabicTweetsNorm.length}`);
 
                     if (!englishTweetsNorm.length && !arabicTweetsNorm.length) return [];
 
                     // Sort both buckets newest first
-                    englishTweetsNorm.sort((a, b) => {
+                    const sortByDateDesc = (a, b) => {
                         const aTime = a.createdAt ? new Date(a.createdAt).getTime() : 0;
                         const bTime = b.createdAt ? new Date(b.createdAt).getTime() : 0;
                         return bTime - aTime;
-                    });
+                    };
 
-                    arabicTweetsNorm.sort((a, b) => {
-                        const aTime = a.createdAt ? new Date(a.createdAt).getTime() : 0;
-                        const bTime = b.createdAt ? new Date(b.createdAt).getTime() : 0;
-                        return bTime - aTime;
-                    });
+                    englishTweetsNorm.sort(sortByDateDesc);
+                    arabicTweetsNorm.sort(sortByDateDesc);
 
-                    // Limits per topic
-                    const MAX_TOTAL = 50;   // total cards per topic
-                    const MAX_ARABIC = 25;  // max Arabic
-                    const MAX_ENGLISH = 25; // max English
+                    // --- enforce 25 EN + 25 AR per focus area (if available) ---
+                    const MAX_PER_LANG = 25;
 
-                    const selected = [];
+                    const englishSelected = englishTweetsNorm.slice(0, MAX_PER_LANG);
+                    const arabicSelected = arabicTweetsNorm.slice(0, MAX_PER_LANG);
 
-                    // 1) Take up to MAX_ARABIC from the Arabic backend result
-                    for (const t of arabicTweetsNorm) {
-                        if (selected.length >= MAX_TOTAL) break;
-                        if (selected.filter(x => x._sourceLang === 'ar').length >= MAX_ARABIC) break;
-
-                        selected.push({ ...t, _sourceLang: 'ar' });
-                    }
-
-                    // 2) Take up to MAX_ENGLISH from the English backend result
-                    for (const t of englishTweetsNorm) {
-                        if (selected.length >= MAX_TOTAL) break;
-                        if (selected.filter(x => x._sourceLang === 'en').length >= MAX_ENGLISH) break;
-
-                        selected.push({ ...t, _sourceLang: 'en' });
-                    }
-
-                    if (!selected.length) return [];
-
-                    // Sort selected again by date, newest first
-                    selected.sort((a, b) => {
-                        const aTime = a.createdAt ? new Date(a.createdAt).getTime() : 0;
-                        const bTime = b.createdAt ? new Date(b.createdAt).getTime() : 0;
-                        return bTime - aTime;
-                    });
+                    const selected = [...englishSelected, ...arabicSelected];
 
                     // Map to news items
                     const newsItems = selected.map((t, i) => ({
                         id: `news-${Date.now()}-${Math.random().toString(36).substr(2, 9)}-${i}`,
-                        title: t.text.length > 120 ? `${t.text.substring(0, 117)}...` : t.text,
+                        title: t.text.length > 120 ? `${t.text.substring(0, 117)}…` : t.text,
                         summary: t.text,
-                        // You *could* also show AR/EN badge here using t._sourceLang if you want
                         source: `X / @${t.username}`,
                         url: t.url,
                         publishedAt: t.createdAt || new Date().toISOString(),
                         topic: topicId,
-                        timestamp: new Date().toISOString()
+                        timestamp: new Date().toISOString(),
+                        lang: t.lang || t._sourceLang // keep track of EN/AR if you want to display a badge later
                     }));
 
                     return newsItems;
@@ -6732,6 +6710,7 @@ Desired Output: [e.g., "A final draft ready for review."]</p>
                     return [];
                 }
             }
+
 
 
             
@@ -6761,20 +6740,22 @@ Desired Output: [e.g., "A final draft ready for review."]</p>
                         const topicId = allTopics[i];
                         const topicNews = await fetchNewsForTopic(topicId, usedTweetUrls);
                         if (topicNews && topicNews.length > 0) {
+                            // spread the array into newsData
                             newsData.push(...topicNews);
-                            // Mark these tweets as used
+                            // Mark these tweets as used across topics (avoid duplicates globally)
                             topicNews.forEach(item => {
                                 if (item.url) {
                                     usedTweetUrls.push(item.url);
                                 }
                             });
                         }
-                        
+
                         // Add delay between topics to avoid rate limiting (except for last topic)
                         if (i < allTopics.length - 1) {
                             await new Promise(resolve => setTimeout(resolve, 2000)); // 2 second delay
                         }
                     }
+
                     
                     // Final deduplication by URL (safety net)
                     const uniqueNews = [];
