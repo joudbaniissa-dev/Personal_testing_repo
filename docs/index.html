@@ -6586,6 +6586,7 @@ Desired Output: [e.g., "A final draft ready for review."]</p>
             const geminiSummaryEndpoint = GEMINI_SUMMARY_MODEL_URL;
             
             // Fetch and summarize tweets for a given topic
+            // Fetch and summarize tweets for a given topic (EN + AR combined, balanced)
             async function fetchNewsForTopic(topicId, usedTweetUrls = []) {
                 const topicName = topicMapping[topicId] || 'HRSD initiatives';
 
@@ -6595,9 +6596,12 @@ Desired Output: [e.g., "A final draft ready for review."]</p>
                         `https://backend-vercel-repo-itzv2t9nd-jouds-projects-8f56041e.vercel.app/api/news?topic=${encodeURIComponent(topicId)}&lang=${lang}`
                     );
 
-                    if (!response.ok) return [];
-                    const data = await response.json();
+                    if (!response.ok) {
+                        console.warn('News API request failed for topic/lang:', topicId, lang, response.status);
+                        return [];
+                    }
 
+                    const data = await response.json();
                     const rawTweets = Array.isArray(data?.tweets)
                         ? data.tweets
                         : Array.isArray(data?.data)
@@ -6618,24 +6622,34 @@ Desired Output: [e.g., "A final draft ready for review."]</p>
 
                     if (!combined.length) return [];
 
-                    // Allowed accounts for final filtering
+                    // Allowed accounts (EN + AR)
                     const allowedSources = new Set([
                         'arabnews',
                         'alarabiya_eng',
                         'alekhbariyaen',
-                        'sabqorg'
+                        'sabqorg',
+                        'saudinews50',
+                        'aawsat_news'
                     ]);
 
-                    const availableTweets = combined
+                    const arabicAccounts = new Set([
+                        'sabqorg',
+                        'saudinews50',
+                        'aawsat_news'
+                    ]);
+
+                    // Normalize
+                    const normalized = combined
                         .map(tweet => {
                             const tweetId = tweet.id || tweet.tweet_id || tweet.tweetId;
-                            const author = tweet.author || {};
+                            const author = tweet.author || tweet.user || {};
                             const username = (author.userName || author.username || author.screen_name || '').toLowerCase();
                             const createdAt = tweet.createdAt || tweet.created_at || null;
                             const text = tweet.text || tweet.full_text || '';
                             const url = (username && tweetId)
                                 ? `https://twitter.com/${username}/status/${tweetId}`
                                 : '#';
+                            const lang = tweet.lang || tweet.language || null;
 
                             return {
                                 tweetId,
@@ -6643,27 +6657,69 @@ Desired Output: [e.g., "A final draft ready for review."]</p>
                                 displayName: author.name || username || 'Source',
                                 createdAt,
                                 text,
-                                url
+                                url,
+                                lang
                             };
                         })
+                        // not empty + not reused
                         .filter(t => t.text && t.url && !usedTweetUrls.includes(t.url))
-                        .filter(t => allowedSources.has(t.username));   // 🔥 ensures English + sabqorg only
+                        // only from our selected accounts
+                        .filter(t => allowedSources.has(t.username));
 
-                    if (!availableTweets.length) return [];
+                    if (!normalized.length) return [];
 
-                    // Sort newest first
-                    availableTweets.sort((a, b) => {
+                    // Sort newest first (global)
+                    normalized.sort((a, b) => {
                         const aTime = a.createdAt ? new Date(a.createdAt).getTime() : 0;
                         const bTime = b.createdAt ? new Date(b.createdAt).getTime() : 0;
                         return bTime - aTime;
                     });
 
-                    // Pick the top 3 most recent tweets to display
-                    const selectedTweets = availableTweets.slice(0, 3);
+                    // 🔀 Split into Arabic vs English buckets
+                    const arabicTweetsNorm = normalized.filter(
+                        t => t.lang === 'ar' || arabicAccounts.has(t.username)
+                    );
+                    const englishTweetsNorm = normalized.filter(
+                        t => !(t.lang === 'ar' || arabicAccounts.has(t.username))
+                    );
 
-                    const newsItems = selectedTweets.map((t, i) => ({
+                    // 🔢 Limits per topic
+                    const MAX_TOTAL = 8;   // total cards per topic
+                    const MAX_ARABIC = 4;  // at most 4 Arabic
+                    const MAX_ENGLISH = 4; // at most 4 English (you can bump these if you want)
+
+                    const selected = [];
+
+                    // 1) Take up to MAX_ARABIC Arabic tweets (newest first)
+                    for (const t of arabicTweetsNorm) {
+                        if (selected.length >= MAX_TOTAL || selected.filter(x => x.lang === 'ar' || arabicAccounts.has(x.username)).length >= MAX_ARABIC) {
+                            break;
+                        }
+                        selected.push(t);
+                    }
+
+                    // 2) Fill remaining slots with English tweets
+                    for (const t of englishTweetsNorm) {
+                        if (selected.length >= MAX_TOTAL) break;
+                        if (selected.filter(x => !(x.lang === 'ar' || arabicAccounts.has(x.username))).length >= MAX_ENGLISH) {
+                            break;
+                        }
+                        selected.push(t);
+                    }
+
+                    if (!selected.length) return [];
+
+                    // 3) Sort selected again by date, newest first
+                    selected.sort((a, b) => {
+                        const aTime = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+                        const bTime = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+                        return bTime - aTime;
+                    });
+
+                    // 4) Map to news items
+                    const newsItems = selected.map((t, i) => ({
                         id: `news-${Date.now()}-${Math.random().toString(36).substr(2, 9)}-${i}`,
-                        title: t.text.length > 90 ? `${t.text.substring(0, 87)}...` : t.text,
+                        title: t.text.length > 120 ? `${t.text.substring(0, 117)}...` : t.text,
                         summary: t.text,
                         source: `X / @${t.username}`,
                         url: t.url,
@@ -6675,7 +6731,7 @@ Desired Output: [e.g., "A final draft ready for review."]</p>
                     return newsItems;
 
                 } catch (error) {
-                    console.error('Error fetching combined news:', error);
+                    console.error('Error fetching combined news:', topicId, error);
                     return [];
                 }
             }
