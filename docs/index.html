@@ -6587,6 +6587,7 @@ Desired Output: [e.g., "A final draft ready for review."]</p>
             
             // Fetch and summarize tweets for a given topic
             // Fetch and summarize tweets for a given topic (EN + AR combined, balanced)
+            // Fetch and summarize tweets for a given topic (EN + AR combined, balanced by source)
             async function fetchNewsForTopic(topicId, usedTweetUrls = []) {
                 const topicName = topicMapping[topicId] || 'HRSD initiatives';
 
@@ -6612,15 +6613,14 @@ Desired Output: [e.g., "A final draft ready for review."]</p>
                 }
 
                 try {
-                    // 🔥 Fetch English + Arabic in parallel
+                    // Fetch English + Arabic in parallel
                     const [englishTweets, arabicTweets] = await Promise.all([
                         fetchLang("en"),
                         fetchLang("ar")
                     ]);
 
-                    const combined = [...englishTweets, ...arabicTweets];
-
-                    if (!combined.length) return [];
+                    // If absolutely nothing came back, bail
+                    if (!englishTweets.length && !arabicTweets.length) return [];
 
                     // Allowed accounts (EN + AR)
                     const allowedSources = new Set([
@@ -6632,95 +6632,92 @@ Desired Output: [e.g., "A final draft ready for review."]</p>
                         'aawsat_news'
                     ]);
 
-                    const arabicAccounts = new Set([
-                        'sabqorg',
-                        'saudinews50',
-                        'aawsat_news'
-                    ]);
+                    const normalize = (tweet) => {
+                        const tweetId = tweet.id || tweet.tweet_id || tweet.tweetId;
+                        const author = tweet.author || tweet.user || {};
+                        const username = (author.userName || author.username || author.screen_name || '').toLowerCase();
+                        const createdAt = tweet.createdAt || tweet.created_at || null;
+                        const text = tweet.text || tweet.full_text || '';
+                        const url = (username && tweetId)
+                            ? `https://twitter.com/${username}/status/${tweetId}`
+                            : '#';
+                        const lang = tweet.lang || tweet.language || null;
 
-                    // Normalize
-                    const normalized = combined
-                        .map(tweet => {
-                            const tweetId = tweet.id || tweet.tweet_id || tweet.tweetId;
-                            const author = tweet.author || tweet.user || {};
-                            const username = (author.userName || author.username || author.screen_name || '').toLowerCase();
-                            const createdAt = tweet.createdAt || tweet.created_at || null;
-                            const text = tweet.text || tweet.full_text || '';
-                            const url = (username && tweetId)
-                                ? `https://twitter.com/${username}/status/${tweetId}`
-                                : '#';
-                            const lang = tweet.lang || tweet.language || null;
+                        return {
+                            tweetId,
+                            username,
+                            displayName: author.name || username || 'Source',
+                            createdAt,
+                            text,
+                            url,
+                            lang
+                        };
+                    };
 
-                            return {
-                                tweetId,
-                                username,
-                                displayName: author.name || username || 'Source',
-                                createdAt,
-                                text,
-                                url,
-                                lang
-                            };
-                        })
-                        // not empty + not reused
+                    // Normalize EN and AR separately, and filter by accounts + used URLs
+                    const englishTweetsNorm = englishTweets
+                        .map(normalize)
                         .filter(t => t.text && t.url && !usedTweetUrls.includes(t.url))
-                        // only from our selected accounts
                         .filter(t => allowedSources.has(t.username));
 
-                    if (!normalized.length) return [];
+                    const arabicTweetsNorm = arabicTweets
+                        .map(normalize)
+                        .filter(t => t.text && t.url && !usedTweetUrls.includes(t.url))
+                        .filter(t => allowedSources.has(t.username));
 
-                    // Sort newest first (global)
-                    normalized.sort((a, b) => {
+                    if (!englishTweetsNorm.length && !arabicTweetsNorm.length) return [];
+
+                    // Sort both buckets newest first
+                    englishTweetsNorm.sort((a, b) => {
                         const aTime = a.createdAt ? new Date(a.createdAt).getTime() : 0;
                         const bTime = b.createdAt ? new Date(b.createdAt).getTime() : 0;
                         return bTime - aTime;
                     });
 
-                    // 🔀 Split into Arabic vs English buckets
-                    const arabicTweetsNorm = normalized.filter(
-                        t => t.lang === 'ar' || arabicAccounts.has(t.username)
-                    );
-                    const englishTweetsNorm = normalized.filter(
-                        t => !(t.lang === 'ar' || arabicAccounts.has(t.username))
-                    );
+                    arabicTweetsNorm.sort((a, b) => {
+                        const aTime = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+                        const bTime = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+                        return bTime - aTime;
+                    });
 
-                    // 🔢 Limits per topic
+                    // Limits per topic
                     const MAX_TOTAL = 50;   // total cards per topic
-                    const MAX_ARABIC = 25;  // at most 4 Arabic
-                    const MAX_ENGLISH = 25; // at most 4 English (you can bump these if you want)
+                    const MAX_ARABIC = 25;  // max Arabic
+                    const MAX_ENGLISH = 25; // max English
 
                     const selected = [];
 
-                    // 1) Take up to MAX_ARABIC Arabic tweets (newest first)
+                    // 1) Take up to MAX_ARABIC from the Arabic backend result
                     for (const t of arabicTweetsNorm) {
-                        if (selected.length >= MAX_TOTAL || selected.filter(x => x.lang === 'ar' || arabicAccounts.has(x.username)).length >= MAX_ARABIC) {
-                            break;
-                        }
-                        selected.push(t);
+                        if (selected.length >= MAX_TOTAL) break;
+                        if (selected.filter(x => x._sourceLang === 'ar').length >= MAX_ARABIC) break;
+
+                        selected.push({ ...t, _sourceLang: 'ar' });
                     }
 
-                    // 2) Fill remaining slots with English tweets
+                    // 2) Take up to MAX_ENGLISH from the English backend result
                     for (const t of englishTweetsNorm) {
                         if (selected.length >= MAX_TOTAL) break;
-                        if (selected.filter(x => !(x.lang === 'ar' || arabicAccounts.has(x.username))).length >= MAX_ENGLISH) {
-                            break;
-                        }
-                        selected.push(t);
+                        if (selected.filter(x => x._sourceLang === 'en').length >= MAX_ENGLISH) break;
+
+                        selected.push({ ...t, _sourceLang: 'en' });
                     }
 
                     if (!selected.length) return [];
 
-                    // 3) Sort selected again by date, newest first
+                    // Sort selected again by date, newest first
                     selected.sort((a, b) => {
                         const aTime = a.createdAt ? new Date(a.createdAt).getTime() : 0;
                         const bTime = b.createdAt ? new Date(b.createdAt).getTime() : 0;
                         return bTime - aTime;
                     });
 
-                    // 4) Map to news items
+                    // Map to news items
                     const newsItems = selected.map((t, i) => ({
                         id: `news-${Date.now()}-${Math.random().toString(36).substr(2, 9)}-${i}`,
                         title: t.text.length > 120 ? `${t.text.substring(0, 117)}...` : t.text,
                         summary: t.text,
+                        // You *could* also show AR/EN badge here using t._sourceLang if you want
                         source: `X / @${t.username}`,
                         url: t.url,
                         publishedAt: t.createdAt || new Date().toISOString(),
@@ -6735,6 +6732,7 @@ Desired Output: [e.g., "A final draft ready for review."]</p>
                     return [];
                 }
             }
+
 
             
             async function loadAllNews(showLoading = true) {
@@ -7798,4 +7796,3 @@ async function orchestrateMultiAgentResponse(userMessage) {
 
 
 </body></html>
-
