@@ -6595,7 +6595,7 @@ Desired Output: [e.g., "A final draft ready for review."]</p>
                 // Helper to call backend for given lang (en or ar)
                 async function fetchLang(lang) {
                     const response = await fetch(
-                        `backend-vercel-repo-git-main-jouds-projects-8f56041e.vercel.app/api/news?topic=${encodeURIComponent(topicId)}&lang=${lang}`
+                        `https://backend-vercel-repo-7kygurkzt-jouds-projects-8f56041e.vercel.app/api/news?topic=${encodeURIComponent(topicId)}&lang=${lang}`
                     );
 
                     if (!response.ok) {
