@@ -6569,16 +6569,16 @@ Desired Output: [e.g., "A final draft ready for review."]</p>
             // Per-topic advanced search URLs come from focus_areas_curl_commands.txt (used server-side in the Vercel proxy)
             const twitterSearchConfig = {
                 'labor-market': {
-                    url: 'https://api.twitterapi.io/twitter/tweet/advanced_search?query=%28from%3AAlArabiya_Eng%20OR%20from%3Aarabnews%20OR%20from%3AalekhbariyaEN%29%20AND%20%28Saudi%20labor%20OR%20labor%20market%20OR%20Saudi%20jobs%20OR%20employment%20OR%20workforce%29&queryType=Latest&limit=20'
+                    url: 'https://api.twitterapi.io/twitter/tweet/advanced_search?query=%28from%3AAlArabiya_Eng%20OR%20from%3Aarabnews%20OR%20from%3AalekhbariyaEN%29%20AND%20%28Saudi%20labor%20OR%20labor%20market%20OR%20Saudi%20jobs%20OR%20employment%20OR%20workforce%29&queryType=Latest&limit=50'
                 },
                 'empowerment': {
-                    url: 'https://api.twitterapi.io/twitter/tweet/advanced_search?query=%28from%3AAlArabiya_Eng%20OR%20from%3Aarabnews%20OR%20from%3AalekhbariyaEN%29%20AND%20%28saudi%20society%20OR%20saudi%20community%20OR%20saudi%20social%20development%29&queryType=Latest&limit=25'
+                    url: 'https://api.twitterapi.io/twitter/tweet/advanced_search?query=%28from%3AAlArabiya_Eng%20OR%20from%3Aarabnews%20OR%20from%3AalekhbariyaEN%29%20AND%20%28saudi%20society%20OR%20saudi%20community%20OR%20saudi%20social%20development%29&queryType=Latest&limit=50'
                 },
                 'non-profit': {
-                    url: 'https://api.twitterapi.io/twitter/tweet/advanced_search?query=%28from%3AAlArabiya_Eng%20OR%20from%3Aarabnews%20OR%20from%3AalekhbariyaEN%29%20AND%20%28saudi%20donation%20OR%20saudi%20volunteer%20OR%20saudi%20non-profit%20OR%20saudi%20non-profit%20sector%20OR%20saudi%20charity%29&queryType=Latest&limit=25'
+                    url: 'https://api.twitterapi.io/twitter/tweet/advanced_search?query=%28from%3AAlArabiya_Eng%20OR%20from%3Aarabnews%20OR%20from%3AalekhbariyaEN%29%20AND%20%28saudi%20donation%20OR%20saudi%20volunteer%20OR%20saudi%20non-profit%20OR%20saudi%20non-profit%20sector%20OR%20saudi%20charity%29&queryType=Latest&limit=50'
                 },
                 'strategic-partnerships': {
-                    url: 'https://api.twitterapi.io/twitter/tweet/advanced_search?query=%28from%3AAlArabiya_Eng%20OR%20from%3Aarabnews%20OR%20from%3AalekhbariyaEN%29%20AND%20%28saudi%20strategic%20partnerships%20OR%20saudi%20strategic%20agreements%20OR%20saudi%20mou%20OR%20saudi%20collaboration%29&queryType=Latest&limit=25'
+                    url: 'https://api.twitterapi.io/twitter/tweet/advanced_search?query=%28from%3AAlArabiya_Eng%20OR%20from%3Aarabnews%20OR%20from%3AalekhbariyaEN%29%20AND%20%28saudi%20strategic%20partnerships%20OR%20saudi%20strategic%20agreements%20OR%20saudi%20mou%20OR%20saudi%20collaboration%29&queryType=Latest&limit=50'
                 }
             };
             
@@ -6588,117 +6588,98 @@ Desired Output: [e.g., "A final draft ready for review."]</p>
             // Fetch and summarize tweets for a given topic
             async function fetchNewsForTopic(topicId, usedTweetUrls = []) {
                 const topicName = topicMapping[topicId] || 'HRSD initiatives';
-                const config = twitterSearchConfig[topicId];
-                
-                // We still validate topic against known config, but the actual call goes through the Vercel backend proxy
-                if (!config) {
-                    return [];
-                }
-                
-                try {
-                    // Call Vercel backend proxy instead of Twitter API directly to avoid CORS and hide API key
+
+                // Helper to call backend for given lang (en or ar)
+                async function fetchLang(lang) {
                     const response = await fetch(
-                        `https://backend-vercel-repo-itzv2t9nd-jouds-projects-8f56041e.vercel.app/api/news?topic=${encodeURIComponent(topicId)}`
+                        `https://backend-vercel-repo-itzv2t9nd-jouds-projects-8f56041e.vercel.app/api/news?topic=${encodeURIComponent(topicId)}&lang=${lang}`
                     );
-                    
-                    if (!response.ok) {
-                        console.warn('Twitter API request failed for topic:', topicId, response.status);
-                        return [];
-                    }
-                    
+
+                    if (!response.ok) return [];
                     const data = await response.json();
-                    
-                    // The service returns an object with an array of tweets; support common field names
-                    const rawTweets = Array.isArray(data?.data)
-                        ? data.data
-                        : Array.isArray(data?.tweets)
-                            ? data.tweets
-                            : Array.isArray(data)
-                                ? data
-                                : [];
-                    
-                    if (!rawTweets.length) {
-                        return [];
-                    }
-                    
-                    // Normalise tweets and build canonical URLs, filter out ones we've already used
+
+                    const rawTweets = Array.isArray(data?.tweets)
+                        ? data.tweets
+                        : Array.isArray(data?.data)
+                            ? data.data
+                            : [];
+
+                    return rawTweets;
+                }
+
+                try {
+                    // 🔥 Fetch English + Arabic in parallel
+                    const [englishTweets, arabicTweets] = await Promise.all([
+                        fetchLang("en"),
+                        fetchLang("ar")
+                    ]);
+
+                    const combined = [...englishTweets, ...arabicTweets];
+
+                    if (!combined.length) return [];
+
+                    // Allowed accounts for final filtering
                     const allowedSources = new Set([
                         'arabnews',
                         'alarabiya_eng',
                         'alekhbariyaen',
                         'sabqorg'
-                        ]);
+                    ]);
 
-                    const availableTweets = rawTweets
+                    const availableTweets = combined
                         .map(tweet => {
                             const tweetId = tweet.id || tweet.tweet_id || tweet.tweetId;
-                            const author = tweet.author || tweet.user || {};
+                            const author = tweet.author || {};
                             const username = (author.userName || author.username || author.screen_name || '').toLowerCase();
                             const createdAt = tweet.createdAt || tweet.created_at || null;
                             const text = tweet.text || tweet.full_text || '';
                             const url = (username && tweetId)
-                            ? `https://twitter.com/${username}/status/${tweetId}`
-                            : '#';
+                                ? `https://twitter.com/${username}/status/${tweetId}`
+                                : '#';
 
                             return {
-                            tweetId,
-                            username,
-                            displayName: author.name || username || 'Source',
-                            createdAt,
-                            text,
-                            url
+                                tweetId,
+                                username,
+                                displayName: author.name || username || 'Source',
+                                createdAt,
+                                text,
+                                url
                             };
                         })
-                        // 🔥 ORIGINAL FILTERING
                         .filter(t => t.text && t.url && !usedTweetUrls.includes(t.url))
-                        // 🔥 NEW SAFETY FILTER (this ensures ONLY the 3 official accounts)
-                        .filter(t => allowedSources.has(t.username));
+                        .filter(t => allowedSources.has(t.username));   // 🔥 ensures English + sabqorg only
 
-                    
-                    if (!availableTweets.length) {
-                        return [];
-                    }
-                    
-                    // Take the most recent tweets first; Twitter API is already latest-first but we sort defensively
+                    if (!availableTweets.length) return [];
+
+                    // Sort newest first
                     availableTweets.sort((a, b) => {
                         const aTime = a.createdAt ? new Date(a.createdAt).getTime() : 0;
                         const bTime = b.createdAt ? new Date(b.createdAt).getTime() : 0;
                         return bTime - aTime;
                     });
-                    
-                    // Limit to a small number per topic to keep summaries fast
-                    const tweetsForAnalysis = availableTweets.slice(0, 5);
-                    const selectedTweets = tweetsForAnalysis.slice(0, 3); // up to 3 tweets per topic
-                    
-                    const newsItems = [];
-                    
-                    for (let i = 0; i < selectedTweets.length; i++) {
-                        const t = selectedTweets[i];
 
-                        // NOTE: Gemini summarizer disabled for now to avoid extra API calls / rate limits.
-                        // We simply use the tweet text itself as the summary.
-                        const aiSummary = t.text || 'No summary available.';
+                    // Pick the top 3 most recent tweets to display
+                    const selectedTweets = availableTweets.slice(0, 3);
 
-                        const newsItem = {
-                            id: `news-${Date.now()}-${Math.random().toString(36).substr(2, 9)}-${i}`,
-                            title: t.text.length > 90 ? `${t.text.substring(0, 87)}...` : t.text || 'Tweet update',
-                            summary: aiSummary,
-                            source: t.username ? `X / @${t.username}` : 'X (Twitter)',
-                            url: t.url || '#',
-                            publishedAt: t.createdAt || new Date().toISOString(),
-                            topic: topicId,
-                            timestamp: new Date().toISOString()
-                        };
-                        
-                        newsItems.push(newsItem);
-                    }
-                    
+                    const newsItems = selectedTweets.map((t, i) => ({
+                        id: `news-${Date.now()}-${Math.random().toString(36).substr(2, 9)}-${i}`,
+                        title: t.text.length > 90 ? `${t.text.substring(0, 87)}...` : t.text,
+                        summary: t.text,
+                        source: `X / @${t.username}`,
+                        url: t.url,
+                        publishedAt: t.createdAt || new Date().toISOString(),
+                        topic: topicId,
+                        timestamp: new Date().toISOString()
+                    }));
+
                     return newsItems;
+
                 } catch (error) {
-                    console.error('Error fetching news for topic from Twitter API:', topicId, error);
+                    console.error('Error fetching combined news:', error);
                     return [];
                 }
             }
+
             
             async function loadAllNews(showLoading = true) {
                 const newsFeed = document.getElementById('news-feed');
